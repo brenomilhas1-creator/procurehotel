@@ -13,13 +13,14 @@ export const dynamic = 'force-dynamic';
 export async function GET() {
   const checks: Record<string, string> = {};
 
-  // Verificar Supabase (anônimo)
+  // Verificar Supabase (anônimo) — health endpoint aceita 200/401/404 (200 = ok, outros = responde)
   try {
     const r = await fetch('https://fpjhvyydavssrzrkvlbd.supabase.co/rest/v1/', {
       cache: 'no-store',
       headers: { 'apikey': 'sb_publishable_sY6wLl6b0Ba5hbb_ezMPQA_MmzVkUBV' },
     });
-    checks.supabase = r.status === 200 ? 'ok' : 'error';
+    // 200 = ok, 401/404 = Supabase responde mas precisa de auth = ok para health
+    checks.supabase = r.status < 500 ? 'ok' : 'error';
   } catch (e) {
     checks.supabase = 'error';
   }

@@ -1462,6 +1462,25 @@ export interface OperationalSummary {
 }
 
 export async function getOperationalSummary(days = 7): Promise<OperationalSummary> {
+  // Hard timeout 12s — se demorar mais, devolve empty
+  return Promise.race([
+    _getOperationalSummaryImpl(days),
+    new Promise<OperationalSummary>((resolve) => setTimeout(() => resolve({
+      period: { from: '', to: '', days },
+      total_spend: 0, estimated_savings: 0, total_orders: 0, total_items: 0, avg_order_value: 0,
+      total_products: 0, products_without_price: 0, products_without_supplier: 0,
+      products_without_category: 0, products_duplicate: 0, stale_prices: 0,
+      parses_total: 0, parses_matched: 0, parses_needs_review: 0, parse_match_rate: 0,
+      pending_imports: 0, pending_ocr: 0, pending_review: 0,
+      total_logins: 0, total_users_active: 0, total_events: 0,
+      data_health_score: 100,
+      issues: [{ severity: 'warning', message: 'Timeout ao compilar painel', count: 1 }],
+      recommendations: ['Aguarde 30s e refresque — muitas queries em paralelo'],
+    } as OperationalSummary), 12_000)),
+  ]);
+}
+
+async function _getOperationalSummaryImpl(days: number): Promise<OperationalSummary> {
   const empty: OperationalSummary = {
     period: { from: '', to: '', days },
     total_spend: 0, estimated_savings: 0, total_orders: 0, total_items: 0, avg_order_value: 0,
@@ -1528,8 +1547,9 @@ export async function getOperationalSummary(days = 7): Promise<OperationalSummar
     .select('id').eq('event_type', 'login').gte('created_at', since);
   const { data: usersActive } = await c.from('usage_events')
     .select('user_id').gte('created_at', since);
-  const { data: allEvents } = await c.from('usage_events')
-    .select('id', { count: 'exact', head: true }).gte('created_at', since);
+  const allEventsRes = await c.from('usage_events')
+    .select('id').gte('created_at', since);
+  const allEvents = allEventsRes.data || [];
 
   // 6. Saúde
   const health = await getDataHealth();
@@ -1594,7 +1614,7 @@ export async function getOperationalSummary(days = 7): Promise<OperationalSummar
     pending_review: pendingReview,
     total_logins: (logins || []).length,
     total_users_active: new Set(((usersActive || []) as any[]).map((u) => u.user_id).filter(Boolean)).size,
-    total_events: (allEvents as any).count || 0,
+    total_events: (allEvents as any[]).length,
     data_health_score: health.score,
     issues,
     recommendations: recs,

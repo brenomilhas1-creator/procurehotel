@@ -10,14 +10,26 @@ import { formatCurrency } from '@/lib/utils';
 
 export default function OperationalPage() {
   const [s, setS] = useState<OperationalSummary | null>(null);
+  const [err, setErr] = useState<string | null>(null);
   const [days, setDays] = useState(7);
 
   useEffect(() => {
-    getOperationalSummary(days).then(setS).catch(() => null);
+    setS(null);
+    setErr(null);
+    const t = setTimeout(() => {
+      getOperationalSummary(days)
+        .then((d) => { setS(d); setErr(null); })
+        .catch((e) => { setErr(String(e?.message || e)); });
+    }, 50);
+    return () => clearTimeout(t);
   }, [days]);
 
   if (!s) {
-    return <p className="text-sm text-muted-foreground text-center py-12">A compilar painel operacional...</p>;
+    return (
+      <div className="text-sm text-muted-foreground text-center py-12 space-y-2">
+        {err ? <p className="text-red-500">Erro: {err}</p> : <p>A compilar painel operacional...</p>}
+      </div>
+    );
   }
 
   const parseRate = s.parse_match_rate;
