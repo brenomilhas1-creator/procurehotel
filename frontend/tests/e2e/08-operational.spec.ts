@@ -12,11 +12,11 @@ test.describe('Painel Operacional', () => {
 
     // Espera que os dados carreguem
     await expect(page.getByText(/Economia/i).first()).toBeVisible({ timeout: 10_000 });
-    await expect(page.getByText(/Tempo Poupado/i)).toBeVisible();
-    await expect(page.getByText(/Qualidade da Base/i)).toBeVisible();
-    await expect(page.getByText(/Precisão da IA/i)).toBeVisible();
-    await expect(page.getByText(/Pendentes/i)).toBeVisible();
-    await expect(page.getByText(/Estabilidade/i)).toBeVisible();
+    await expect(page.getByText(/Tempo Poupado/i).first()).toBeVisible();
+    await expect(page.getByText(/Qualidade da Base/i).first()).toBeVisible();
+    await expect(page.getByText(/Precisão da IA/i).first()).toBeVisible();
+    await expect(page.getByText(/Pendentes/i).first()).toBeVisible();
+    await expect(page.getByText(/Estabilidade/i).first()).toBeVisible();
   });
 
   test('seletor de período (1d / 7d / 30d) funciona', async ({ page }) => {
