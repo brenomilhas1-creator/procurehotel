@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import {
-  LayoutDashboard, ShoppingCart, Package, Truck, Upload, BarChart3, Users, LogOut, ChefHat, Shield, TrendingUp, Star, Activity, AlertCircle, Heart, Building2,
+  LayoutDashboard, ShoppingCart, Package, Truck, Upload, BarChart3, Users, LogOut, ChefHat, Shield, TrendingUp, Star, Activity, AlertCircle, Heart, Building2, HeartPulse,
 } from 'lucide-react';
 import { useAuthStore } from '@/stores/auth';
 import { cn } from '@/lib/utils';
@@ -27,6 +27,7 @@ export function Sidebar() {
     { href: '/prices', label: 'Preços', icon: Activity },
     { href: '/exceptions', label: 'Exceções', icon: AlertCircle },
     { href: '/health', label: 'Saúde', icon: BarChart3 },
+    { href: '/status', label: 'Estado', icon: HeartPulse },
     { href: '/suppliers', label: t('suppliers'), icon: Truck },
     { href: '/roi', label: 'Economia', icon: TrendingUp },
   ];

@@ -11,6 +11,26 @@ const corsHeaders = {
   'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
 };
 
+// Sentry (opcional)
+const SENTRY_DSN = Deno.env.get('SENTRY_DSN');
+async function reportError(err: unknown, context: Record<string, unknown> = {}) {
+  if (!SENTRY_DSN) return;
+  try {
+    await fetch(`${SENTRY_DSN}/store/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        message: err instanceof Error ? err.message : String(err),
+        level: 'error',
+        platform: 'javascript',
+        exception: { values: [{ type: 'Error', value: err instanceof Error ? err.message : String(err) }] },
+        tags: { runtime: 'edge-function', function: 'admin-users' },
+        extra: context,
+      }),
+    });
+  } catch { /* noop */ }
+}
+
 interface CreatePayload { action: 'create'; email: string; password: string; full_name: string; role: 'admin' | 'user'; }
 interface DeletePayload { action: 'delete'; userId: string; }
 interface ChangePasswordPayload { action: 'change_password'; newPassword: string; }
@@ -29,14 +49,20 @@ serve(async (req) => {
 
   // Verificar que quem chama é admin
   const authHeader = req.headers.get('Authorization');
-  if (!authHeader) return new Response(JSON.stringify({ error: 'Sem token' }), { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+  if (!authHeader) {
+    return new Response(JSON.stringify({ error: 'Sem token' }), { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+  }
 
   const token = authHeader.replace('Bearer ', '');
   const { data: callerData, error: callerErr } = await supabaseAdmin.auth.getUser(token);
-  if (callerErr || !callerData.user) return new Response(JSON.stringify({ error: 'Token inválido' }), { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+  if (callerErr || !callerData.user) {
+    return new Response(JSON.stringify({ error: 'Token inválido' }), { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+  }
 
   const callerRole = (callerData.user.user_metadata as any)?.role || 'user';
-  if (callerRole !== 'admin') return new Response(JSON.stringify({ error: 'Apenas admins' }), { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+  if (callerRole !== 'admin') {
+    return new Response(JSON.stringify({ error: 'Apenas admins' }), { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+  }
 
   try {
     const body: Payload = await req.json();
@@ -61,18 +87,17 @@ serve(async (req) => {
       return new Response(JSON.stringify({ ok: true }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
     if (body.action === 'change_role') {
-      // Atualizar user_metadata em auth.users (vai refletir em public.users via trigger)
       const { data: target, error: getErr } = await supabaseAdmin.auth.admin.getUserById(body.userId);
       if (getErr) throw getErr;
       const md = { ...(target.user.user_metadata || {}), role: body.role };
       const { error } = await supabaseAdmin.auth.admin.updateUserById(body.userId, { user_metadata: md });
       if (error) throw error;
-      // Também atualizar em public.users
       await supabaseAdmin.from('users').update({ role: body.role }).eq('supabase_user_id', body.userId);
       return new Response(JSON.stringify({ ok: true }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
     return new Response(JSON.stringify({ error: 'Ação desconhecida' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
   } catch (err: any) {
+    await reportError(err, { action: 'unknown' });
     return new Response(JSON.stringify({ error: err.message || 'Erro' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
   }
 });
