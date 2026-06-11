@@ -1,0 +1,14 @@
+# Test artifacts
+test-results/
+playwright-report/
+playwright/.cache/
+
+# Env
+.env
+.env.local
+.env.*.local
+
+# Build
+.next/
+out/
+node_modules/

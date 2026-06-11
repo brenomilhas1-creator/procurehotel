@@ -1,0 +1,1253 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ProcureHotel — Preview</title>
+<meta name="description" content="Sistema Inteligente de Compras para Hotelaria — preview interativa" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+<script>
+  tailwind.config = {
+    darkMode: 'class',
+    theme: {
+      container: { center: true, padding: '1rem', screens: { '2xl': '1400px' } },
+      extend: {
+        colors: {
+          border: 'hsl(var(--border))',
+          input: 'hsl(var(--input))',
+          ring: 'hsl(var(--ring))',
+          background: 'hsl(var(--background))',
+          foreground: 'hsl(var(--foreground))',
+          primary: { DEFAULT: 'hsl(var(--primary))', foreground: 'hsl(var(--primary-foreground))' },
+          secondary: { DEFAULT: 'hsl(var(--secondary))', foreground: 'hsl(var(--secondary-foreground))' },
+          destructive: { DEFAULT: 'hsl(var(--destructive))', foreground: 'hsl(var(--destructive-foreground))' },
+          muted: { DEFAULT: 'hsl(var(--muted))', foreground: 'hsl(var(--muted-foreground))' },
+          accent: { DEFAULT: 'hsl(var(--accent))', foreground: 'hsl(var(--accent-foreground))' },
+          card: { DEFAULT: 'hsl(var(--card))', foreground: 'hsl(var(--card-foreground))' },
+        },
+        borderRadius: { lg: 'var(--radius)', md: 'calc(var(--radius) - 2px)', sm: 'calc(var(--radius) - 4px)' },
+        keyframes: {
+          'fade-in': { from: { opacity: '0' }, to: { opacity: '1' } },
+          'slide-up': { from: { transform: 'translateY(8px)', opacity: '0' }, to: { transform: 'translateY(0)', opacity: '1' } },
+        },
+        animation: {
+          'fade-in': 'fade-in 0.25s ease-out',
+          'slide-up': 'slide-up 0.3s ease-out',
+        },
+      },
+    },
+  };
+</script>
+<style>
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222 47% 11%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --primary: 222 47% 11%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222 47% 11%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
+    --accent: 210 40% 96%;
+    --accent-foreground: 222 47% 11%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 222 47% 11%;
+    --radius: 0.6rem;
+  }
+  .dark {
+    --background: 222 47% 7%;
+    --foreground: 210 40% 98%;
+    --card: 222 47% 9%;
+    --card-foreground: 210 40% 98%;
+    --primary: 210 40% 98%;
+    --primary-foreground: 222 47% 11%;
+    --secondary: 217 33% 17%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 217 33% 17%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62% 50%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217 33% 20%;
+    --input: 217 33% 20%;
+    --ring: 212 26% 84%;
+  }
+  * { border-color: hsl(var(--border)); }
+  html, body { height: 100%; }
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background: hsl(var(--background));
+    color: hsl(var(--foreground));
+    -webkit-font-smoothing: antialiased;
+  }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-thumb { background: hsl(var(--muted-foreground) / 0.2); border-radius: 9999px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  .view { display: none; }
+  .view.active { display: block; }
+  .gradient-bg {
+    background:
+      radial-gradient(circle at 20% 20%, hsl(var(--primary) / 0.12), transparent 50%),
+      radial-gradient(circle at 80% 80%, hsl(217 91% 60% / 0.08), transparent 50%),
+      hsl(var(--background));
+  }
+  .dark .gradient-bg {
+    background:
+      radial-gradient(circle at 20% 20%, hsl(var(--primary) / 0.18), transparent 50%),
+      radial-gradient(circle at 80% 80%, hsl(217 91% 60% / 0.10), transparent 50%),
+      hsl(var(--background));
+  }
+  .bar { transition: height 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+  pre { font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace; }
+</style>
+</head>
+<body class="gradient-bg">
+<div id="app">
+
+  <!-- ============================================================= -->
+  <!-- LOGIN                                                          -->
+  <!-- ============================================================= -->
+  <div id="view-login" class="view active">
+    <div class="min-h-screen flex items-center justify-center p-4">
+      <div class="w-full max-w-md animate-slide-up">
+        <div class="rounded-xl border bg-card text-card-foreground shadow-sm p-8">
+          <div class="text-center mb-6">
+            <div class="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+              <i data-lucide="chef-hat" class="h-6 w-6"></i>
+            </div>
+            <h1 class="text-2xl font-semibold tracking-tight">ProcureHotel</h1>
+            <p class="text-sm text-muted-foreground mt-1" data-i18n="tagline">Compras inteligentes para hotelaria</p>
+          </div>
+          <form onsubmit="event.preventDefault(); showApp();" class="space-y-4">
+            <div class="space-y-1.5">
+              <label class="text-sm font-medium" data-i18n="email">Email</label>
+              <input type="email" value="admin@procurehotel.pt"
+                     class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+            </div>
+            <div class="space-y-1.5">
+              <label class="text-sm font-medium" data-i18n="password">Password</label>
+              <input type="password" value="admin12345"
+                     class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+            </div>
+            <button type="submit" class="inline-flex items-center justify-center w-full h-10 rounded-md bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors">
+              <span data-i18n="signin">Entrar</span>
+            </button>
+            <p class="text-center text-xs text-muted-foreground pt-2">
+              Demo: <code>admin@procurehotel.pt / admin12345</code>
+            </p>
+          </form>
+        </div>
+        <div class="mt-4 flex items-center justify-center gap-2 text-xs text-muted-foreground">
+          <span>PT</span>
+          <button onclick="toggleLang()" class="underline" data-i18n="switchlang">Mudar para EN</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================= -->
+  <!-- APP SHELL                                                       -->
+  <!-- ============================================================= -->
+  <div id="view-app" class="view">
+    <div class="flex h-screen overflow-hidden">
+      <!-- Sidebar -->
+      <aside class="hidden md:flex w-64 flex-col border-r bg-card/40 backdrop-blur-sm">
+        <div class="flex h-16 items-center gap-2 border-b px-6">
+          <div class="flex h-9 w-9 items-center justify-center rounded-md bg-primary text-primary-foreground">
+            <i data-lucide="chef-hat" class="h-5 w-5"></i>
+          </div>
+          <div>
+            <div class="font-semibold leading-none">ProcureHotel</div>
+            <div class="text-xs text-muted-foreground">v0.1.0 · MVP</div>
+          </div>
+        </div>
+        <nav class="flex-1 space-y-1 p-3">
+          <a href="#" data-nav="dashboard" class="nav-item flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors">
+            <i data-lucide="layout-dashboard" class="h-4 w-4"></i>
+            <span data-i18n="nav_dashboard">Dashboard</span>
+          </a>
+          <a href="#" data-nav="order" class="nav-item flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors">
+            <i data-lucide="shopping-cart" class="h-4 w-4"></i>
+            <span data-i18n="nav_order">Faça o pedido aqui</span>
+            <span class="ml-auto inline-flex items-center rounded-full bg-primary/10 text-primary text-[10px] font-medium px-2 py-0.5">NEW</span>
+          </a>
+          <a href="#" data-nav="products" class="nav-item flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors">
+            <i data-lucide="package" class="h-4 w-4"></i>
+            <span data-i18n="nav_products">Produtos</span>
+          </a>
+          <a href="#" data-nav="suppliers" class="nav-item flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors">
+            <i data-lucide="truck" class="h-4 w-4"></i>
+            <span data-i18n="nav_suppliers">Fornecedores</span>
+          </a>
+          <a href="#" data-nav="imports" class="nav-item flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors">
+            <i data-lucide="upload" class="h-4 w-4"></i>
+            <span data-i18n="nav_imports">Importações</span>
+          </a>
+          <a href="#" data-nav="orders" class="nav-item flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors">
+            <i data-lucide="receipt" class="h-4 w-4"></i>
+            <span data-i18n="nav_orders">Pedidos</span>
+          </a>
+          <a href="#" data-nav="analytics" class="nav-item flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors">
+            <i data-lucide="bar-chart-3" class="h-4 w-4"></i>
+            <span data-i18n="nav_analytics">Analytics</span>
+          </a>
+          <a href="#" data-nav="users" class="nav-item flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors">
+            <i data-lucide="users" class="h-4 w-4"></i>
+            <span data-i18n="nav_users">Utilizadores</span>
+          </a>
+        </nav>
+        <div class="border-t p-3">
+          <div class="mb-2 px-3 text-xs text-muted-foreground">admin@procurehotel.pt</div>
+          <button onclick="showLogin()" class="inline-flex items-center justify-start gap-2 w-full h-9 rounded-md px-3 hover:bg-accent text-sm transition-colors">
+            <i data-lucide="log-out" class="h-4 w-4"></i>
+            <span data-i18n="logout">Sair</span>
+          </button>
+        </div>
+      </aside>
+
+      <!-- Main area -->
+      <div class="flex flex-1 flex-col overflow-hidden">
+        <!-- Header -->
+        <header class="sticky top-0 z-30 flex h-16 items-center gap-3 border-b bg-background/80 px-4 backdrop-blur-md md:px-6">
+          <div class="md:hidden font-semibold">ProcureHotel</div>
+          <div class="relative flex-1 max-w-md hidden md:block">
+            <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"></i>
+            <input type="text" placeholder="Pesquisar produtos, fornecedores..."
+                   class="flex h-10 w-full rounded-md border border-input bg-background pl-9 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+            <kbd class="absolute right-3 top-1/2 -translate-y-1/2 hidden md:inline-flex items-center gap-1 rounded border bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">⌘K</kbd>
+          </div>
+          <div class="ml-auto flex items-center gap-2">
+            <button onclick="toggleLang()" class="inline-flex items-center justify-center gap-1.5 h-9 rounded-md px-3 hover:bg-accent text-sm">
+              <i data-lucide="languages" class="h-4 w-4"></i>
+              <span class="uppercase font-medium" id="lang-badge">EN</span>
+            </button>
+            <button onclick="toggleTheme()" class="inline-flex items-center justify-center h-9 w-9 rounded-md hover:bg-accent">
+              <i data-lucide="moon" id="theme-icon" class="h-4 w-4"></i>
+            </button>
+            <button class="inline-flex items-center justify-center h-9 w-9 rounded-md hover:bg-accent relative">
+              <i data-lucide="bell" class="h-4 w-4"></i>
+              <span class="absolute top-2 right-2 h-2 w-2 rounded-full bg-emerald-500"></span>
+            </button>
+            <div class="ml-2 flex items-center gap-2 pl-2 border-l">
+              <div class="h-8 w-8 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white text-xs font-semibold">A</div>
+              <div class="hidden md:block text-sm">
+                <div class="font-medium leading-tight">Admin</div>
+                <div class="text-xs text-muted-foreground">Administrador</div>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <main class="flex-1 overflow-y-auto p-4 md:p-6">
+
+          <!-- ============================================================= -->
+          <!-- DASHBOARD                                                        -->
+          <!-- ============================================================= -->
+          <div id="page-dashboard" class="page">
+            <div class="space-y-6 animate-fade-in">
+              <div>
+                <h1 class="text-2xl font-semibold tracking-tight" data-i18n="kpi_title">Analytics & KPIs</h1>
+                <p class="text-sm text-muted-foreground" data-i18n="kpi_sub">Visão geral das compras e poupanças</p>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="rounded-lg border bg-card p-5 hover:shadow-md transition-shadow">
+                  <div class="flex items-center gap-2 text-muted-foreground text-xs">
+                    <i data-lucide="euro" class="h-4 w-4"></i> <span data-i18n="kpi_month">Gasto este mês</span>
+                  </div>
+                  <div class="mt-2 text-2xl font-semibold">€12 480,00</div>
+                  <div class="text-xs text-emerald-600 dark:text-emerald-400 mt-1">+8.2% vs. mês anterior</div>
+                </div>
+                <div class="rounded-lg border bg-card p-5 hover:shadow-md transition-shadow">
+                  <div class="flex items-center gap-2 text-muted-foreground text-xs">
+                    <i data-lucide="shopping-cart" class="h-4 w-4"></i> <span data-i18n="kpi_orders">Pedidos este mês</span>
+                  </div>
+                  <div class="mt-2 text-2xl font-semibold">37</div>
+                  <div class="text-xs text-muted-foreground mt-1">3 pendentes</div>
+                </div>
+                <div class="rounded-lg border bg-card p-5 hover:shadow-md transition-shadow">
+                  <div class="flex items-center gap-2 text-muted-foreground text-xs">
+                    <i data-lucide="truck" class="h-4 w-4"></i> <span data-i18n="kpi_top_sup">Top fornecedor</span>
+                  </div>
+                  <div class="mt-2 text-base font-semibold truncate">Distribuidora Norte</div>
+                  <div class="text-xs text-muted-foreground mt-1">€4 820 em 12 pedidos</div>
+                </div>
+                <div class="rounded-lg border bg-card p-5 hover:shadow-md transition-shadow">
+                  <div class="flex items-center gap-2 text-muted-foreground text-xs">
+                    <i data-lucide="trending-down" class="h-4 w-4"></i> <span data-i18n="kpi_savings">Poupança estimada (30d)</span>
+                  </div>
+                  <div class="mt-2 text-2xl font-semibold text-emerald-600 dark:text-emerald-400">€1 247,30</div>
+                  <div class="text-xs text-muted-foreground mt-1">vs. preço médio histórico</div>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div class="rounded-lg border bg-card p-6">
+                  <h3 class="text-base font-semibold flex items-center gap-2 mb-4">
+                    <i data-lucide="package" class="h-4 w-4"></i>
+                    <span data-i18n="kpi_top_products">Top produtos</span>
+                  </h3>
+                  <ul class="space-y-3">
+                    <li class="flex items-center gap-3 text-sm">
+                      <div class="flex-1 truncate">Coca Cola Original 33cl</div>
+                      <div class="w-32 h-2 rounded-full bg-muted overflow-hidden">
+                        <div class="h-full bg-primary bar" style="height:100%;width:100%"></div>
+                      </div>
+                      <div class="w-20 text-right text-muted-foreground">€2 340</div>
+                    </li>
+                    <li class="flex items-center gap-3 text-sm">
+                      <div class="flex-1 truncate">Leite UHT Meio Gordo 1L</div>
+                      <div class="w-32 h-2 rounded-full bg-muted overflow-hidden">
+                        <div class="h-full bg-primary bar" style="height:100%;width:78%"></div>
+                      </div>
+                      <div class="w-20 text-right text-muted-foreground">€1 825</div>
+                    </li>
+                    <li class="flex items-center gap-3 text-sm">
+                      <div class="flex-1 truncate">Queijo Flamengo 5kg</div>
+                      <div class="w-32 h-2 rounded-full bg-muted overflow-hidden">
+                        <div class="h-full bg-primary bar" style="height:100%;width:62%"></div>
+                      </div>
+                      <div class="w-20 text-right text-muted-foreground">€1 451</div>
+                    </li>
+                    <li class="flex items-center gap-3 text-sm">
+                      <div class="flex-1 truncate">Café Grão 1kg</div>
+                      <div class="w-32 h-2 rounded-full bg-muted overflow-hidden">
+                        <div class="h-full bg-primary bar" style="height:100%;width:54%"></div>
+                      </div>
+                      <div class="w-20 text-right text-muted-foreground">€1 263</div>
+                    </li>
+                    <li class="flex items-center gap-3 text-sm">
+                      <div class="flex-1 truncate">Farinha Nacional 25kg</div>
+                      <div class="w-32 h-2 rounded-full bg-muted overflow-hidden">
+                        <div class="h-full bg-primary bar" style="height:100%;width:45%"></div>
+                      </div>
+                      <div class="w-20 text-right text-muted-foreground">€1 052</div>
+                    </li>
+                  </ul>
+                </div>
+                <div class="rounded-lg border bg-card p-6">
+                  <h3 class="text-base font-semibold flex items-center gap-2 mb-4">
+                    <i data-lucide="truck" class="h-4 w-4"></i>
+                    <span data-i18n="kpi_top_suppliers">Fornecedores mais competitivos</span>
+                  </h3>
+                  <ul class="space-y-3">
+                    <li class="flex items-center justify-between text-sm">
+                      <div class="flex items-center gap-2">
+                        <span class="text-amber-500">★</span>
+                        <span class="font-medium">Distribuidora Norte, Lda</span>
+                      </div>
+                      <div class="text-muted-foreground">€4 820 · 12 ped.</div>
+                    </li>
+                    <li class="flex items-center justify-between text-sm">
+                      <div class="flex items-center gap-2">
+                        <span class="text-muted-foreground">·</span>
+                        <span>Horeca Sul, S.A.</span>
+                      </div>
+                      <div class="text-muted-foreground">€3 950 · 9 ped.</div>
+                    </li>
+                    <li class="flex items-center justify-between text-sm">
+                      <div class="flex items-center gap-2">
+                        <span class="text-muted-foreground">·</span>
+                        <span>Delta Bebidas</span>
+                      </div>
+                      <div class="text-muted-foreground">€1 820 · 5 ped.</div>
+                    </li>
+                    <li class="flex items-center justify-between text-sm">
+                      <div class="flex items-center gap-2">
+                        <span class="text-muted-foreground">·</span>
+                        <span>Campoaves Carnes</span>
+                      </div>
+                      <div class="text-muted-foreground">€1 245 · 4 ped.</div>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+              <div class="rounded-lg border bg-card p-6">
+                <h3 class="text-base font-semibold mb-4" data-i18n="kpi_chart">Compras mensais (12 meses)</h3>
+                <svg viewBox="0 0 600 160" class="w-full h-40">
+                  <defs>
+                    <linearGradient id="grad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stop-color="hsl(var(--primary))" stop-opacity="0.3" />
+                      <stop offset="100%" stop-color="hsl(var(--primary))" stop-opacity="0" />
+                    </linearGradient>
+                  </defs>
+                  <polyline fill="none" stroke="hsl(var(--primary))" stroke-width="2.5"
+                    points="0,120 50,110 100,95 150,100 200,80 250,85 300,70 350,55 400,60 450,40 500,45 550,30 600,25" />
+                  <polygon fill="url(#grad)" points="0,120 50,110 100,95 150,100 200,80 250,85 300,70 350,55 400,60 450,40 500,45 550,30 600,25 600,160 0,160" />
+                  <g font-size="9" fill="hsl(var(--muted-foreground))">
+                    <text x="0" y="155">Jan</text><text x="50" y="155">Fev</text><text x="100" y="155">Mar</text>
+                    <text x="150" y="155">Abr</text><text x="200" y="155">Mai</text><text x="250" y="155">Jun</text>
+                    <text x="300" y="155">Jul</text><text x="350" y="155">Ago</text><text x="400" y="155">Set</text>
+                    <text x="450" y="155">Out</text><text x="500" y="155">Nov</text><text x="550" y="155">Dez</text>
+                  </g>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- ============================================================= -->
+          <!-- ORDER PAGE (PRINCIPAL)                                          -->
+          <!-- ============================================================= -->
+          <div id="page-order" class="page hidden">
+            <div class="space-y-6 animate-fade-in">
+              <div>
+                <h1 class="text-2xl font-semibold tracking-tight" data-i18n="order_title">Faça o pedido aqui</h1>
+                <p class="text-sm text-muted-foreground" data-i18n="order_sub">
+                  Escreva o pedido em linguagem natural. A IA interpreta, compara preços e divide por fornecedor.
+                </p>
+              </div>
+
+              <!-- Input -->
+              <div class="rounded-lg border bg-card p-6">
+                <div class="flex items-center justify-between mb-3">
+                  <h3 class="font-semibold flex items-center gap-2">
+                    <i data-lucide="sparkles" class="h-4 w-4 text-amber-500"></i>
+                    <span data-i18n="order_input_title">Pedido</span>
+                  </h3>
+                  <span class="inline-flex items-center rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 ring-1 ring-emerald-500/20 text-xs font-medium px-2.5 py-0.5">
+                    <span class="h-1.5 w-1.5 rounded-full bg-emerald-500 mr-1.5"></span>
+                    GPT-5.5 ready
+                  </span>
+                </div>
+                <textarea rows="6" id="order-input"
+                  class="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-ring"
+                >10 caixas coca cola
+5kg queijo flamengo
+20kg farinha nacional
+3 un café grão 1kg
+12 lt cerveja super bock 33cl
+5 l leite UHT
+2 sc sal 1kg</textarea>
+                <div class="mt-3 flex flex-wrap gap-2">
+                  <button onclick="simulateParse()" class="inline-flex items-center justify-center gap-2 h-10 px-4 rounded-md bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors">
+                    <i data-lucide="sparkles" class="h-4 w-4"></i>
+                    <span data-i18n="order_parse">Interpretar pedido</span>
+                  </button>
+                  <button onclick="simulateOptimize()" class="inline-flex items-center justify-center gap-2 h-10 px-4 rounded-md bg-secondary text-secondary-foreground text-sm font-medium hover:bg-secondary/80 transition-colors">
+                    <i data-lucide="shopping-cart" class="h-4 w-4"></i>
+                    <span data-i18n="order_optimize">Otimizar preços</span>
+                  </button>
+                  <button onclick="simulatePlace()" class="inline-flex items-center justify-center gap-2 h-10 px-4 rounded-md border bg-background text-sm font-medium hover:bg-accent transition-colors">
+                    <i data-lucide="send" class="h-4 w-4"></i>
+                    <span data-i18n="order_mark">Marcar como pedido realizado</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Parsed -->
+              <div id="parsed-section" class="rounded-lg border bg-card p-6 hidden">
+                <h3 class="font-semibold mb-3 flex items-center gap-2">
+                  <i data-lucide="check-circle-2" class="h-4 w-4 text-emerald-500"></i>
+                  <span data-i18n="order_parsed">Interpretação da IA</span>
+                  <span class="text-xs text-muted-foreground ml-auto">7 itens · 95% confiança média</span>
+                </h3>
+                <ul class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+                  <li class="rounded-md border bg-muted/30 px-3 py-2">
+                    <div class="font-medium flex items-center gap-2">
+                      <span class="inline-flex items-center rounded-md bg-primary/10 text-primary px-1.5 py-0.5 text-xs">10 cx</span>
+                      Coca Cola Original 33cl
+                    </div>
+                    <div class="text-xs text-muted-foreground mt-0.5">Marca: Coca Cola · "10 caixas coca cola"</div>
+                  </li>
+                  <li class="rounded-md border bg-muted/30 px-3 py-2">
+                    <div class="font-medium flex items-center gap-2">
+                      <span class="inline-flex items-center rounded-md bg-primary/10 text-primary px-1.5 py-0.5 text-xs">5 kg</span>
+                      Queijo Flamengo 5kg
+                    </div>
+                    <div class="text-xs text-muted-foreground mt-0.5">Marca: Presid · "5kg queijo flamengo"</div>
+                  </li>
+                  <li class="rounded-md border bg-muted/30 px-3 py-2">
+                    <div class="font-medium flex items-center gap-2">
+                      <span class="inline-flex items-center rounded-md bg-primary/10 text-primary px-1.5 py-0.5 text-xs">20 kg</span>
+                      Farinha Nacional Tipo 65 25kg
+                    </div>
+                    <div class="text-xs text-muted-foreground mt-0.5">"20kg farinha nacional"</div>
+                  </li>
+                  <li class="rounded-md border bg-muted/30 px-3 py-2">
+                    <div class="font-medium flex items-center gap-2">
+                      <span class="inline-flex items-center rounded-md bg-primary/10 text-primary px-1.5 py-0.5 text-xs">3 un</span>
+                      Café Grão 1kg
+                    </div>
+                    <div class="text-xs text-muted-foreground mt-0.5">Marca: Delta · "3 un café grão 1kg"</div>
+                  </li>
+                  <li class="rounded-md border bg-muted/30 px-3 py-2">
+                    <div class="font-medium flex items-center gap-2">
+                      <span class="inline-flex items-center rounded-md bg-primary/10 text-primary px-1.5 py-0.5 text-xs">12 lt</span>
+                      Cerveja Super Bock 33cl
+                    </div>
+                    <div class="text-xs text-muted-foreground mt-0.5">Marca: Super Bock · "12 lt cerveja super bock 33cl"</div>
+                  </li>
+                  <li class="rounded-md border bg-muted/30 px-3 py-2">
+                    <div class="font-medium flex items-center gap-2">
+                      <span class="inline-flex items-center rounded-md bg-primary/10 text-primary px-1.5 py-0.5 text-xs">5 l</span>
+                      Leite UHT Meio Gordo 1L
+                    </div>
+                    <div class="text-xs text-muted-foreground mt-0.5">Marca: Mimosa · "5 l leite UHT"</div>
+                  </li>
+                  <li class="rounded-md border bg-muted/30 px-3 py-2">
+                    <div class="font-medium flex items-center gap-2">
+                      <span class="inline-flex items-center rounded-md bg-primary/10 text-primary px-1.5 py-0.5 text-xs">2 sc</span>
+                      Sal Marinho 1kg
+                    </div>
+                    <div class="text-xs text-muted-foreground mt-0.5">"2 sc sal 1kg"</div>
+                  </li>
+                </ul>
+              </div>
+
+              <!-- Optimized by supplier -->
+              <div id="optimized-section" class="hidden">
+                <div class="flex items-center justify-between mb-3">
+                  <div>
+                    <div class="text-sm text-muted-foreground">Total estimado</div>
+                    <div class="text-3xl font-semibold">€1 247,30</div>
+                  </div>
+                  <span class="inline-flex items-center rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 ring-1 ring-emerald-500/20 text-xs font-medium px-2.5 py-0.5">2 fornecedores · -8.4% vs. mês anterior</span>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div class="rounded-lg border bg-card">
+                    <div class="flex flex-row items-start justify-between p-6 pb-3">
+                      <div>
+                        <h3 class="text-base font-semibold flex items-center gap-2">
+                          <i data-lucide="truck" class="h-4 w-4 text-amber-500"></i>
+                          Distribuidora Norte
+                          <span class="text-amber-500 text-sm">★</span>
+                        </h3>
+                        <p class="text-xs text-muted-foreground">4 itens · melhor preço global</p>
+                      </div>
+                      <button onclick="copyDemo(this)" class="inline-flex items-center justify-center gap-1.5 h-8 rounded-md border bg-background px-3 text-xs font-medium hover:bg-accent">
+                        <i data-lucide="copy" class="h-3.5 w-3.5"></i>
+                        <span data-i18n="order_copy">Copiar pedido</span>
+                      </button>
+                    </div>
+                    <div class="px-6 pb-6">
+                      <pre class="text-xs whitespace-pre-wrap bg-muted/40 rounded-md p-3 max-h-60 overflow-auto">- 10 cx Coca Cola Original 33cl
+- 5 kg Queijo Flamengo 5kg
+- 20 kg Farinha Nacional Tipo 65 25kg
+- 2 sc Sal Marinho 1kg</pre>
+                      <div class="mt-2 flex justify-end text-sm font-medium">Total: €682,40</div>
+                    </div>
+                  </div>
+                  <div class="rounded-lg border bg-card">
+                    <div class="flex flex-row items-start justify-between p-6 pb-3">
+                      <div>
+                        <h3 class="text-base font-semibold flex items-center gap-2">
+                          <i data-lucide="truck" class="h-4 w-4"></i>
+                          Horeca Sul
+                        </h3>
+                        <p class="text-xs text-muted-foreground">3 itens</p>
+                      </div>
+                      <button onclick="copyDemo(this)" class="inline-flex items-center justify-center gap-1.5 h-8 rounded-md border bg-background px-3 text-xs font-medium hover:bg-accent">
+                        <i data-lucide="copy" class="h-3.5 w-3.5"></i>
+                        <span data-i18n="order_copy">Copiar pedido</span>
+                      </button>
+                    </div>
+                    <div class="px-6 pb-6">
+                      <pre class="text-xs whitespace-pre-wrap bg-muted/40 rounded-md p-3 max-h-60 overflow-auto">- 3 un Café Grão 1kg
+- 12 lt Cerveja Super Bock 33cl
+- 5 l Leite UHT Meio Gordo 1L</pre>
+                      <div class="mt-2 flex justify-end text-sm font-medium">Total: €564,90</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div id="success-section" class="hidden rounded-lg border-2 border-emerald-500/30 bg-emerald-500/5 p-6 text-center">
+                <div class="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/20">
+                  <i data-lucide="check" class="h-6 w-6 text-emerald-600 dark:text-emerald-400"></i>
+                </div>
+                <h3 class="font-semibold">Pedido gravado!</h3>
+                <p class="text-sm text-muted-foreground mt-1">
+                  2 ordens criadas: <code>PO-20260610-A1B2</code> e <code>PO-20260610-C3D4</code>
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- ============================================================= -->
+          <!-- PRODUCTS                                                         -->
+          <!-- ============================================================= -->
+          <div id="page-products" class="page hidden">
+            <div class="space-y-6 animate-fade-in">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h1 class="text-2xl font-semibold tracking-tight" data-i18n="products_title">Catálogo de produtos</h1>
+                  <p class="text-sm text-muted-foreground">766 produtos · 1 248 aliases</p>
+                </div>
+                <button class="inline-flex items-center justify-center gap-2 h-10 px-4 rounded-md bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors">
+                  <i data-lucide="plus" class="h-4 w-4"></i>
+                  <span data-i18n="products_add">Novo produto</span>
+                </button>
+              </div>
+              <div class="rounded-lg border bg-card p-4">
+                <div class="relative">
+                  <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"></i>
+                  <input type="text" placeholder="Pesquisar produtos..." class="flex h-10 w-full rounded-md border border-input bg-background pl-9 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+                </div>
+              </div>
+              <div class="rounded-lg border bg-card overflow-hidden">
+                <table class="w-full text-sm">
+                  <thead class="bg-muted/40 border-b">
+                    <tr>
+                      <th class="h-10 px-4 text-left font-medium text-muted-foreground">Nome</th>
+                      <th class="h-10 px-4 text-left font-medium text-muted-foreground">Marca</th>
+                      <th class="h-10 px-4 text-left font-medium text-muted-foreground">Categoria</th>
+                      <th class="h-10 px-4 text-left font-medium text-muted-foreground">Unidade</th>
+                      <th class="h-10 px-4 text-left font-medium text-muted-foreground">Estado</th>
+                      <th class="h-10 px-4 text-left font-medium text-muted-foreground">Aliases</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr class="border-b hover:bg-muted/30 transition-colors">
+                      <td class="px-4 py-3 font-medium">Coca Cola Original 33cl</td>
+                      <td class="px-4 py-3">Coca Cola</td>
+                      <td class="px-4 py-3">Bebidas</td>
+                      <td class="px-4 py-3">un</td>
+                      <td class="px-4 py-3"><span class="inline-flex items-center rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 ring-1 ring-emerald-500/20 text-xs font-medium px-2.5 py-0.5">active</span></td>
+                      <td class="px-4 py-3 text-xs text-muted-foreground">4 (coca, coca cola, cc 33, coca-cola 33cl)</td>
+                    </tr>
+                    <tr class="border-b hover:bg-muted/30 transition-colors">
+                      <td class="px-4 py-3 font-medium">Coca Cola Zero 33cl</td>
+                      <td class="px-4 py-3">Coca Cola</td>
+                      <td class="px-4 py-3">Bebidas</td>
+                      <td class="px-4 py-3">un</td>
+                      <td class="px-4 py-3"><span class="inline-flex items-center rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 ring-1 ring-emerald-500/20 text-xs font-medium px-2.5 py-0.5">active</span></td>
+                      <td class="px-4 py-3 text-xs text-muted-foreground">2 (coca zero, cc zero)</td>
+                    </tr>
+                    <tr class="border-b hover:bg-muted/30 transition-colors">
+                      <td class="px-4 py-3 font-medium">Água Mineral 50cl</td>
+                      <td class="px-4 py-3">Luso</td>
+                      <td class="px-4 py-3">Bebidas</td>
+                      <td class="px-4 py-3">un</td>
+                      <td class="px-4 py-3"><span class="inline-flex items-center rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 ring-1 ring-emerald-500/20 text-xs font-medium px-2.5 py-0.5">active</span></td>
+                      <td class="px-4 py-3 text-xs text-muted-foreground">3 (agua, água, agua 50)</td>
+                    </tr>
+                    <tr class="border-b hover:bg-muted/30 transition-colors">
+                      <td class="px-4 py-3 font-medium">Cerveja Super Bock 33cl</td>
+                      <td class="px-4 py-3">Super Bock</td>
+                      <td class="px-4 py-3">Bebidas</td>
+                      <td class="px-4 py-3">un</td>
+                      <td class="px-4 py-3"><span class="inline-flex items-center rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 ring-1 ring-emerald-500/20 text-xs font-medium px-2.5 py-0.5">active</span></td>
+                      <td class="px-4 py-3 text-xs text-muted-foreground">2 (superbock, sb)</td>
+                    </tr>
+                    <tr class="border-b hover:bg-muted/30 transition-colors">
+                      <td class="px-4 py-3 font-medium">Café Grão 1kg</td>
+                      <td class="px-4 py-3">Delta</td>
+                      <td class="px-4 py-3">Café</td>
+                      <td class="px-4 py-3">kg</td>
+                      <td class="px-4 py-3"><span class="inline-flex items-center rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 ring-1 ring-emerald-500/20 text-xs font-medium px-2.5 py-0.5">active</span></td>
+                      <td class="px-4 py-3 text-xs text-muted-foreground">2 (cafe, café)</td>
+                    </tr>
+                    <tr class="border-b hover:bg-muted/30 transition-colors">
+                      <td class="px-4 py-3 font-medium">Queijo Flamengo 5kg</td>
+                      <td class="px-4 py-3">Presid</td>
+                      <td class="px-4 py-3">Laticínios</td>
+                      <td class="px-4 py-3">kg</td>
+                      <td class="px-4 py-3"><span class="inline-flex items-center rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 ring-1 ring-emerald-500/20 text-xs font-medium px-2.5 py-0.5">active</span></td>
+                      <td class="px-4 py-3 text-xs text-muted-foreground">2 (queijo flamengo, flamengo)</td>
+                    </tr>
+                    <tr class="border-b hover:bg-muted/30 transition-colors">
+                      <td class="px-4 py-3 font-medium">Farinha Nacional Tipo 65 25kg</td>
+                      <td class="px-4 py-3">Nacional</td>
+                      <td class="px-4 py-3">Mercearia</td>
+                      <td class="px-4 py-3">kg</td>
+                      <td class="px-4 py-3"><span class="inline-flex items-center rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 ring-1 ring-emerald-500/20 text-xs font-medium px-2.5 py-0.5">active</span></td>
+                      <td class="px-4 py-3 text-xs text-muted-foreground">2 (farinha, farinha 25)</td>
+                    </tr>
+                    <tr class="border-b hover:bg-muted/30 transition-colors">
+                      <td class="px-4 py-3 font-medium">Leite UHT Meio Gordo 1L</td>
+                      <td class="px-4 py-3">Mimosa</td>
+                      <td class="px-4 py-3">Laticínios</td>
+                      <td class="px-4 py-3">l</td>
+                      <td class="px-4 py-3"><span class="inline-flex items-center rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 ring-1 ring-emerald-500/20 text-xs font-medium px-2.5 py-0.5">active</span></td>
+                      <td class="px-4 py-3 text-xs text-muted-foreground">2 (leite, mimosa)</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <div class="flex items-center justify-between px-4 py-3 text-xs text-muted-foreground border-t">
+                  <span>A mostrar 8 de 766</span>
+                  <div class="flex items-center gap-2">
+                    <button class="h-8 px-3 rounded-md border hover:bg-accent">Anterior</button>
+                    <button class="h-8 px-3 rounded-md border hover:bg-accent">Seguinte</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ============================================================= -->
+          <!-- SUPPLIERS                                                        -->
+          <!-- ============================================================= -->
+          <div id="page-suppliers" class="page hidden">
+            <div class="space-y-6 animate-fade-in">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h1 class="text-2xl font-semibold tracking-tight" data-i18n="suppliers_title">Fornecedores</h1>
+                  <p class="text-sm text-muted-foreground">20 fornecedores · 2 preferidos</p>
+                </div>
+                <button class="inline-flex items-center justify-center gap-2 h-10 px-4 rounded-md bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90">
+                  <i data-lucide="plus" class="h-4 w-4"></i>
+                  <span data-i18n="suppliers_add">Novo fornecedor</span>
+                </button>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div class="rounded-lg border bg-card p-5 hover:shadow-md transition-shadow">
+                  <div class="flex items-start justify-between mb-3">
+                    <div>
+                      <h3 class="font-semibold">Distribuidora Norte, Lda</h3>
+                      <p class="text-xs text-muted-foreground mt-0.5">NIF 5000123456</p>
+                    </div>
+                    <span class="inline-flex items-center rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-300 ring-1 ring-amber-500/20 text-xs font-medium px-2 py-0.5">★ Preferido</span>
+                  </div>
+                  <div class="space-y-1.5 text-sm">
+                    <div class="flex items-center gap-2 text-muted-foreground">
+                      <i data-lucide="mail" class="h-3.5 w-3.5"></i>
+                      comercial@distnorte.pt
+                    </div>
+                    <div class="flex items-center gap-2 text-muted-foreground">
+                      <i data-lucide="phone" class="h-3.5 w-3.5"></i>
+                      +351 22 123 4567
+                    </div>
+                    <div class="flex items-center gap-2 text-muted-foreground">
+                      <i data-lucide="clock" class="h-3.5 w-3.5"></i>
+                      Entrega em 24h · Mín. €150
+                    </div>
+                  </div>
+                </div>
+                <div class="rounded-lg border bg-card p-5 hover:shadow-md transition-shadow">
+                  <div class="flex items-start justify-between mb-3">
+                    <div>
+                      <h3 class="font-semibold">Horeca Sul, S.A.</h3>
+                      <p class="text-xs text-muted-foreground mt-0.5">NIF 5000654321</p>
+                    </div>
+                  </div>
+                  <div class="space-y-1.5 text-sm">
+                    <div class="flex items-center gap-2 text-muted-foreground">
+                      <i data-lucide="mail" class="h-3.5 w-3.5"></i>
+                      orders@horecasul.pt
+                    </div>
+                    <div class="flex items-center gap-2 text-muted-foreground">
+                      <i data-lucide="phone" class="h-3.5 w-3.5"></i>
+                      +351 21 987 6543
+                    </div>
+                    <div class="flex items-center gap-2 text-muted-foreground">
+                      <i data-lucide="clock" class="h-3.5 w-3.5"></i>
+                      Entrega em 48h · Mín. €250
+                    </div>
+                  </div>
+                </div>
+                <div class="rounded-lg border bg-card p-5 hover:shadow-md transition-shadow">
+                  <div class="flex items-start justify-between mb-3">
+                    <div>
+                      <h3 class="font-semibold">Delta Bebidas</h3>
+                      <p class="text-xs text-muted-foreground mt-0.5">NIF 5000999888</p>
+                    </div>
+                    <span class="inline-flex items-center rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-300 ring-1 ring-amber-500/20 text-xs font-medium px-2 py-0.5">★ Preferido</span>
+                  </div>
+                  <div class="space-y-1.5 text-sm">
+                    <div class="flex items-center gap-2 text-muted-foreground">
+                      <i data-lucide="mail" class="h-3.5 w-3.5"></i>
+                      horeca@delta.pt
+                    </div>
+                    <div class="flex items-center gap-2 text-muted-foreground">
+                      <i data-lucide="phone" class="h-3.5 w-3.5"></i>
+                      +351 23 555 1234
+                    </div>
+                    <div class="flex items-center gap-2 text-muted-foreground">
+                      <i data-lucide="clock" class="h-3.5 w-3.5"></i>
+                      Entrega em 12h · Mín. €80
+                    </div>
+                  </div>
+                </div>
+                <div class="rounded-lg border bg-card p-5 hover:shadow-md transition-shadow">
+                  <div class="flex items-start justify-between mb-3">
+                    <div>
+                      <h3 class="font-semibold">Campoaves Carnes</h3>
+                      <p class="text-xs text-muted-foreground mt-0.5">NIF 5000777666</p>
+                    </div>
+                  </div>
+                  <div class="space-y-1.5 text-sm">
+                    <div class="flex items-center gap-2 text-muted-foreground">
+                      <i data-lucide="mail" class="h-3.5 w-3.5"></i>
+                      vendas@campoaves.pt
+                    </div>
+                    <div class="flex items-center gap-2 text-muted-foreground">
+                      <i data-lucide="clock" class="h-3.5 w-3.5"></i>
+                      Entrega em 36h · Mín. €200
+                    </div>
+                  </div>
+                </div>
+                <div class="rounded-lg border bg-card p-5 hover:shadow-md transition-shadow">
+                  <div class="flex items-start justify-between mb-3">
+                    <div>
+                      <h3 class="font-semibold">Fairy Professional</h3>
+                      <p class="text-xs text-muted-foreground mt-0.5">NIF 5000111222</p>
+                    </div>
+                  </div>
+                  <div class="space-y-1.5 text-sm">
+                    <div class="flex items-center gap-2 text-muted-foreground">
+                      <i data-lucide="mail" class="h-3.5 w-3.5"></i>
+                      horeca@fairy-pro.pt
+                    </div>
+                    <div class="flex items-center gap-2 text-muted-foreground">
+                      <i data-lucide="clock" class="h-3.5 w-3.5"></i>
+                      Entrega em 24h
+                    </div>
+                  </div>
+                </div>
+                <div class="rounded-lg border border-dashed bg-muted/20 p-5 flex flex-col items-center justify-center text-muted-foreground hover:bg-muted/30 transition-colors cursor-pointer">
+                  <i data-lucide="plus" class="h-8 w-8 mb-2"></i>
+                  <span class="text-sm">Adicionar fornecedor</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ============================================================= -->
+          <!-- IMPORTS                                                          -->
+          <!-- ============================================================= -->
+          <div id="page-imports" class="page hidden">
+            <div class="space-y-6 animate-fade-in">
+              <div>
+                <h1 class="text-2xl font-semibold tracking-tight" data-i18n="imports_title">Importações de preços</h1>
+                <p class="text-sm text-muted-foreground">PDF, Excel, Word, CSV e imagens. A IA extrai e normaliza as linhas.</p>
+              </div>
+
+              <div class="rounded-lg border-2 border-dashed bg-card p-8 text-center hover:bg-accent/30 transition-colors cursor-pointer">
+                <div class="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
+                  <i data-lucide="upload-cloud" class="h-6 w-6"></i>
+                </div>
+                <h3 class="font-semibold">Carregar ficheiro</h3>
+                <p class="text-sm text-muted-foreground mt-1">Drag & drop ou clica para selecionar</p>
+                <p class="text-xs text-muted-foreground mt-2">PDF · XLSX · DOCX · CSV · PNG · JPG (max 25MB)</p>
+              </div>
+
+              <div class="rounded-lg border bg-card">
+                <div class="flex flex-row items-center justify-between p-6 pb-3">
+                  <h3 class="font-semibold flex items-center gap-2">
+                    <i data-lucide="file-text" class="h-4 w-4"></i>
+                    <span>tabela-precos-jun-2026.pdf</span>
+                  </h3>
+                  <span class="inline-flex items-center rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-300 ring-1 ring-amber-500/20 text-xs font-medium px-2.5 py-0.5">A rever · 142 linhas</span>
+                </div>
+                <div class="px-6 pb-6">
+                  <table class="w-full text-sm">
+                    <thead class="bg-muted/40 border-y">
+                      <tr>
+                        <th class="h-9 px-3 text-left text-xs font-medium text-muted-foreground">Linha original</th>
+                        <th class="h-9 px-3 text-left text-xs font-medium text-muted-foreground">Sugerido</th>
+                        <th class="h-9 px-3 text-left text-xs font-medium text-muted-foreground">Qtd</th>
+                        <th class="h-9 px-3 text-left text-xs font-medium text-muted-foreground">Preço</th>
+                        <th class="h-9 px-3 text-left text-xs font-medium text-muted-foreground">Conf.</th>
+                        <th class="h-9 px-3 text-left text-xs font-medium text-muted-foreground">Ação</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr class="border-b hover:bg-muted/30">
+                        <td class="px-3 py-2 text-xs text-muted-foreground max-w-xs truncate">COCA COLA ORIGINAL 33CL CX24</td>
+                        <td class="px-3 py-2 font-medium">Coca Cola Original 33cl</td>
+                        <td class="px-3 py-2">1 cx</td>
+                        <td class="px-3 py-2">€8.40</td>
+                        <td class="px-3 py-2"><span class="inline-flex items-center rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 ring-1 ring-emerald-500/20 text-xs font-medium px-2 py-0.5">96%</span></td>
+                        <td class="px-3 py-2"><div class="flex gap-1">
+                          <button class="inline-flex items-center justify-center h-7 w-7 rounded-md bg-primary text-primary-foreground"><i data-lucide="check" class="h-3.5 w-3.5"></i></button>
+                          <button class="inline-flex items-center justify-center h-7 w-7 rounded-md border"><i data-lucide="x" class="h-3.5 w-3.5"></i></button>
+                        </div></td>
+                      </tr>
+                      <tr class="border-b hover:bg-muted/30">
+                        <td class="px-3 py-2 text-xs text-muted-foreground max-w-xs truncate">QUEIJO FLAMENGO 5KG BARRA</td>
+                        <td class="px-3 py-2 font-medium">Queijo Flamengo 5kg</td>
+                        <td class="px-3 py-2">1 un</td>
+                        <td class="px-3 py-2">€28.50</td>
+                        <td class="px-3 py-2"><span class="inline-flex items-center rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 ring-1 ring-emerald-500/20 text-xs font-medium px-2 py-0.5">92%</span></td>
+                        <td class="px-3 py-2"><div class="flex gap-1">
+                          <button class="inline-flex items-center justify-center h-7 w-7 rounded-md bg-primary text-primary-foreground"><i data-lucide="check" class="h-3.5 w-3.5"></i></button>
+                          <button class="inline-flex items-center justify-center h-7 w-7 rounded-md border"><i data-lucide="x" class="h-3.5 w-3.5"></i></button>
+                        </div></td>
+                      </tr>
+                      <tr class="border-b hover:bg-muted/30">
+                        <td class="px-3 py-2 text-xs text-muted-foreground max-w-xs truncate">FARINHA TIPO 65 SACO 25KG</td>
+                        <td class="px-3 py-2 font-medium">Farinha Nacional Tipo 65 25kg</td>
+                        <td class="px-3 py-2">1 sc</td>
+                        <td class="px-3 py-2">€15.80</td>
+                        <td class="px-3 py-2"><span class="inline-flex items-center rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 ring-1 ring-emerald-500/20 text-xs font-medium px-2 py-0.5">88%</span></td>
+                        <td class="px-3 py-2"><div class="flex gap-1">
+                          <button class="inline-flex items-center justify-center h-7 w-7 rounded-md bg-primary text-primary-foreground"><i data-lucide="check" class="h-3.5 w-3.5"></i></button>
+                          <button class="inline-flex items-center justify-center h-7 w-7 rounded-md border"><i data-lucide="x" class="h-3.5 w-3.5"></i></button>
+                        </div></td>
+                      </tr>
+                      <tr class="border-b hover:bg-muted/30">
+                        <td class="px-3 py-2 text-xs text-muted-foreground max-w-xs truncate">LEITE UHT MG 1LT (unid)</td>
+                        <td class="px-3 py-2 font-medium">Leite UHT Meio Gordo 1L</td>
+                        <td class="px-3 py-2">1 l</td>
+                        <td class="px-3 py-2">€0.85</td>
+                        <td class="px-3 py-2"><span class="inline-flex items-center rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-300 ring-1 ring-amber-500/20 text-xs font-medium px-2 py-0.5">74%</span></td>
+                        <td class="px-3 py-2"><div class="flex gap-1">
+                          <button class="inline-flex items-center justify-center h-7 w-7 rounded-md bg-primary text-primary-foreground"><i data-lucide="check" class="h-3.5 w-3.5"></i></button>
+                          <button class="inline-flex items-center justify-center h-7 w-7 rounded-md border"><i data-lucide="x" class="h-3.5 w-3.5"></i></button>
+                        </div></td>
+                      </tr>
+                      <tr class="border-b hover:bg-muted/30">
+                        <td class="px-3 py-2 text-xs text-muted-foreground max-w-xs truncate">XX - ARTIGO DESCONHECIDO</td>
+                        <td class="px-3 py-2 font-medium text-muted-foreground italic">—</td>
+                        <td class="px-3 py-2 text-muted-foreground">—</td>
+                        <td class="px-3 py-2 text-muted-foreground">—</td>
+                        <td class="px-3 py-2"><span class="inline-flex items-center rounded-full bg-red-500/15 text-red-700 dark:text-red-300 ring-1 ring-red-500/20 text-xs font-medium px-2 py-0.5">23%</span></td>
+                        <td class="px-3 py-2"><div class="flex gap-1">
+                          <button class="inline-flex items-center justify-center h-7 w-7 rounded-md border"><i data-lucide="check" class="h-3.5 w-3.5"></i></button>
+                          <button class="inline-flex items-center justify-center h-7 w-7 rounded-md bg-red-500/80 text-white"><i data-lucide="x" class="h-3.5 w-3.5"></i></button>
+                        </div></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <div class="mt-3 flex justify-end gap-2">
+                    <button class="inline-flex items-center justify-center h-9 px-4 rounded-md border text-sm">Cancelar</button>
+                    <button class="inline-flex items-center justify-center h-9 px-4 rounded-md bg-primary text-primary-foreground text-sm font-medium">
+                      Aprovar 4 selecionadas
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ============================================================= -->
+          <!-- ORDERS                                                           -->
+          <!-- ============================================================= -->
+          <div id="page-orders" class="page hidden">
+            <div class="space-y-6 animate-fade-in">
+              <div>
+                <h1 class="text-2xl font-semibold tracking-tight">Histórico de pedidos</h1>
+                <p class="text-sm text-muted-foreground">234 pedidos · 2 colocados esta semana</p>
+              </div>
+              <div class="rounded-lg border bg-card overflow-hidden">
+                <table class="w-full text-sm">
+                  <thead class="bg-muted/40 border-b">
+                    <tr>
+                      <th class="h-10 px-4 text-left font-medium text-muted-foreground">Código</th>
+                      <th class="h-10 px-4 text-left font-medium text-muted-foreground">Fornecedor</th>
+                      <th class="h-10 px-4 text-left font-medium text-muted-foreground">Estado</th>
+                      <th class="h-10 px-4 text-left font-medium text-muted-foreground">Total</th>
+                      <th class="h-10 px-4 text-left font-medium text-muted-foreground">Itens</th>
+                      <th class="h-10 px-4 text-left font-medium text-muted-foreground">Data</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr class="border-b hover:bg-muted/30">
+                      <td class="px-4 py-3 font-mono text-xs">PO-20260610-A1B2</td>
+                      <td class="px-4 py-3">Distribuidora Norte</td>
+                      <td class="px-4 py-3"><span class="inline-flex items-center rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 ring-1 ring-emerald-500/20 text-xs font-medium px-2 py-0.5">placed</span></td>
+                      <td class="px-4 py-3">€682,40</td>
+                      <td class="px-4 py-3">4</td>
+                      <td class="px-4 py-3 text-xs text-muted-foreground">10/06/2026 14:23</td>
+                    </tr>
+                    <tr class="border-b hover:bg-muted/30">
+                      <td class="px-4 py-3 font-mono text-xs">PO-20260610-C3D4</td>
+                      <td class="px-4 py-3">Horeca Sul</td>
+                      <td class="px-4 py-3"><span class="inline-flex items-center rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 ring-1 ring-emerald-500/20 text-xs font-medium px-2 py-0.5">placed</span></td>
+                      <td class="px-4 py-3">€564,90</td>
+                      <td class="px-4 py-3">3</td>
+                      <td class="px-4 py-3 text-xs text-muted-foreground">10/06/2026 14:23</td>
+                    </tr>
+                    <tr class="border-b hover:bg-muted/30">
+                      <td class="px-4 py-3 font-mono text-xs">PO-20260609-F9E8</td>
+                      <td class="px-4 py-3">Delta Bebidas</td>
+                      <td class="px-4 py-3"><span class="inline-flex items-center rounded-full bg-secondary text-secondary-foreground text-xs font-medium px-2 py-0.5">copied</span></td>
+                      <td class="px-4 py-3">€1 240,00</td>
+                      <td class="px-4 py-3">8</td>
+                      <td class="px-4 py-3 text-xs text-muted-foreground">09/06/2026 18:45</td>
+                    </tr>
+                    <tr class="border-b hover:bg-muted/30">
+                      <td class="px-4 py-3 font-mono text-xs">PO-20260609-D2C1</td>
+                      <td class="px-4 py-3">Campoaves</td>
+                      <td class="px-4 py-3"><span class="inline-flex items-center rounded-full bg-secondary text-secondary-foreground text-xs font-medium px-2 py-0.5">draft</span></td>
+                      <td class="px-4 py-3">€428,50</td>
+                      <td class="px-4 py-3">2</td>
+                      <td class="px-4 py-3 text-xs text-muted-foreground">09/06/2026 11:12</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- ============================================================= -->
+          <!-- ANALYTICS                                                        -->
+          <!-- ============================================================= -->
+          <div id="page-analytics" class="page hidden">
+            <div class="space-y-6 animate-fade-in">
+              <h1 class="text-2xl font-semibold tracking-tight">Analytics & KPIs</h1>
+              <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div class="rounded-lg border bg-card p-6">
+                  <h3 class="font-semibold mb-4">Compras mensais (12m)</h3>
+                  <svg viewBox="0 0 600 200" class="w-full h-48">
+                    <defs>
+                      <linearGradient id="g1" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="hsl(var(--primary))" stop-opacity="0.4" />
+                        <stop offset="100%" stop-color="hsl(var(--primary))" stop-opacity="0" />
+                      </linearGradient>
+                    </defs>
+                    <polyline fill="none" stroke="hsl(var(--primary))" stroke-width="3"
+                      points="0,160 55,140 110,120 165,135 220,100 275,110 330,85 385,70 440,75 495,55 550,45 600,30" />
+                    <polygon fill="url(#g1)" points="0,160 55,140 110,120 165,135 220,100 275,110 330,85 385,70 440,75 495,55 550,45 600,30 600,200 0,200" />
+                    <g font-size="10" fill="hsl(var(--muted-foreground))">
+                      <text x="0" y="195">Jan</text><text x="55" y="195">Fev</text><text x="110" y="195">Mar</text>
+                      <text x="165" y="195">Abr</text><text x="220" y="195">Mai</text><text x="275" y="195">Jun</text>
+                      <text x="330" y="195">Jul</text><text x="385" y="195">Ago</text><text x="440" y="195">Set</text>
+                      <text x="495" y="195">Out</text><text x="550" y="195">Nov</text>
+                    </g>
+                  </svg>
+                </div>
+                <div class="rounded-lg border bg-card p-6">
+                  <h3 class="font-semibold mb-4">Top produtos (€)</h3>
+                  <div class="space-y-3">
+                    <div class="flex items-end gap-1 h-32">
+                      <div class="flex-1 bg-primary rounded-t bar" style="height: 95%"></div>
+                      <div class="flex-1 bg-primary rounded-t bar" style="height: 78%"></div>
+                      <div class="flex-1 bg-primary rounded-t bar" style="height: 62%"></div>
+                      <div class="flex-1 bg-primary rounded-t bar" style="height: 54%"></div>
+                      <div class="flex-1 bg-primary rounded-t bar" style="height: 45%"></div>
+                      <div class="flex-1 bg-primary rounded-t bar" style="height: 38%"></div>
+                      <div class="flex-1 bg-primary rounded-t bar" style="height: 30%"></div>
+                    </div>
+                    <div class="grid grid-cols-7 gap-1 text-[10px] text-muted-foreground text-center">
+                      <span class="truncate">Coca</span><span class="truncate">Leite</span><span class="truncate">Queijo</span>
+                      <span class="truncate">Café</span><span class="truncate">Farinha</span><span class="truncate">Açúcar</span>
+                      <span class="truncate">Óleo</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="rounded-lg border bg-card p-6">
+                <h3 class="font-semibold mb-4">Variação de preço — Coca Cola Original 33cl (180d)</h3>
+                <svg viewBox="0 0 600 180" class="w-full h-40">
+                  <polyline fill="none" stroke="hsl(217 91% 60%)" stroke-width="2"
+                    points="0,100 30,90 60,95 90,80 120,75 150,85 180,70 210,60 240,55 270,65 300,50 330,45 360,55 390,40 420,50 450,35 480,40 510,30 540,25 570,20 600,15" />
+                  <polyline fill="none" stroke="hsl(0 84% 60%)" stroke-width="2" stroke-dasharray="4 4"
+                    points="0,110 30,100 60,105 90,90 120,85 150,95 180,80 210,70 240,65 270,75 300,60 330,55 360,65 390,50 420,60 450,45 480,50 510,40 540,35 570,30 600,25" />
+                  <g font-size="10" fill="hsl(var(--muted-foreground))">
+                    <text x="0" y="175">Jan</text><text x="100" y="175">Fev</text><text x="200" y="175">Mar</text>
+                    <text x="300" y="175">Abr</text><text x="400" y="175">Mai</text><text x="500" y="175">Jun</text>
+                  </g>
+                </svg>
+                <div class="flex gap-6 text-xs text-muted-foreground mt-2">
+                  <span class="flex items-center gap-1.5"><span class="h-0.5 w-3 bg-blue-500"></span> Distribuidora Norte</span>
+                  <span class="flex items-center gap-1.5"><span class="h-0.5 w-3 bg-red-500"></span> Horeca Sul</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ============================================================= -->
+          <!-- USERS                                                            -->
+          <!-- ============================================================= -->
+          <div id="page-users" class="page hidden">
+            <div class="space-y-6 animate-fade-in">
+              <h1 class="text-2xl font-semibold tracking-tight">Utilizadores</h1>
+              <div class="rounded-lg border bg-card overflow-hidden">
+                <table class="w-full text-sm">
+                  <thead class="bg-muted/40 border-b">
+                    <tr>
+                      <th class="h-10 px-4 text-left font-medium text-muted-foreground">Email</th>
+                      <th class="h-10 px-4 text-left font-medium text-muted-foreground">Nome</th>
+                      <th class="h-10 px-4 text-left font-medium text-muted-foreground">Perfil</th>
+                      <th class="h-10 px-4 text-left font-medium text-muted-foreground">Estado</th>
+                      <th class="h-10 px-4 text-left font-medium text-muted-foreground">Último login</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr class="border-b hover:bg-muted/30">
+                      <td class="px-4 py-3">admin@procurehotel.pt</td>
+                      <td class="px-4 py-3">Administrador</td>
+                      <td class="px-4 py-3"><span class="inline-flex items-center rounded-full bg-primary text-primary-foreground text-xs font-medium px-2 py-0.5">admin</span></td>
+                      <td class="px-4 py-3"><span class="inline-flex items-center rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 ring-1 ring-emerald-500/20 text-xs font-medium px-2 py-0.5">ativo</span></td>
+                      <td class="px-4 py-3 text-xs text-muted-foreground">10/06/2026 14:23</td>
+                    </tr>
+                    <tr class="border-b hover:bg-muted/30">
+                      <td class="px-4 py-3">user@procurehotel.pt</td>
+                      <td class="px-4 py-3">Utilizador Demo</td>
+                      <td class="px-4 py-3"><span class="inline-flex items-center rounded-full bg-secondary text-secondary-foreground text-xs font-medium px-2 py-0.5">user</span></td>
+                      <td class="px-4 py-3"><span class="inline-flex items-center rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 ring-1 ring-emerald-500/20 text-xs font-medium px-2 py-0.5">ativo</span></td>
+                      <td class="px-4 py-3 text-xs text-muted-foreground">09/06/2026 18:02</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+        </main>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Footer note -->
+<noscript class="block p-4 text-center text-sm">
+  Esta preview precisa de JavaScript.
+</noscript>
+
+<script>
+  // -----------------------------
+  // i18n minimal (PT/EN)
+  // -----------------------------
+  const I18N = {
+    'pt-PT': {
+      tagline: 'Compras inteligentes para hotelaria',
+      email: 'Email', password: 'Password', signin: 'Entrar', switchlang: 'Mudar para EN',
+      nav_dashboard: 'Dashboard', nav_order: 'Faça o pedido aqui', nav_products: 'Produtos',
+      nav_suppliers: 'Fornecedores', nav_imports: 'Importações', nav_orders: 'Pedidos',
+      nav_analytics: 'Analytics', nav_users: 'Utilizadores', logout: 'Sair',
+      kpi_title: 'Analytics & KPIs', kpi_sub: 'Visão geral das compras e poupanças',
+      kpi_month: 'Gasto este mês', kpi_orders: 'Pedidos este mês', kpi_top_sup: 'Top fornecedor',
+      kpi_savings: 'Poupança estimada (30d)', kpi_top_products: 'Top produtos',
+      kpi_top_suppliers: 'Fornecedores mais competitivos', kpi_chart: 'Compras mensais (12 meses)',
+      order_title: 'Faça o pedido aqui',
+      order_sub: 'Escreva o pedido em linguagem natural. A IA interpreta, compara preços e divide por fornecedor.',
+      order_input_title: 'Pedido', order_parse: 'Interpretar pedido', order_optimize: 'Otimizar preços',
+      order_mark: 'Marcar como pedido realizado', order_parsed: 'Interpretação da IA',
+      order_copy: 'Copiar pedido',
+      products_title: 'Catálogo de produtos', products_add: 'Novo produto',
+      suppliers_title: 'Fornecedores', suppliers_add: 'Novo fornecedor',
+      imports_title: 'Importações de preços',
+    },
+    'en': {
+      tagline: 'Smart procurement for hospitality',
+      email: 'Email', password: 'Password', signin: 'Sign in', switchlang: 'Switch to PT',
+      nav_dashboard: 'Dashboard', nav_order: 'Place an order', nav_products: 'Products',
+      nav_suppliers: 'Suppliers', nav_imports: 'Imports', nav_orders: 'Orders',
+      nav_analytics: 'Analytics', nav_users: 'Users', logout: 'Logout',
+      kpi_title: 'Analytics & KPIs', kpi_sub: 'Overview of purchases and savings',
+      kpi_month: 'This month spend', kpi_orders: 'Orders this month', kpi_top_sup: 'Top supplier',
+      kpi_savings: 'Estimated savings (30d)', kpi_top_products: 'Top products',
+      kpi_top_suppliers: 'Most competitive suppliers', kpi_chart: 'Monthly spend (12m)',
+      order_title: 'Place an order',
+      order_sub: 'Write the order in natural language. AI interprets, compares prices and splits by supplier.',
+      order_input_title: 'Order', order_parse: 'Parse order', order_optimize: 'Optimize prices',
+      order_mark: 'Mark as placed', order_parsed: 'AI interpretation',
+      order_copy: 'Copy order',
+      products_title: 'Product catalog', products_add: 'New product',
+      suppliers_title: 'Suppliers', suppliers_add: 'New supplier',
+      imports_title: 'Price imports',
+    },
+  };
+  let currentLang = 'pt-PT';
+  function applyLang() {
+    document.documentElement.lang = currentLang;
+    document.querySelectorAll('[data-i18n]').forEach((el) => {
+      const key = el.getAttribute('data-i18n');
+      const txt = I18N[currentLang][key];
+      if (txt) el.textContent = txt;
+    });
+    const badge = document.getElementById('lang-badge');
+    if (badge) badge.textContent = currentLang === 'pt-PT' ? 'EN' : 'PT';
+  }
+  function toggleLang() {
+    currentLang = currentLang === 'pt-PT' ? 'en' : 'pt-PT';
+    applyLang();
+  }
+
+  // -----------------------------
+  // Theme
+  // -----------------------------
+  function applyTheme() {
+    const stored = localStorage.getItem('procurehotel.theme') || 'system';
+    let effective = stored;
+    if (stored === 'system') {
+      effective = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    document.documentElement.classList.toggle('dark', effective === 'dark');
+    const icon = document.getElementById('theme-icon');
+    if (icon) {
+      icon.setAttribute('data-lucide', effective === 'dark' ? 'sun' : 'moon');
+      lucide.createIcons();
+    }
+  }
+  function toggleTheme() {
+    const isDark = document.documentElement.classList.contains('dark');
+    const next = isDark ? 'light' : 'dark';
+    localStorage.setItem('procurehotel.theme', next);
+    applyTheme();
+  }
+
+  // -----------------------------
+  // Navigation
+  // -----------------------------
+  function showApp() {
+    document.getElementById('view-login').classList.remove('active');
+    document.getElementById('view-app').classList.add('active');
+    navigate('dashboard');
+  }
+  function showLogin() {
+    document.getElementById('view-login').classList.add('active');
+    document.getElementById('view-app').classList.remove('active');
+  }
+  function navigate(page) {
+    document.querySelectorAll('.page').forEach((p) => p.classList.add('hidden'));
+    const target = document.getElementById('page-' + page);
+    if (target) target.classList.remove('hidden');
+    document.querySelectorAll('.nav-item').forEach((a) => {
+      const nav = a.getAttribute('data-nav');
+      a.classList.toggle('bg-primary', nav === page);
+      a.classList.toggle('text-primary-foreground', nav === page);
+    });
+    lucide.createIcons();
+  }
+  document.querySelectorAll('.nav-item').forEach((a) => {
+    a.addEventListener('click', (e) => {
+      e.preventDefault();
+      navigate(a.getAttribute('data-nav'));
+    });
+  });
+
+  // -----------------------------
+  // Order page simulations
+  // -----------------------------
+  function simulateParse() {
+    document.getElementById('parsed-section').classList.remove('hidden');
+    document.getElementById('optimized-section').classList.add('hidden');
+    document.getElementById('success-section').classList.add('hidden');
+    document.getElementById('parsed-section').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+  function simulateOptimize() {
+    document.getElementById('optimized-section').classList.remove('hidden');
+    document.getElementById('success-section').classList.add('hidden');
+    document.getElementById('optimized-section').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+  function simulatePlace() {
+    document.getElementById('success-section').classList.remove('hidden');
+    document.getElementById('success-section').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+  function copyDemo(btn) {
+    const pre = btn.closest('.rounded-lg').querySelector('pre');
+    if (pre) {
+      navigator.clipboard.writeText(pre.textContent.trim()).then(() => {
+        const original = btn.innerHTML;
+        btn.innerHTML = '<i data-lucide="check" class="h-3.5 w-3.5"></i> Copiado!';
+        lucide.createIcons();
+        setTimeout(() => { btn.innerHTML = original; lucide.createIcons(); }, 1500);
+      });
+    }
+  }
+
+  // -----------------------------
+  // Init
+  // -----------------------------
+  document.addEventListener('DOMContentLoaded', () => {
+    applyTheme();
+    applyLang();
+    lucide.createIcons();
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,102 @@
+{
+  "app": {
+    "name": "Compra Facil Hoteis",
+    "tagline": "Smart procurement for hospitality"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "order": "Place an order",
+    "products": "Products",
+    "suppliers": "Suppliers",
+    "imports": "Imports",
+    "orders": "Orders",
+    "analytics": "Analytics",
+    "users": "Users",
+    "logout": "Logout"
+  },
+  "auth": {
+    "login": "Sign in",
+    "email": "Email",
+    "password": "Password",
+    "submit": "Sign in",
+    "register": "Register first admin",
+    "invalid": "Invalid credentials",
+    "logout": "Sign out"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "subtitle": "Overview of your procurement operation",
+    "products": "Products",
+    "suppliers": "Suppliers"
+  },
+  "order": {
+    "title": "Place an order",
+    "placeholder": "Ex: 10 boxes coca cola\n5kg ham cheese\n20kg national flour",
+    "parse": "Parse order",
+    "optimize": "Optimize prices",
+    "copy": "Copy order",
+    "markPlaced": "Mark as placed",
+    "supplier": "Supplier",
+    "total": "Total",
+    "items": "Items",
+    "noResults": "No items to show"
+  },
+  "orders": {
+    "title": "Orders history"
+  },
+  "products": {
+    "title": "Product catalog",
+    "add": "New product",
+    "search": "Search products...",
+    "name": "Name",
+    "brand": "Brand",
+    "category": "Category",
+    "unit": "Unit",
+    "status": "Status"
+  },
+  "suppliers": {
+    "title": "Suppliers",
+    "add": "New supplier",
+    "search": "Search suppliers...",
+    "name": "Name",
+    "email": "Email",
+    "phone": "Phone"
+  },
+  "imports": {
+    "title": "Price imports",
+    "upload": "Upload file",
+    "supplier": "Supplier",
+    "status": "Status",
+    "rows": "Rows",
+    "approve": "Approve selected",
+    "ignore": "Ignore"
+  },
+  "analytics": {
+    "title": "Analytics & KPIs",
+    "monthly": "Monthly spend",
+    "topProducts": "Top products",
+    "topSuppliers": "Most competitive suppliers",
+    "savings": "Estimated savings"
+  },
+  "admin": {
+    "title": "Admin Panel"
+  },
+  "settings": {
+    "company": "Company Settings",
+    "users": "Members",
+    "audit": "Audit"
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "delete": "Delete",
+    "search": "Search",
+    "loading": "Loading...",
+    "noData": "No data",
+    "actions": "Actions",
+    "confirm": "Confirm",
+    "language": "Language",
+    "theme": "Theme"
+  }
+}

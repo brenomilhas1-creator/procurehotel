@@ -1,0 +1,173 @@
+{
+  "rls": [
+    {
+      "table": "audit_logs",
+      "enabled": true
+    },
+    {
+      "table": "imports",
+      "enabled": true
+    },
+    {
+      "table": "product_aliases",
+      "enabled": true
+    },
+    {
+      "table": "products",
+      "enabled": true
+    },
+    {
+      "table": "purchase_order_items",
+      "enabled": true
+    },
+    {
+      "table": "purchase_orders",
+      "enabled": true
+    },
+    {
+      "table": "supplier_prices",
+      "enabled": true
+    },
+    {
+      "table": "suppliers",
+      "enabled": true
+    },
+    {
+      "table": "users",
+      "enabled": true
+    }
+  ],
+  "policies": [
+    {
+      "table": "audit_logs",
+      "name": "read own audit",
+      "cmd": "SELECT",
+      "roles": "authenticated",
+      "using": "((user_id = ( SELECT users.id\n   FROM users\n  WHERE (users.supabase_user_id = auth.uid()))) OR (((au"
+    },
+    {
+      "table": "imports",
+      "name": "admin write imports",
+      "cmd": "ALL",
+      "roles": "authenticated",
+      "using": "(((auth.jwt() -> 'app_metadata'::text) ->> 'role'::text) = 'admin'::text)"
+    },
+    {
+      "table": "imports",
+      "name": "read for authenticated",
+      "cmd": "SELECT",
+      "roles": "authenticated",
+      "using": "true"
+    },
+    {
+      "table": "product_aliases",
+      "name": "read for authenticated",
+      "cmd": "SELECT",
+      "roles": "authenticated",
+      "using": "true"
+    },
+    {
+      "table": "products",
+      "name": "admin write products",
+      "cmd": "ALL",
+      "roles": "authenticated",
+      "using": "(((auth.jwt() -> 'app_metadata'::text) ->> 'role'::text) = 'admin'::text)"
+    },
+    {
+      "table": "products",
+      "name": "read for authenticated",
+      "cmd": "SELECT",
+      "roles": "authenticated",
+      "using": "true"
+    },
+    {
+      "table": "purchase_order_items",
+      "name": "read for authenticated",
+      "cmd": "SELECT",
+      "roles": "authenticated",
+      "using": "true"
+    },
+    {
+      "table": "purchase_order_items",
+      "name": "user write own order items",
+      "cmd": "ALL",
+      "roles": "authenticated",
+      "using": "(EXISTS ( SELECT 1\n   FROM purchase_orders po\n  WHERE ((po.id = purchase_order_items.order_id) AND ("
+    },
+    {
+      "table": "purchase_orders",
+      "name": "read for authenticated",
+      "cmd": "SELECT",
+      "roles": "authenticated",
+      "using": "true"
+    },
+    {
+      "table": "purchase_orders",
+      "name": "user write own orders",
+      "cmd": "ALL",
+      "roles": "authenticated",
+      "using": "(user_id = ( SELECT users.id\n   FROM users\n  WHERE (users.supabase_user_id = auth.uid())))"
+    },
+    {
+      "table": "supplier_prices",
+      "name": "admin write prices",
+      "cmd": "ALL",
+      "roles": "authenticated",
+      "using": "(((auth.jwt() -> 'app_metadata'::text) ->> 'role'::text) = 'admin'::text)"
+    },
+    {
+      "table": "supplier_prices",
+      "name": "read for authenticated",
+      "cmd": "SELECT",
+      "roles": "authenticated",
+      "using": "true"
+    },
+    {
+      "table": "suppliers",
+      "name": "admin write suppliers",
+      "cmd": "ALL",
+      "roles": "authenticated",
+      "using": "(((auth.jwt() -> 'app_metadata'::text) ->> 'role'::text) = 'admin'::text)"
+    },
+    {
+      "table": "suppliers",
+      "name": "read for authenticated",
+      "cmd": "SELECT",
+      "roles": "authenticated",
+      "using": "true"
+    },
+    {
+      "table": "users",
+      "name": "read own user",
+      "cmd": "SELECT",
+      "roles": "authenticated",
+      "using": "((supabase_user_id = auth.uid()) OR (((auth.jwt() -> 'app_metadata'::text) ->> 'role'::text) = 'admi"
+    }
+  ],
+  "security_definer_functions": [
+    {
+      "name": "ensure_user_profile",
+      "definer": true
+    },
+    {
+      "name": "handle_new_user",
+      "definer": true
+    },
+    {
+      "name": "rls_auto_enable",
+      "definer": true
+    }
+  ],
+  "triggers": [],
+  "counts": {
+    "products": 10,
+    "suppliers": 2,
+    "product_aliases": 10,
+    "supplier_prices": 32,
+    "users": 1,
+    "purchase_orders": 3,
+    "purchase_order_items": 12,
+    "imports": 1,
+    "audit_logs": 6
+  }
+}

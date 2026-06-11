@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Compra Facil Hoteis — Arquitetura Visual</title>
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --bg-card: #141414;
+    --bg-elev: #1c1c1c;
+    --border: #2a2a2a;
+    --text: #e5e5e5;
+    --text-muted: #888;
+    --accent: #10b981;
+    --accent-2: #3b82f6;
+    --accent-3: #f59e0b;
+    --accent-4: #8b5cf6;
+    --accent-5: #ec4899;
+    --accent-6: #06b6d4;
+    --green: #10b981;
+    --red: #ef4444;
+    --yellow: #f59e0b;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    line-height: 1.6;
+    padding: 2rem 1rem 4rem;
+  }
+  .container { max-width: 1200px; margin: 0 auto; }
+  header {
+    text-align: center;
+    padding: 3rem 1rem 2rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 3rem;
+  }
+  .logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+  .logo-icon {
+    width: 56px; height: 56px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px;
+  }
+  h1 { font-size: 2.5rem; font-weight: 700; margin-bottom: 0.5rem; }
+  .subtitle { color: var(--text-muted); font-size: 1.05rem; }
+  .version { display: inline-block; margin-top: 0.75rem; padding: 0.25rem 0.75rem; background: var(--bg-elev); border: 1px solid var(--border); border-radius: 999px; font-size: 0.8rem; color: var(--text-muted); }
+
+  section { margin-bottom: 4rem; }
+  .section-num {
+    display: inline-block;
+    width: 32px; height: 32px;
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    text-align: center; line-height: 32px;
+    font-weight: 600; font-size: 0.9rem;
+    color: var(--accent);
+    margin-right: 0.75rem;
+  }
+  h2 {
+    font-size: 1.6rem; font-weight: 600;
+    margin-bottom: 0.5rem;
+    display: flex; align-items: center;
+  }
+  .section-desc { color: var(--text-muted); margin-bottom: 1.5rem; max-width: 800px; }
+
+  .grid { display: grid; gap: 1.5rem; }
+  .grid-2 { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+  .grid-3 { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+  .grid-4 { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+
+  .box {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem;
+    transition: all 0.2s;
+  }
+  .box:hover { border-color: #3a3a3a; transform: translateY(-2px); }
+  .box-icon {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    margin-bottom: 0.75rem;
+  }
+  .box h3 { font-size: 1.05rem; font-weight: 600; margin-bottom: 0.4rem; }
+  .box p { color: var(--text-muted); font-size: 0.9rem; }
+
+  .vercel { background: rgba(0,0,0,0.3); border-color: #444; }
+  .vercel .box-icon { background: #000; border: 1px solid #333; }
+  .supabase { background: rgba(62,207,142,0.05); border-color: rgba(62,207,142,0.3); }
+  .supabase .box-icon { background: rgba(62,207,142,0.15); color: #3ecf8e; }
+  .github { background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.2); }
+  .github .box-icon { background: rgba(255,255,255,0.1); }
+  .user { background: rgba(59,130,246,0.05); border-color: rgba(59,130,246,0.3); }
+  .user .box-icon { background: rgba(59,130,246,0.15); color: var(--accent-2); }
+  .storage { background: rgba(139,92,246,0.05); border-color: rgba(139,92,246,0.3); }
+  .storage .box-icon { background: rgba(139,92,246,0.15); color: var(--accent-4); }
+  .edge { background: rgba(245,158,11,0.05); border-color: rgba(245,158,11,0.3); }
+  .edge .box-icon { background: rgba(245,158,11,0.15); color: var(--accent-3); }
+  .data { background: rgba(16,185,129,0.05); border-color: rgba(16,185,129,0.3); }
+  .data .box-icon { background: rgba(16,185,129,0.15); color: var(--accent); }
+  .meta { background: rgba(236,72,153,0.05); border-color: rgba(236,72,153,0.3); }
+  .meta .box-icon { background: rgba(236,72,153,0.15); color: var(--accent-5); }
+  .auth { background: rgba(6,182,212,0.05); border-color: rgba(6,182,212,0.3); }
+  .auth .box-icon { background: rgba(6,182,212,0.15); color: var(--accent-6); }
+
+  /* Diagram container */
+  .diagram {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2rem;
+    margin: 1.5rem 0;
+    overflow-x: auto;
+  }
+  .diagram svg { display: block; margin: 0 auto; max-width: 100%; height: auto; }
+
+  /* Flow steps */
+  .flow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+    margin: 1rem 0;
+  }
+  .step {
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.5rem 0.85rem;
+    font-size: 0.85rem;
+    color: var(--text);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .step-num {
+    background: var(--accent);
+    color: #000;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+  }
+  .arrow { color: var(--text-muted); font-size: 1.2rem; }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+    font-size: 0.9rem;
+  }
+  th, td { padding: 0.65rem 0.85rem; text-align: left; border-bottom: 1px solid var(--border); }
+  th { color: var(--text-muted); font-weight: 500; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; }
+  td code, .code { font-family: 'SF Mono', Monaco, Consolas, monospace; background: var(--bg-elev); padding: 0.1rem 0.35rem; border-radius: 4px; font-size: 0.85em; }
+  .pill { display: inline-block; padding: 0.15rem 0.5rem; border-radius: 999px; font-size: 0.75rem; font-weight: 500; }
+  .pill-green { background: rgba(16,185,129,0.15); color: var(--accent); }
+  .pill-blue { background: rgba(59,130,246,0.15); color: var(--accent-2); }
+  .pill-yellow { background: rgba(245,158,11,0.15); color: var(--accent-3); }
+  .pill-red { background: rgba(239,68,68,0.15); color: var(--red); }
+
+  .callout {
+    background: var(--bg-elev);
+    border-left: 3px solid var(--accent);
+    padding: 1rem 1.25rem;
+    border-radius: 0 8px 8px 0;
+    margin: 1.5rem 0;
+    font-size: 0.9rem;
+  }
+  .callout strong { color: var(--accent); }
+  .callout.blue { border-color: var(--accent-2); }
+  .callout.blue strong { color: var(--accent-2); }
+  .callout.yellow { border-color: var(--accent-3); }
+  .callout.yellow strong { color: var(--accent-3); }
+
+  footer { text-align: center; color: var(--text-muted); font-size: 0.85rem; padding: 2rem 0 0; border-top: 1px solid var(--border); margin-top: 4rem; }
+
+  /* Animation for arrows */
+  @keyframes flow {
+    from { stroke-dashoffset: 24; }
+    to { stroke-dashoffset: 0; }
+  }
+  .flow-line {
+    stroke-dasharray: 4 4;
+    animation: flow 1.5s linear infinite;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">🏨</div>
+    <div>
+      <h1>Compra Facil Hoteis</h1>
+      <div class="subtitle">Arquitetura Visual · Fase 3 — Operação Real</div>
+    </div>
+  </div>
+  <div class="version">v0.5.0 · URL: <a href="https://compra-facil-hoteis.vercel.app" style="color:var(--accent);text-decoration:none">compra-facil-hoteis.vercel.app</a></div>
+</header>
+
+<!-- ====================================================== -->
+<section>
+  <h2><span class="section-num">1</span> Visão Geral — 4 Pilares</h2>
+  <p class="section-desc">A aplicação tem 4 componentes principais. Tudo é gratuito (free tier). O utilizador final só fala com o Vercel; o Vercel fala com o Supabase.</p>
+
+  <div class="grid grid-4">
+    <div class="box user">
+      <div class="box-icon">👤</div>
+      <h3>Utilizador</h3>
+      <p>Comprador num hotel. Usa o browser em desktop ou telemóvel. Faz login, pesquisa produtos, cria ordens.</p>
+    </div>
+    <div class="box vercel">
+      <div class="box-icon">▲</div>
+      <h3>Vercel</h3>
+      <p>Frontend Next.js 15. Build automático quando há push no GitHub. URL pública global com HTTPS e CDN.</p>
+    </div>
+    <div class="box supabase">
+      <div class="box-icon">⚡</div>
+      <h3>Supabase</h3>
+      <p>Banco de dados Postgres + Auth + Storage + Edge Functions (Deno). Tudo num só serviço. RLS protege os dados.</p>
+    </div>
+    <div class="box github">
+      <div class="box-icon">🐙</div>
+      <h3>GitHub</h3>
+      <p>Source code. Cada push para <code>main</code> dispara novo deploy na Vercel automaticamente.</p>
+    </div>
+  </div>
+
+  <div class="diagram">
+<svg viewBox="0 0 1000 360" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#888"/>
+    </marker>
+    <marker id="arrow-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#10b981"/>
+    </marker>
+  </defs>
+
+  <!-- User -->
+  <rect x="40" y="130" width="120" height="100" rx="14" fill="#1c1c1c" stroke="#3b82f6" stroke-width="2"/>
+  <text x="100" y="165" text-anchor="middle" fill="#3b82f6" font-size="14" font-weight="600">👤 Utilizador</text>
+  <text x="100" y="195" text-anchor="middle" fill="#888" font-size="11">Browser</text>
+  <text x="100" y="212" text-anchor="middle" fill="#888" font-size="11">desktop / mobile</text>
+
+  <!-- Vercel -->
+  <rect x="240" y="80" width="180" height="200" rx="14" fill="#1c1c1c" stroke="#666" stroke-width="2"/>
+  <text x="330" y="115" text-anchor="middle" fill="#fff" font-size="15" font-weight="600">▲ Vercel</text>
+  <text x="330" y="138" text-anchor="middle" fill="#888" font-size="11">Next.js 15 + React</text>
+  <text x="330" y="158" text-anchor="middle" fill="#888" font-size="11">13 rotas · 5 tabs</text>
+  <text x="330" y="180" text-anchor="middle" fill="#888" font-size="11">Edge Network global</text>
+  <rect x="265" y="200" width="130" height="60" rx="8" fill="#0a0a0a" stroke="#444"/>
+  <text x="330" y="220" text-anchor="middle" fill="#888" font-size="10">build cache</text>
+  <text x="330" y="235" text-anchor="middle" fill="#888" font-size="10">HTTPS + HSTS</text>
+  <text x="330" y="250" text-anchor="middle" fill="#888" font-size="10">CSP + X-Frame</text>
+
+  <!-- Supabase -->
+  <rect x="500" y="40" width="220" height="290" rx="14" fill="#0a0a0a" stroke="#3ecf8e" stroke-width="2"/>
+  <text x="610" y="72" text-anchor="middle" fill="#3ecf8e" font-size="15" font-weight="600">⚡ Supabase</text>
+
+  <!-- Auth -->
+  <rect x="520" y="90" width="180" height="40" rx="8" fill="#1c1c1c" stroke="#3ecf8e"/>
+  <text x="610" y="106" text-anchor="middle" fill="#3ecf8e" font-size="11" font-weight="500">🔐 Auth (JWT ES256)</text>
+  <text x="610" y="121" text-anchor="middle" fill="#888" font-size="9">Supabase GoTrue</text>
+
+  <!-- DB -->
+  <rect x="520" y="140" width="180" height="50" rx="8" fill="#1c1c1c" stroke="#3ecf8e"/>
+  <text x="610" y="158" text-anchor="middle" fill="#3ecf8e" font-size="11" font-weight="500">🗄 Postgres + RLS</text>
+  <text x="610" y="173" text-anchor="middle" fill="#888" font-size="9">9 tabelas · 18 policies</text>
+  <text x="610" y="186" text-anchor="middle" fill="#888" font-size="9">eu-west-1</text>
+
+  <!-- Storage -->
+  <rect x="520" y="200" width="180" height="40" rx="8" fill="#1c1c1c" stroke="#3ecf8e"/>
+  <text x="610" y="216" text-anchor="middle" fill="#3ecf8e" font-size="11" font-weight="500">📦 Storage</text>
+  <text x="610" y="231" text-anchor="middle" fill="#888" font-size="9">bucket ocr-uploads (1GB)</text>
+
+  <!-- Edge Functions -->
+  <rect x="520" y="250" width="180" height="60" rx="8" fill="#1c1c1c" stroke="#f59e0b"/>
+  <text x="610" y="270" text-anchor="middle" fill="#f59e0b" font-size="11" font-weight="500">⚡ Edge Functions</text>
+  <text x="610" y="285" text-anchor="middle" fill="#888" font-size="9">Deno runtime</text>
+  <text x="610" y="299" text-anchor="middle" fill="#888" font-size="9">admin-users (criar/eliminar)</text>
+
+  <!-- GitHub -->
+  <rect x="780" y="130" width="160" height="100" rx="14" fill="#1c1c1c" stroke="#aaa" stroke-width="2"/>
+  <text x="860" y="165" text-anchor="middle" fill="#fff" font-size="14" font-weight="600">🐙 GitHub</text>
+  <text x="860" y="190" text-anchor="middle" fill="#888" font-size="11">main branch</text>
+  <text x="860" y="207" text-anchor="middle" fill="#888" font-size="11">Push protection</text>
+
+  <!-- Arrows -->
+  <!-- User -> Vercel -->
+  <line x1="160" y1="180" x2="240" y2="180" stroke="#3b82f6" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="200" y="170" text-anchor="middle" fill="#3b82f6" font-size="10">HTTPS</text>
+
+  <!-- Vercel -> Supabase (DB + Auth) -->
+  <path d="M 420 180 L 460 180 L 460 160 L 500 160" stroke="#3ecf8e" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+  <text x="460" y="150" text-anchor="middle" fill="#3ecf8e" font-size="10">REST + Auth JWT</text>
+
+  <!-- Vercel -> Edge Function -->
+  <path d="M 420 240 L 460 240 L 460 280 L 500 280" stroke="#f59e0b" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+  <text x="460" y="298" text-anchor="middle" fill="#f59e0b" font-size="10">REST + JWT</text>
+
+  <!-- GitHub -> Vercel (deploy) -->
+  <path d="M 780 170 L 760 170 L 760 150 L 420 150" stroke="#888" stroke-width="2" fill="none" marker-end="url(#arrow)" stroke-dasharray="4 4"/>
+  <text x="600" y="142" text-anchor="middle" fill="#888" font-size="10">push → build → deploy</text>
+
+  <!-- GitHub -> Supabase (Edge Function deploy) -->
+  <path d="M 780 220 L 760 220 L 760 280 L 720 280" stroke="#888" stroke-width="2" fill="none" marker-end="url(#arrow)" stroke-dasharray="4 4"/>
+  <text x="745" y="312" text-anchor="middle" fill="#888" font-size="9">supabase deploy</text>
+
+  <!-- Legend -->
+  <text x="100" y="340" fill="#888" font-size="10">Linha sólida = runtime · Linha tracejada = CI/CD</text>
+</svg>
+  </div>
+
+  <div class="callout">
+    <strong>Fluxo do utilizador:</strong> Browser → HTTPS → Vercel (página HTML+JS) → REST API → Supabase (dados + auth).
+    <br><strong>Fluxo de código:</strong> Programador → git push → GitHub → webhook → Vercel build + Supabase deploy.
+  </div>
+</section>
+
+<!-- ====================================================== -->
+<section>
+  <h2><span class="section-num">2</span> Fluxo de Autenticação (Login)</h2>
+  <p class="section-desc">Como o utilizador entra no sistema. Tudo gerido pelo Supabase Auth (GoTrue). O frontend NUNCA vê passwords em plain text — só hashes.</p>
+
+  <div class="diagram">
+<svg viewBox="0 0 1000 280" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="a2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#10b981"/>
+    </marker>
+  </defs>
+
+  <!-- Steps -->
+  <g font-family="system-ui" font-size="11">
+    <rect x="20" y="80" width="100" height="100" rx="10" fill="#1c1c1c" stroke="#3b82f6" stroke-width="2"/>
+    <text x="70" y="110" text-anchor="middle" fill="#3b82f6" font-size="13" font-weight="600">1. User</text>
+    <text x="70" y="135" text-anchor="middle" fill="#888" font-size="10">digita</text>
+    <text x="70" y="150" text-anchor="middle" fill="#888" font-size="10">email+pwd</text>
+    <text x="70" y="170" text-anchor="middle" fill="#888" font-size="10">no /login</text>
+
+    <rect x="160" y="80" width="140" height="100" rx="10" fill="#1c1c1c" stroke="#666" stroke-width="2"/>
+    <text x="230" y="110" text-anchor="middle" fill="#fff" font-size="13" font-weight="600">2. Vercel</text>
+    <text x="230" y="135" text-anchor="middle" fill="#888" font-size="10">signInWithPassword()</text>
+    <text x="230" y="152" text-anchor="middle" fill="#888" font-size="10">@supabase/ssr</text>
+
+    <rect x="340" y="50" width="160" height="160" rx="10" fill="#0a0a0a" stroke="#3ecf8e" stroke-width="2"/>
+    <text x="420" y="80" text-anchor="middle" fill="#3ecf8e" font-size="13" font-weight="600">3. Supabase</text>
+    <text x="420" y="105" text-anchor="middle" fill="#888" font-size="10">GoTrue verifica</text>
+    <text x="420" y="120" text-anchor="middle" fill="#888" font-size="10">bcrypt hash</text>
+    <text x="420" y="140" text-anchor="middle" fill="#888" font-size="10">emite JWT</text>
+    <text x="420" y="160" text-anchor="middle" fill="#888" font-size="10">(ES256 + JWKS)</text>
+    <rect x="360" y="170" width="120" height="30" rx="5" fill="#1c1c1c" stroke="#3ecf8e"/>
+    <text x="420" y="190" text-anchor="middle" fill="#3ecf8e" font-size="10">access_token (60min)</text>
+
+    <rect x="540" y="80" width="140" height="100" rx="10" fill="#1c1c1c" stroke="#666" stroke-width="2"/>
+    <text x="610" y="110" text-anchor="middle" fill="#fff" font-size="13" font-weight="600">4. Vercel</text>
+    <text x="610" y="135" text-anchor="middle" fill="#888" font-size="10">guarda token em</text>
+    <text x="610" y="150" text-anchor="middle" fill="#888" font-size="10">localStorage</text>
+    <text x="610" y="170" text-anchor="middle" fill="#888" font-size="10">redirect → /dashboard</text>
+
+    <rect x="720" y="80" width="140" height="100" rx="10" fill="#1c1c1c" stroke="#3b82f6" stroke-width="2"/>
+    <text x="790" y="110" text-anchor="middle" fill="#3b82f6" font-size="13" font-weight="600">5. User</text>
+    <text x="790" y="135" text-anchor="middle" fill="#888" font-size="10">vê dashboard</text>
+    <text x="790" y="150" text-anchor="middle" fill="#888" font-size="10">logado ✓</text>
+    <text x="790" y="170" text-anchor="middle" fill="#888" font-size="10">Sessão 60 min</text>
+
+    <line x1="120" y1="130" x2="160" y2="130" stroke="#10b981" stroke-width="2" marker-end="url(#a2)"/>
+    <line x1="300" y1="130" x2="340" y2="130" stroke="#10b981" stroke-width="2" marker-end="url(#a2)"/>
+    <line x1="500" y1="130" x2="540" y2="130" stroke="#10b981" stroke-width="2" marker-end="url(#a2)"/>
+    <line x1="680" y1="130" x2="720" y2="130" stroke="#10b981" stroke-width="2" marker-end="url(#a2)"/>
+  </g>
+</svg>
+  </div>
+
+  <div class="callout blue">
+    <strong>Segurança:</strong> O password NUNCA passa pelo Vercel — é enviado direto do browser para o Supabase via HTTPS. O Vercel só vê o JWT (que é assinado e verificável).
+  </div>
+</section>
+
+<!-- ====================================================== -->
+<section>
+  <h2><span class="section-num">3</span> Fluxo de Pedido Rápido (CRUD)</h2>
+  <p class="section-desc">O utilizador pesquisa um produto (autocomplete), escolhe, ajusta quantidade, e grava uma ordem. Tudo client-side + RLS.</p>
+
+  <div class="diagram">
+<svg viewBox="0 0 1000 380" xmlns="http://www.w3.org/2000/svg">
+  <g font-family="system-ui" font-size="11">
+    <rect x="20" y="40" width="120" height="80" rx="10" fill="#1c1c1c" stroke="#3b82f6" stroke-width="2"/>
+    <text x="80" y="70" text-anchor="middle" fill="#3b82f6" font-size="12" font-weight="600">1. User</text>
+    <text x="80" y="92" text-anchor="middle" fill="#888" font-size="10">digita "coca"</text>
+    <text x="80" y="106" text-anchor="middle" fill="#888" font-size="10">no /order</text>
+
+    <rect x="180" y="40" width="180" height="80" rx="10" fill="#1c1c1c" stroke="#666" stroke-width="2"/>
+    <text x="270" y="65" text-anchor="middle" fill="#fff" font-size="12" font-weight="600">2. Vercel (React)</text>
+    <text x="270" y="85" text-anchor="middle" fill="#888" font-size="10">debounce 150ms</text>
+    <text x="270" y="100" text-anchor="middle" fill="#888" font-size="10">searchProductsAutocomplete()</text>
+
+    <rect x="400" y="40" width="220" height="80" rx="10" fill="#0a0a0a" stroke="#3ecf8e" stroke-width="2"/>
+    <text x="510" y="65" text-anchor="middle" fill="#3ecf8e" font-size="12" font-weight="600">3. Supabase Postgres</text>
+    <text x="510" y="88" text-anchor="middle" fill="#888" font-size="10">SELECT FROM products</text>
+    <text x="510" y="103" text-anchor="middle" fill="#888" font-size="10">WHERE master_name ILIKE '%coca%'</text>
+
+    <rect x="180" y="160" width="180" height="80" rx="10" fill="#1c1c1c" stroke="#666" stroke-width="2"/>
+    <text x="270" y="185" text-anchor="middle" fill="#fff" font-size="12" font-weight="600">4. Vercel mostra</text>
+    <text x="270" y="207" text-anchor="middle" fill="#888" font-size="10">dropdown com 8 resultados</text>
+    <text x="270" y="225" text-anchor="middle" fill="#888" font-size="10">(coca, coca-cola...)</text>
+
+    <rect x="20" y="160" width="120" height="80" rx="10" fill="#1c1c1c" stroke="#3b82f6" stroke-width="2"/>
+    <text x="80" y="185" text-anchor="middle" fill="#3b82f6" font-size="12" font-weight="600">5. User</text>
+    <text x="80" y="208" text-anchor="middle" fill="#888" font-size="10">escolhe</text>
+    <text x="80" y="222" text-anchor="middle" fill="#888" font-size="10">qty=10</text>
+
+    <rect x="400" y="160" width="220" height="80" rx="10" fill="#0a0a0a" stroke="#3ecf8e" stroke-width="2"/>
+    <text x="510" y="185" text-anchor="middle" fill="#3ecf8e" font-size="12" font-weight="600">6. Supabase DB</text>
+    <text x="510" y="208" text-anchor="middle" fill="#888" font-size="10">SELECT supplier_prices</text>
+    <text x="510" y="222" text-anchor="middle" fill="#888" font-size="10">(preços por fornecedor)</text>
+
+    <rect x="400" y="280" width="220" height="80" rx="10" fill="#0a0a0a" stroke="#3ecf8e" stroke-width="2"/>
+    <text x="510" y="305" text-anchor="middle" fill="#3ecf8e" font-size="12" font-weight="600">7. COMMIT</text>
+    <text x="510" y="328" text-anchor="middle" fill="#888" font-size="10">INSERT purchase_orders</text>
+    <text x="510" y="343" text-anchor="middle" fill="#888" font-size="10">+ purchase_order_items</text>
+
+    <text x="510" y="20" text-anchor="middle" fill="#3ecf8e" font-size="11" font-weight="600">RLS valida: user é authenticated</text>
+    <text x="510" y="370" text-anchor="middle" fill="#10b981" font-size="10">Ordem gravada com cod PO-XXX</text>
+  </g>
+</svg>
+  </div>
+
+  <div class="callout yellow">
+    <strong>RLS (Row Level Security):</strong> Cada query do Vercel para o Supabase envia o JWT no header. O Supabase valida automaticamente que o user pode ler/escrever aquela linha. Sem RLS, o user poderia ver ordens de outros hotéis.
+  </div>
+</section>
+
+<!-- ====================================================== -->
+<section>
+  <h2><span class="section-num">4</span> Fluxo de Admin (Edge Function)</h2>
+  <p class="section-desc">O admin cria novos utilizadores. Isto requer a <code>service_role</code> key (que NÃO está no frontend). Solução: Edge Function no Supabase.</p>
+
+  <div class="diagram">
+<svg viewBox="0 0 1000 320" xmlns="http://www.w3.org/2000/svg">
+  <g font-family="system-ui" font-size="11">
+    <rect x="20" y="60" width="120" height="80" rx="10" fill="#1c1c1c" stroke="#3b82f6" stroke-width="2"/>
+    <text x="80" y="88" text-anchor="middle" fill="#3b82f6" font-size="12" font-weight="600">1. Admin</text>
+    <text x="80" y="110" text-anchor="middle" fill="#888" font-size="10">preenche form</text>
+    <text x="80" y="124" text-anchor="middle" fill="#888" font-size="10">"Novo Login"</text>
+
+    <rect x="180" y="60" width="180" height="80" rx="10" fill="#1c1c1c" stroke="#666" stroke-width="2"/>
+    <text x="270" y="85" text-anchor="middle" fill="#fff" font-size="12" font-weight="600">2. Vercel (fetch)</text>
+    <text x="270" y="107" text-anchor="middle" fill="#888" font-size="10">POST /functions/v1/admin-users</text>
+    <text x="270" y="122" text-anchor="middle" fill="#888" font-size="10">+ admin's JWT</text>
+
+    <rect x="400" y="40" width="220" height="120" rx="10" fill="#0a0a0a" stroke="#f59e0b" stroke-width="2"/>
+    <text x="510" y="65" text-anchor="middle" fill="#f59e0b" font-size="12" font-weight="600">3. Edge Function (Deno)</text>
+    <text x="510" y="87" text-anchor="middle" fill="#888" font-size="10">a) Verifica JWT do caller</text>
+    <text x="510" y="103" text-anchor="middle" fill="#888" font-size="10">b) Confirma role == 'admin'</text>
+    <text x="510" y="123" text-anchor="middle" fill="#888" font-size="10">c) Usa service_role key</text>
+    <text x="510" y="143" text-anchor="middle" fill="#888" font-size="10">d) Chama supabase.auth.admin</text>
+
+    <rect x="660" y="40" width="220" height="120" rx="10" fill="#0a0a0a" stroke="#3ecf8e" stroke-width="2"/>
+    <text x="770" y="65" text-anchor="middle" fill="#3ecf8e" font-size="12" font-weight="600">4. Supabase Auth</text>
+    <text x="770" y="87" text-anchor="middle" fill="#888" font-size="10">auth.admin.createUser()</text>
+    <text x="770" y="107" text-anchor="middle" fill="#888" font-size="10">com email_confirm=true</text>
+    <text x="770" y="127" text-anchor="middle" fill="#888" font-size="10">(skip verificação email)</text>
+    <rect x="680" y="135" width="180" height="20" rx="4" fill="#1c1c1c" stroke="#3ecf8e"/>
+    <text x="770" y="149" text-anchor="middle" fill="#3ecf8e" font-size="10">Trigger cria profile em public.users</text>
+
+    <rect x="180" y="220" width="180" height="60" rx="10" fill="#1c1c1c" stroke="#666" stroke-width="2"/>
+    <text x="270" y="245" text-anchor="middle" fill="#fff" font-size="12" font-weight="600">5. Vercel mostra</text>
+    <text x="270" y="265" text-anchor="middle" fill="#10b981" font-size="10">"Login criado!"</text>
+
+    <text x="100" y="20" text-anchor="middle" fill="#f59e0b" font-size="11" font-weight="600">Porquê Edge Function? service_role key nunca sai do Supabase</text>
+    <text x="510" y="200" text-anchor="middle" fill="#888" font-size="10" font-style="italic">* deploy com `supabase functions deploy admin-users`</text>
+  </g>
+</svg>
+  </div>
+
+  <div class="callout">
+    <strong>Porquê Edge Function?</strong> A <code>service_role</code> key tem poder total (bypassa RLS). Se estivesse no frontend, qualquer pessoa a podia ler. Edge Function = código servidor sem servidor a gerir. <strong>Grátis até 500K invocations/mês.</strong>
+  </div>
+</section>
+
+<!-- ====================================================== -->
+<section>
+  <h2><span class="section-num">5</span> Fluxo de Upload (Storage)</h2>
+  <p class="section-desc">O utilizador carrega um ficheiro de preços (PDF/CSV/Excel). Vai para o Supabase Storage e fica em fila para processamento.</p>
+
+  <div class="diagram">
+<svg viewBox="0 0 1000 280" xmlns="http://www.w3.org/2000/svg">
+  <g font-family="system-ui" font-size="11">
+    <rect x="20" y="60" width="120" height="80" rx="10" fill="#1c1c1c" stroke="#3b82f6" stroke-width="2"/>
+    <text x="80" y="90" text-anchor="middle" fill="#3b82f6" font-size="12" font-weight="600">1. User</text>
+    <text x="80" y="112" text-anchor="middle" fill="#888" font-size="10">seleciona</text>
+    <text x="80" y="126" text-anchor="middle" fill="#888" font-size="10">ficheiro</text>
+
+    <rect x="180" y="60" width="180" height="80" rx="10" fill="#1c1c1c" stroke="#666" stroke-width="2"/>
+    <text x="270" y="85" text-anchor="middle" fill="#fff" font-size="12" font-weight="600">2. Vercel</text>
+    <text x="270" y="107" text-anchor="middle" fill="#888" font-size="10">storage.upload()</text>
+    <text x="270" y="122" text-anchor="middle" fill="#888" font-size="10">path: user_id/...</text>
+
+    <rect x="400" y="40" width="220" height="120" rx="10" fill="#0a0a0a" stroke="#8b5cf6" stroke-width="2"/>
+    <text x="510" y="65" text-anchor="middle" fill="#8b5cf6" font-size="12" font-weight="600">3. Supabase Storage</text>
+    <text x="510" y="88" text-anchor="middle" fill="#888" font-size="10">bucket: ocr-uploads</text>
+    <text x="510" y="105" text-anchor="middle" fill="#888" font-size="10">RLS: user vê só os seus</text>
+    <text x="510" y="125" text-anchor="middle" fill="#888" font-size="10">ficheiro guardado ✓</text>
+    <text x="510" y="143" text-anchor="middle" fill="#888" font-size="10">devolve path</text>
+
+    <rect x="400" y="180" width="220" height="80" rx="10" fill="#0a0a0a" stroke="#3ecf8e" stroke-width="2"/>
+    <text x="510" y="205" text-anchor="middle" fill="#3ecf8e" font-size="12" font-weight="600">4. INSERT imports</text>
+    <text x="510" y="227" text-anchor="middle" fill="#888" font-size="10">status='uploaded'</text>
+    <text x="510" y="243" text-anchor="middle" fill="#888" font-size="10">aguarda OCR (F4)</text>
+
+    <rect x="180" y="180" width="180" height="80" rx="10" fill="#1c1c1c" stroke="#666" stroke-width="2"/>
+    <text x="270" y="205" text-anchor="middle" fill="#fff" font-size="12" font-weight="600">5. /exceptions</text>
+    <text x="270" y="227" text-anchor="middle" fill="#f59e0b" font-size="10">mostra "OCR pendente"</text>
+    <text x="270" y="245" text-anchor="middle" fill="#888" font-size="10">1 item</text>
+
+    <text x="510" y="30" text-anchor="middle" fill="#888" font-size="10" font-style="italic">OCR completo agendado para Fase 4 (Edge Function com Tesseract.js ou Vision API)</text>
+  </g>
+</svg>
+  </div>
+</section>
+
+<!-- ====================================================== -->
+<section>
+  <h2><span class="section-num">6</span> Fluxo de Deploy (CI/CD)</h2>
+  <p class="section-desc">Cada push para o GitHub dispara deploys automáticos. Sem intervenção manual.</p>
+
+  <div class="diagram">
+<svg viewBox="0 0 1000 280" xmlns="http://www.w3.org/2000/svg">
+  <g font-family="system-ui" font-size="11">
+    <rect x="20" y="100" width="120" height="80" rx="10" fill="#1c1c1c" stroke="#aaa" stroke-width="2"/>
+    <text x="80" y="125" text-anchor="middle" fill="#fff" font-size="12" font-weight="600">1. Dev</text>
+    <text x="80" y="150" text-anchor="middle" fill="#888" font-size="10">git push origin main</text>
+    <text x="80" y="166" text-anchor="middle" fill="#888" font-size="10">(local)</text>
+
+    <rect x="180" y="100" width="160" height="80" rx="10" fill="#1c1c1c" stroke="#aaa" stroke-width="2"/>
+    <text x="260" y="125" text-anchor="middle" fill="#fff" font-size="12" font-weight="600">2. GitHub</text>
+    <text x="260" y="150" text-anchor="middle" fill="#888" font-size="10">commit + push</text>
+    <text x="260" y="166" text-anchor="middle" fill="#888" font-size="10">branch: main</text>
+
+    <rect x="380" y="40" width="180" height="80" rx="10" fill="#1c1c1c" stroke="#666" stroke-width="2"/>
+    <text x="470" y="65" text-anchor="middle" fill="#fff" font-size="12" font-weight="600">3a. Vercel webhook</text>
+    <text x="470" y="88" text-anchor="middle" fill="#888" font-size="10">git push event</text>
+    <text x="470" y="106" text-anchor="middle" fill="#888" font-size="10">npm install + next build</text>
+
+    <rect x="380" y="160" width="180" height="80" rx="10" fill="#1c1c1c" stroke="#f59e0b" stroke-width="2"/>
+    <text x="470" y="185" text-anchor="middle" fill="#f59e0b" font-size="12" font-weight="600">3b. Supabase CLI</text>
+    <text x="470" y="208" text-anchor="middle" fill="#888" font-size="10">supabase functions deploy</text>
+    <text x="470" y="226" text-anchor="middle" fill="#888" font-size="10">(se houver em supabase/)</text>
+
+    <rect x="600" y="40" width="160" height="80" rx="10" fill="#1c1c1c" stroke="#666" stroke-width="2"/>
+    <text x="680" y="65" text-anchor="middle" fill="#fff" font-size="12" font-weight="600">4a. Vercel CDN</text>
+    <text x="680" y="88" text-anchor="middle" fill="#10b981" font-size="10">compra-facil-hoteis</text>
+    <text x="680" y="106" text-anchor="middle" fill="#888" font-size="10">.vercel.app ✓</text>
+
+    <rect x="600" y="160" width="160" height="80" rx="10" fill="#1c1c1c" stroke="#f59e0b" stroke-width="2"/>
+    <text x="680" y="185" text-anchor="middle" fill="#f59e0b" font-size="12" font-weight="600">4b. Edge Function</text>
+    <text x="680" y="208" text-anchor="middle" fill="#10b981" font-size="10">admin-users</text>
+    <text x="680" y="226" text-anchor="middle" fill="#888" font-size="10">live ✓</text>
+
+    <rect x="800" y="100" width="160" height="80" rx="10" fill="#1c1c1c" stroke="#3b82f6" stroke-width="2"/>
+    <text x="880" y="125" text-anchor="middle" fill="#3b82f6" font-size="12" font-weight="600">5. User</text>
+    <text x="880" y="150" text-anchor="middle" fill="#888" font-size="10">vê a nova versão</text>
+    <text x="880" y="166" text-anchor="middle" fill="#888" font-size="10">em &lt;60s</text>
+  </g>
+</svg>
+  </div>
+
+  <div class="callout yellow">
+    <strong>Tempo de deploy:</strong> ~1 minuto do push até o URL público estar atualizado. O Vercel faz cache do build, então alterações só de código são ainda mais rápidas (~30s).
+  </div>
+</section>
+
+<!-- ====================================================== -->
+<section>
+  <h2><span class="section-num">7</span> Segurança — RLS em Detalhe</h2>
+  <p class="section-desc">Cada query é validada pelo Postgres. Mesmo que o frontend mande um user_id de outro user, o RLS bloqueia.</p>
+
+  <div class="diagram">
+<svg viewBox="0 0 1000 380" xmlns="http://www.w3.org/2000/svg">
+  <g font-family="system-ui" font-size="11">
+    <rect x="20" y="80" width="160" height="100" rx="10" fill="#1c1c1c" stroke="#3b82f6" stroke-width="2"/>
+    <text x="100" y="105" text-anchor="middle" fill="#3b82f6" font-size="12" font-weight="600">Frontend</text>
+    <text x="100" y="125" text-anchor="middle" fill="#888" font-size="10">user A logado</text>
+    <text x="100" y="143" text-anchor="middle" fill="#888" font-size="10">com JWT seu</text>
+    <text x="100" y="160" text-anchor="middle" fill="#888" font-size="10">tenta aceder a ordens</text>
+    <text x="100" y="177" text-anchor="middle" fill="#888" font-size="10">de user B</text>
+
+    <rect x="220" y="60" width="240" height="160" rx="10" fill="#0a0a0a" stroke="#3ecf8e" stroke-width="2"/>
+    <text x="340" y="85" text-anchor="middle" fill="#3ecf8e" font-size="12" font-weight="600">Postgres + RLS</text>
+    <text x="340" y="108" text-anchor="middle" fill="#888" font-size="10">1. Decode JWT</text>
+    <text x="340" y="128" text-anchor="middle" fill="#888" font-size="10">2. Extrai user_id</text>
+    <text x="340" y="148" text-anchor="middle" fill="#888" font-size="10">3. Avalia policy:</text>
+    <text x="340" y="165" text-anchor="middle" fill="#888" font-size="9" font-family="monospace">user_id = auth.uid()</text>
+    <text x="340" y="180" text-anchor="middle" fill="#888" font-size="10">4. Filtra rows</text>
+    <text x="340" y="200" text-anchor="middle" fill="#888" font-size="10">5. Devolve só o que pode ver</text>
+
+    <rect x="500" y="80" width="160" height="100" rx="10" fill="#1c1c1c" stroke="#10b981" stroke-width="2"/>
+    <text x="580" y="105" text-anchor="middle" fill="#10b981" font-size="12" font-weight="600">Resultado</text>
+    <text x="580" y="130" text-anchor="middle" fill="#10b981" font-size="11">✓ só ordens de A</text>
+    <text x="580" y="150" text-anchor="middle" fill="#10b981" font-size="11">✓ ordens de B: 0</text>
+    <text x="580" y="170" text-anchor="middle" fill="#888" font-size="10">(RLS bloqueou)</text>
+
+    <rect x="700" y="40" width="260" height="100" rx="10" fill="#0a0a0a" stroke="#f59e0b" stroke-width="2"/>
+    <text x="830" y="65" text-anchor="middle" fill="#f59e0b" font-size="12" font-weight="600">Admin Exception</text>
+    <text x="830" y="85" text-anchor="middle" fill="#888" font-size="10">admin_users policy:</text>
+    <text x="830" y="103" text-anchor="middle" fill="#888" font-size="9" font-family="monospace">auth.jwt()->user_metadata->>role</text>
+    <text x="830" y="120" text-anchor="middle" fill="#888" font-size="9" font-family="monospace">= 'admin'</text>
+    <text x="830" y="135" text-anchor="middle" fill="#888" font-size="10">→ admin vê todos</text>
+
+    <rect x="700" y="160" width="260" height="100" rx="10" fill="#0a0a0a" stroke="#8b5cf6" stroke-width="2"/>
+    <text x="830" y="185" text-anchor="middle" fill="#8b5cf6" font-size="12" font-weight="600">Service Role</text>
+    <text x="830" y="205" text-anchor="middle" fill="#888" font-size="10">bypassa RLS</text>
+    <text x="830" y="225" text-anchor="middle" fill="#888" font-size="9" font-family="monospace">NUNCA no frontend</text>
+    <text x="830" y="245" text-anchor="middle" fill="#888" font-size="10">só em Edge Functions</text>
+
+    <text x="500" y="320" text-anchor="middle" fill="#888" font-size="10" font-style="italic">Sem RLS, qualquer user autenticado via a base toda. Por isso é o item #1 do OWASP.</text>
+  </g>
+</svg>
+  </div>
+</section>
+
+<!-- ====================================================== -->
+<section>
+  <h2><span class="section-num">8</span> Camadas de Defesa</h2>
+  <p class="section-desc">Defense in depth — mesmo que uma camada falhe, as outras protegem.</p>
+
+  <div class="grid grid-2">
+    <div class="box auth">
+      <div class="box-icon">🔐</div>
+      <h3>Camada 1 — Autenticação</h3>
+      <p>JWT ES256 com chave assimétrica. Refresh tokens rodáveis. Logout limpa localStorage.</p>
+    </div>
+    <div class="box data">
+      <div class="box-icon">🛡</div>
+      <h3>Camada 2 — Autorização (RLS)</h3>
+      <p>15 policies no Postgres. Cada query é validada. Admin vê tudo; user vê só os seus.</p>
+    </div>
+    <div class="box vercel">
+      <div class="box-icon">🌐</div>
+      <h3>Camada 3 — Transport (TLS)</h3>
+      <p>HTTPS forçado. HSTS max-age 2 anos. CSP no meta. Headers X-Frame-Options DENY.</p>
+    </div>
+    <div class="box supabase">
+      <div class="box-icon">🔒</div>
+      <h3>Camada 4 — Storage (RLS)</h3>
+      <p>Bucket privado. Cada user só vê os seus uploads. URL assinada temporária.</p>
+    </div>
+    <div class="box edge">
+      <div class="box-icon">⚡</div>
+      <h3>Camada 5 — Edge Function</h3>
+      <p>service_role key NUNCA sai do Supabase. Validação extra: role==admin no JWT.</p>
+    </div>
+    <div class="box github">
+      <div class="box-icon">🔍</div>
+      <h3>Camada 6 — Push Protection</h3>
+      <p>GitHub bloqueia commits com secrets (sb_secret_, AWS keys, etc). Verified antes de push.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ====================================================== -->
+<section>
+  <h2><span class="section-num">9</span> Custos — 100% Free Tiers</h2>
+  <p class="section-desc">Tudo isto está a correr em free tiers. Sem assinaturas pagas.</p>
+
+  <table>
+    <thead>
+      <tr><th>Serviço</th><th>Tier</th><th>Limites</th><th>Usado</th><th>Custo</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Vercel</td>
+        <td><span class="pill pill-blue">Hobby</span></td>
+        <td>100GB bandwidth/mês · 100 deploys/dia · Edge network</td>
+        <td>~1GB/mês · 5 deploys/semana</td>
+        <td><strong style="color:var(--accent)">€0</strong></td>
+      </tr>
+      <tr>
+        <td>Supabase</td>
+        <td><span class="pill pill-green">Free</span></td>
+        <td>500MB DB · 1GB Storage · 50K MAU · 500K Edge Function calls</td>
+        <td>~10MB DB · 100MB Storage · 3 users</td>
+        <td><strong style="color:var(--accent)">€0</strong></td>
+      </tr>
+      <tr>
+        <td>GitHub</td>
+        <td><span class="pill pill-blue">Free</span></td>
+        <td>500MB repo · Unlimited collaborators</td>
+        <td>~100MB repo</td>
+        <td><strong style="color:var(--accent)">€0</strong></td>
+      </tr>
+      <tr>
+        <td>Cloudflare</td>
+        <td><span class="pill pill-green">Free</span></td>
+        <td>CDN + DDoS protection (ilimitado)</td>
+        <td>Automático via Vercel</td>
+        <td><strong style="color:var(--accent)">€0</strong></td>
+      </tr>
+      <tr style="border-top: 2px solid var(--border);">
+        <td colspan="4" style="text-align:right"><strong>TOTAL MENSAL</strong></td>
+        <td><strong style="color:var(--accent); font-size:1.1rem">€0</strong></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout">
+    <strong>Quando vai precisar de pagar?</strong>
+    <ul style="margin-top:0.5rem; padding-left:1.5rem">
+      <li>Mais de 50K utilizadores ativos/mês → Supabase Pro ($25/mês)</li>
+      <li>Mais de 1GB de uploads (PDFs grandes de faturas) → Supabase Pro</li>
+      <li>Mais de 500K invocations da Edge Function → Supabase Pro</li>
+      <li>Domínio próprio (ex: compras.fourpoint.pt) → €10/ano num registrar</li>
+    </ul>
+    <strong>Para o teu caso (1-2 hotéis piloto), está folgado no free tier.</strong>
+  </div>
+</section>
+
+<!-- ====================================================== -->
+<section>
+  <h2><span class="section-num">10</span> Resumo — Mapa Mental</h2>
+  <p class="section-desc">Uma visão "executiva" de todo o sistema.</p>
+
+  <div class="diagram">
+<svg viewBox="0 0 1000 460" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="usergrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.05"/>
+    </linearGradient>
+    <linearGradient id="vercelgrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#666" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#666" stop-opacity="0.05"/>
+    </linearGradient>
+    <linearGradient id="supagrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3ecf8e" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#3ecf8e" stop-opacity="0.05"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Sky: User -->
+  <rect x="40" y="40" width="920" height="60" rx="12" fill="url(#usergrad)" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="60" y="78" fill="#3b82f6" font-size="14" font-weight="600">👤 Camada Cliente</text>
+  <text x="180" y="78" fill="#888" font-size="11">Comprador no hotel · Browser · Mobile · Desktop</text>
+  <text x="600" y="78" fill="#888" font-size="11">vê UI React, fala via HTTPS, JWT no localStorage</text>
+
+  <!-- Vercel -->
+  <rect x="40" y="115" width="920" height="100" rx="12" fill="url(#vercelgrad)" stroke="#666" stroke-width="1.5"/>
+  <text x="60" y="153" fill="#fff" font-size="14" font-weight="600">▲ Camada Aplicação (Vercel)</text>
+  <text x="280" y="153" fill="#888" font-size="11">Next.js 15 (App Router) · React 19 · Tailwind 4 · shadcn/ui · 13 rotas</text>
+  <g font-size="10" fill="#aaa">
+    <text x="60" y="180">/login</text>
+    <text x="130" y="180">/dashboard</text>
+    <text x="240" y="180">/order</text>
+    <text x="320" y="180">/favorites</text>
+    <text x="430" y="180">/catalog</text>
+    <text x="540" y="180">/orders</text>
+    <text x="630" y="180">/imports</text>
+    <text x="720" y="180">/prices</text>
+    <text x="800" y="180">/exceptions</text>
+    <text x="60" y="200">/health</text>
+    <text x="130" y="200">/roi</text>
+    <text x="200" y="200">/suppliers</text>
+    <text x="300" y="200">/admin</text>
+    <text x="380" y="200">/users</text>
+  </g>
+
+  <!-- Supabase Auth + DB -->
+  <rect x="40" y="230" width="440" height="100" rx="12" fill="url(#supagrad)" stroke="#3ecf8e" stroke-width="1.5"/>
+  <text x="60" y="268" fill="#3ecf8e" font-size="14" font-weight="600">⚡ Supabase Postgres</text>
+  <text x="280" y="268" fill="#888" font-size="11">RLS ON em todas as 9 tabelas</text>
+  <g font-size="10" fill="#aaa">
+    <text x="60" y="295">products (10)</text>
+    <text x="160" y="295">suppliers (2)</text>
+    <text x="270" y="295">supplier_prices</text>
+    <text x="60" y="315">product_aliases</text>
+    <text x="200" y="315">users</text>
+    <text x="280" y="315">purchase_orders</text>
+    <text x="60" y="335">purchase_order_items</text>
+    <text x="220" y="335">imports</text>
+    <text x="310" y="335">audit_logs</text>
+  </g>
+
+  <!-- Supabase Edge + Storage -->
+  <rect x="500" y="230" width="460" height="100" rx="12" fill="url(#supagrad)" stroke="#3ecf8e" stroke-width="1.5"/>
+  <text x="520" y="268" fill="#3ecf8e" font-size="14" font-weight="600">⚡ Supabase Auxiliares</text>
+  <rect x="520" y="280" width="200" height="35" rx="6" fill="#0a0a0a" stroke="#3ecf8e"/>
+  <text x="540" y="298" fill="#3ecf8e" font-size="11" font-weight="500">🔐 Auth (GoTrue)</text>
+  <text x="540" y="310" fill="#888" font-size="9">JWT ES256 + JWKS</text>
+  <rect x="740" y="280" width="200" height="35" rx="6" fill="#0a0a0a" stroke="#8b5cf6"/>
+  <text x="760" y="298" fill="#8b5cf6" font-size="11" font-weight="500">📦 Storage</text>
+  <text x="760" y="310" fill="#888" font-size="9">ocr-uploads (1GB)</text>
+
+  <rect x="520" y="320" width="420" height="0" />
+
+  <!-- Source -->
+  <rect x="40" y="345" width="920" height="60" rx="12" fill="#1c1c1c" stroke="#aaa" stroke-width="1.5"/>
+  <text x="60" y="380" fill="#fff" font-size="14" font-weight="600">🐙 Source Control</text>
+  <text x="200" y="380" fill="#888" font-size="11">GitHub · main branch · 17 commits · push protection</text>
+  <text x="600" y="380" fill="#888" font-size="11">Vercel webhook → build · Supabase CLI → deploy Edge Function</text>
+
+  <!-- Cost -->
+  <rect x="40" y="420" width="920" height="35" rx="12" fill="#0a0a0a" stroke="#10b981" stroke-width="1.5"/>
+  <text x="60" y="443" fill="#10b981" font-size="14" font-weight="600">💰 Custo total mensal</text>
+  <text x="280" y="443" fill="#888" font-size="11">Vercel Free + Supabase Free + GitHub Free + Cloudflare Free</text>
+  <text x="850" y="443" fill="#10b981" font-size="16" font-weight="700">€0</text>
+</svg>
+  </div>
+</section>
+
+<footer>
+  Compra Facil Hoteis v0.5.0 · Arquitetura visual · <a href="https://compra-facil-hoteis.vercel.app" style="color:var(--accent)">compra-facil-hoteis.vercel.app</a><br>
+  <span style="color:#555">Documento gerado em 2026-06-11 · MiniMax Agent</span>
+</footer>
+
+</div>
+</body>
+</html>
