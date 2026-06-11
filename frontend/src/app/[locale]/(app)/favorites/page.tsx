@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { listFavorites, createFavorite, deleteFavorite, useFavorite, getProductNamesForAutocomplete, getFrequentItems, type Favorite, type FrequentItem } from '@/lib/supabase-data';
+import { listFavorites, createFavorite, deleteFavorite, useFavorite, getProductNamesForAutocomplete, getFrequentItems, trackEvent, type Favorite, type FrequentItem } from '@/lib/supabase-data';
 import { formatCurrency } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 
@@ -70,6 +70,7 @@ export default function FavoritesPage() {
     if (r.ok) {
       setNewName(''); setNewDesc(''); setNewItems([]); setCreating(false);
       refresh();
+      trackEvent({ event_type: 'favorite_created', entity_id: r.id, payload: { items_count: newItems.length } });
     } else {
       setMsg(r.error || 'Erro');
     }
@@ -78,6 +79,7 @@ export default function FavoritesPage() {
   async function applyFavorite(f: Favorite) {
     setBusy(true);
     await useFavorite(f.id);
+    trackEvent({ event_type: 'favorite_used', entity_id: f.id });
     // Redirecionar para /order com os items pré-preenchidos via localStorage
     localStorage.setItem('procurehotel.preorder', JSON.stringify(f.items));
     router.push('/order?from_fav=' + f.id);

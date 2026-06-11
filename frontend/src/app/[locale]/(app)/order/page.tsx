@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { listSuppliers, parseOrderText, optimizeOrder, createOrder, searchProductsAutocomplete, type FreeTextItem, type Page, type Supplier } from '@/lib/supabase-data';
+import { listSuppliers, parseOrderText, optimizeOrder, createOrder, searchProductsAutocomplete, trackEvent, type FreeTextItem, type Page, type Supplier } from '@/lib/supabase-data';
 import { formatCurrency } from '@/lib/utils';
 import { useSearchParams } from 'next/navigation';
 
@@ -112,6 +112,7 @@ function OrderPageInner() {
   async function doCommit() {
     if (!supplierId) { setErr('Selecione um fornecedor'); return; }
     setBusy(true); setErr(null);
+    const t0 = Date.now();
     try {
       const validItems = items.filter((i) => i.product_id && i.unit_price > 0);
       const o = await createOrder({
@@ -120,6 +121,19 @@ function OrderPageInner() {
         items: validItems.map((i) => ({ product_id: i.product_id!, quantity: i.quantity, unit_price: i.unit_price, raw_line: i.raw_line })),
       });
       setOrderCode(o.code);
+      // Métrica operacional
+      trackEvent({
+        event_type: 'order_created',
+        entity_type: 'purchase_order',
+        entity_id: o.id,
+        duration_ms: t0 ? Date.now() - t0 : undefined,
+        payload: {
+          supplier_id: supplierId,
+          items_count: validItems.length,
+          total_eur: o.total_amount,
+          source: text ? 'free_text' : 'autocomplete',
+        },
+      });
       setStep('done');
     } catch (e: any) { setErr(e.message); }
     setBusy(false);

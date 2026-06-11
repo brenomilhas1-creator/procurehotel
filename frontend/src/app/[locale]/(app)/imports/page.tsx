@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl';
 import { UploadCloud, Check, X, Loader2, FileText } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { listImports, listSuppliers, type Page, type ImportRow, type Supplier } from '@/lib/supabase-data';
+import { listImports, listSuppliers, trackEvent, type Page, type ImportRow, type Supplier } from '@/lib/supabase-data';
 import { getSupabase } from '@/lib/supabase';
 
 export default function ImportsPage() {
@@ -48,6 +48,12 @@ export default function ImportsPage() {
       rows_total: 0, rows_approved: 0, rows_rejected: 0,
     });
     if (insErr) { setMsg({ kind: 'err', text: `Registo falhou: ${insErr.message}` }); setUploading(false); return; }
+
+    trackEvent({
+      event_type: 'import_uploaded',
+      entity_type: 'import',
+      payload: { filename: file.name, size_bytes: file.size, supplier_id: supplierId || null, type: importType },
+    });
 
     setMsg({ kind: 'ok', text: `Ficheiro "${file.name}" enviado. Processamento em fila.` });
     setUploading(false);

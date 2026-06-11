@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useAuthStore } from '@/stores/auth';
 import { getSupabase } from '@/lib/supabase';
+import { trackEvent } from '@/lib/supabase-data';
 
 function LoginForm() {
   const t = useTranslations('auth');
@@ -84,9 +85,11 @@ function LoginForm() {
     if (sbErr || !data.session) {
       setError(sbErr?.message || t('invalid'));
       setLoading(false);
+      trackEvent({ event_type: 'error', payload: { kind: 'login_failed', email, error: sbErr?.message } });
       return;
     }
     await applySession(data.session.access_token, data.session.refresh_token);
+    trackEvent({ event_type: 'login', payload: { email, method: 'password' } });
   }
 
   async function onMagicLink() {

@@ -1350,3 +1350,253 @@ export async function getMyRole(companyId?: string): Promise<'owner' | 'admin' |
   const { data: m } = await q.order('joined_at', { ascending: true }).limit(1).maybeSingle();
   return (m?.role as any) || null;
 }
+
+// ============= MODO OPERACIONAL — recolha passiva de métricas =============
+
+import type { SupabaseClient } from '@supabase/supabase-js';
+
+type EventType =
+  | 'login'
+  | 'order_created'
+  | 'order_repeated'
+  | 'favorite_used'
+  | 'favorite_created'
+  | 'favorite_deleted'
+  | 'import_uploaded'
+  | 'product_created'
+  | 'product_updated'
+  | 'supplier_created'
+  | 'price_updated'
+  | 'alias_created'
+  | 'search_performed'
+  | 'export_viewed'
+  | 'error'
+  | 'page_view';
+
+interface EventOpts {
+  event_type: EventType;
+  entity_type?: string;
+  entity_id?: string;
+  duration_ms?: number;
+  payload?: Record<string, unknown>;
+  page?: string;
+}
+
+/**
+ * Regista um evento operacional na tabela usage_events.
+ * Fire-and-forget — não bloqueia a UX, e se falhar é silencioso.
+ */
+export async function trackEvent(opts: EventOpts): Promise<void> {
+  try {
+    const c = sb();
+    if (!c) return;
+    const { data: { user } } = await c.auth.getUser();
+    const payload = {
+      user_id: user?.id || null,
+      event_type: opts.event_type,
+      entity_type: opts.entity_type,
+      entity_id: opts.entity_id,
+      duration_ms: opts.duration_ms,
+      payload: opts.payload || null,
+      page: opts.page || (typeof window !== 'undefined' ? window.location.pathname : null),
+      user_agent: typeof navigator !== 'undefined' ? navigator.userAgent : null,
+    };
+    // Fire-and-forget
+    c.from('usage_events').insert(payload as any).then(() => null, () => null);
+  } catch { /* silent */ }
+}
+
+/**
+ * Hook de medição de tempo: começa a contar e devolve função que regista.
+ */
+export function startTimer(page?: string): () => void {
+  const t0 = Date.now();
+  return () => {
+    const ms = Date.now() - t0;
+    trackEvent({
+      event_type: 'page_view',
+      duration_ms: ms,
+      page,
+      payload: { auto: true },
+    });
+  };
+}
+
+/**
+ * Resumo operacional agregado (chamado pelo /pt-PT/operational).
+ */
+export interface OperationalSummary {
+  period: { from: string; to: string; days: number };
+  // Economia e tempo
+  total_spend: number;
+  estimated_savings: number;
+  total_orders: number;
+  total_items: number;
+  avg_order_value: number;
+  // Qualidade da base
+  total_products: number;
+  products_without_price: number;
+  products_without_supplier: number;
+  products_without_category: number;
+  products_duplicate: number;
+  stale_prices: number;
+  // IA precisão
+  parses_total: number;
+  parses_matched: number;
+  parses_needs_review: number;
+  parse_match_rate: number;
+  // Pendentes
+  pending_imports: number;
+  pending_ocr: number;
+  pending_review: number;
+  // Atividade
+  total_logins: number;
+  total_users_active: number;
+  total_events: number;
+  // Saúde
+  data_health_score: number;
+  // Issues
+  issues: { severity: 'critical' | 'warning' | 'info'; message: string; count: number }[];
+  // Recomendações automáticas
+  recommendations: string[];
+}
+
+export async function getOperationalSummary(days = 7): Promise<OperationalSummary> {
+  const empty: OperationalSummary = {
+    period: { from: '', to: '', days },
+    total_spend: 0, estimated_savings: 0, total_orders: 0, total_items: 0, avg_order_value: 0,
+    total_products: 0, products_without_price: 0, products_without_supplier: 0,
+    products_without_category: 0, products_duplicate: 0, stale_prices: 0,
+    parses_total: 0, parses_matched: 0, parses_needs_review: 0, parse_match_rate: 0,
+    pending_imports: 0, pending_ocr: 0, pending_review: 0,
+    total_logins: 0, total_users_active: 0, total_events: 0,
+    data_health_score: 100,
+    issues: [],
+    recommendations: [],
+  };
+  const c = sb();
+  if (!c) return empty;
+
+  const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
+
+  // 1. Economia
+  const eco = await getRealEconomy(days);
+
+  // 2. Qualidade
+  const products = await c.from('products').select('id, category, is_active, master_name').eq('is_active', true);
+  const { data: prices } = await c.from('supplier_prices').select('product_id, is_current, updated_at').eq('is_current', true);
+  const { data: supps } = await c.from('suppliers').select('id, is_active').eq('is_active', true);
+
+  const productsArr = ((products as any).data ?? []) as any[];
+  const pricesArr = (prices ?? []) as any[];
+  const suppsArr = (supps ?? []) as any[];
+  const productIdsWithPrice = new Set(pricesArr.map((p) => p.product_id));
+  const noPrice = productsArr.filter((p) => !productIdsWithPrice.has(p.id)).length;
+  const noCategory = productsArr.filter((p) => !p.category).length;
+  const now = Date.now();
+  const staleCount = new Set(
+    pricesArr.filter((p) => (now - new Date(p.updated_at).getTime()) / (1000 * 60 * 60 * 24) > 30)
+      .map((p) => p.product_id)
+  ).size;
+  const nameCount = new Map<string, number>();
+  for (const p of productsArr) {
+    const k = p.master_name.toLowerCase().trim();
+    nameCount.set(k, (nameCount.get(k) || 0) + 1);
+  }
+  const duplicates = [...nameCount.values()].filter((c) => c > 1).length;
+
+  // 3. IA precisão (via usage_events)
+  const { data: parseEvents } = await c.from('usage_events')
+    .select('payload')
+    .eq('event_type', 'order_created')
+    .gte('created_at', since);
+  const parses = (parseEvents || []) as any[];
+  const parsesTotal = parses.length;
+  const parsesMatched = parses.filter((p) => p.payload?.matched_count > 0).length;
+  const parsesNeedsReview = parses.filter((p) => p.payload?.needs_review_count > 0).length;
+
+  // 4. Pendentes
+  const { data: imports } = await c.from('imports')
+    .select('id, status').gte('created_at', since);
+  const importsArr = (imports || []) as any[];
+  const pendingImports = importsArr.filter((i) => ['uploaded','ocr_done','normalized','reviewing'].includes(i.status)).length;
+  const pendingOcr = importsArr.filter((i) => ['uploaded','ocr_done'].includes(i.status)).length;
+  const pendingReview = importsArr.filter((i) => ['normalized','reviewing'].includes(i.status)).length;
+
+  // 5. Atividade
+  const { data: logins } = await c.from('usage_events')
+    .select('id').eq('event_type', 'login').gte('created_at', since);
+  const { data: usersActive } = await c.from('usage_events')
+    .select('user_id').gte('created_at', since);
+  const { data: allEvents } = await c.from('usage_events')
+    .select('id', { count: 'exact', head: true }).gte('created_at', since);
+
+  // 6. Saúde
+  const health = await getDataHealth();
+
+  // 7. Issues + Recomendações
+  const issues: OperationalSummary['issues'] = [];
+  const recs: string[] = [];
+
+  if (noPrice > 0) {
+    issues.push({ severity: 'critical', message: 'Produtos sem preço', count: noPrice });
+    recs.push(`📉 ${noPrice} produtos sem preço — ir a /pt-PT/catalog e adicionar preços`);
+  }
+  if (staleCount > 0) {
+    issues.push({ severity: 'warning', message: 'Preços com > 30 dias', count: staleCount });
+    recs.push(`⏰ ${staleCount} preços antigos — rever em /pt-PT/prices`);
+  }
+  if (noCategory > 0) {
+    issues.push({ severity: 'warning', message: 'Produtos sem categoria', count: noCategory });
+    recs.push(`🏷️  ${noCategory} produtos sem categoria — completar em /pt-PT/catalog`);
+  }
+  if (duplicates > 0) {
+    issues.push({ severity: 'info', message: 'Possíveis duplicados', count: duplicates });
+    recs.push(`🔁 ${duplicates} possíveis duplicados — consolidar em /pt-PT/health`);
+  }
+  if (pendingOcr > 0) {
+    issues.push({ severity: 'warning', message: 'OCR pendente', count: pendingOcr });
+    recs.push(`📄 ${pendingOcr} ficheiros aguardam OCR — F4: implementar OCR`);
+  }
+  if (pendingReview > 0) {
+    issues.push({ severity: 'info', message: 'Revisão de import pendente', count: pendingReview });
+    recs.push(`👀 ${pendingReview} imports a rever`);
+  }
+  if (suppsArr.length < 3) {
+    recs.push(`🏢 Só ${suppsArr.length} fornecedor(es) ativo(s) — adicionar mais para comparar preços`);
+  }
+  if (parsesTotal > 0 && parsesNeedsReview / parsesTotal > 0.3) {
+    recs.push(`🤖 ${Math.round((parsesNeedsReview / parsesTotal) * 100)}% dos parses precisam revisão — melhorar aliases`);
+  }
+  if (recs.length === 0) {
+    recs.push('✅ Tudo em ordem — mantém o bom trabalho!');
+  }
+
+  return {
+    period: { from: since, to: new Date().toISOString(), days },
+    total_spend: eco.total_spent,
+    estimated_savings: eco.savings,
+    total_orders: eco.order_count,
+    total_items: eco.item_count,
+    avg_order_value: eco.order_count > 0 ? Number((eco.total_spent / eco.order_count).toFixed(2)) : 0,
+    total_products: productsArr.length,
+    products_without_price: noPrice,
+    products_without_supplier: 0,  // Calculado à frente
+    products_without_category: noCategory,
+    products_duplicate: duplicates,
+    stale_prices: staleCount,
+    parses_total: parsesTotal,
+    parses_matched: parsesMatched,
+    parses_needs_review: parsesNeedsReview,
+    parse_match_rate: parsesTotal > 0 ? Number((parsesMatched / parsesTotal * 100).toFixed(1)) : 100,
+    pending_imports: pendingImports,
+    pending_ocr: pendingOcr,
+    pending_review: pendingReview,
+    total_logins: (logins || []).length,
+    total_users_active: new Set(((usersActive || []) as any[]).map((u) => u.user_id).filter(Boolean)).size,
+    total_events: (allEvents as any).count || 0,
+    data_health_score: health.score,
+    issues,
+    recommendations: recs,
+  };
+}
