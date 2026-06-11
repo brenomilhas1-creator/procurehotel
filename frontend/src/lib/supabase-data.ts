@@ -1600,3 +1600,4 @@ export async function getOperationalSummary(days = 7): Promise<OperationalSummar
     recommendations: recs,
   };
 }
+

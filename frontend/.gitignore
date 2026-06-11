@@ -12,3 +12,4 @@ playwright/.cache/
 .next/
 out/
 node_modules/
+.vercel

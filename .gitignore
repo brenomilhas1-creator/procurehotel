@@ -44,3 +44,4 @@ logs/
 coverage/
 .nyc_output/
 compra-facil-hoteis-v0.*.tar.gz
+.vercel
