@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { listImports, listSuppliers, trackEvent, type Page, type ImportRow, type Supplier } from '@/lib/supabase-data';
 import { getSupabase } from '@/lib/supabase';
+import * as XLSX from 'xlsx';
 
 export default function ImportsPage() {
   const [imports, setImports] = useState<Page<ImportRow> | null>(null);
@@ -222,11 +223,23 @@ async function processStructuredFile(
       if (existing) {
         productId = existing.id;
       } else {
+        // Mapear unidades para enum válido (UN -> un, etc)
+        const unitMap: Record<string, string> = {
+          UN: 'un', UND: 'un', UNID: 'un',
+          KG: 'kg', KILO: 'kg',
+          G: 'g', GR: 'g',
+          L: 'l', LT: 'lt', LITRO: 'l',
+          ML: 'ml',
+          CX: 'cx', CAIXA: 'cx',
+          PC: 'pc', PECA: 'pc',
+          DZ: 'dz', DUZIA: 'dz',
+        };
+        const unitNorm = unit ? (unitMap[unit.toUpperCase()] || unit.toLowerCase()) : 'un';
         const { data: np, error: npErr } = await sb.from('products').insert({
           master_name: name,
           brand: null,
           category: importType === 'invoice' ? 'fatura' : 'importado',
-          unit: unit || 'UN',
+          unit: unitNorm,
           is_active: true,
         }).select('id').single();
         if (npErr || !np) { result.errors.push(`Linha ${i}: ${npErr?.message}`); continue; }
@@ -276,10 +289,9 @@ async function parseFile(file: File): Promise<string[][]> {
     return parseCSV(text);
   } else if (ext === 'xlsx' || ext === 'xls') {
     // XLSX: usar SheetJS
-    const XLSX = await import('xlsx');
-    const wb = XLSX.read(buf, { type: 'array' });
+    const wb = (XLSX as any).read(buf, { type: 'array' });
     const ws = wb.Sheets[wb.SheetNames[0]];
-    return XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' }) as string[][];
+    return (XLSX as any).utils.sheet_to_json(ws, { header: 1, defval: '' }) as string[][];
   }
   return [];
 }
