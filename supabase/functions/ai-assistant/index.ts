@@ -85,6 +85,78 @@ const TOOLS = [
       },
     },
   },
+  {
+    type: "function",
+    function: {
+      name: "create_product",
+      description: "Cria um novo produto no catálogo. Use quando o utilizador pedir para adicionar/criar um produto.",
+      parameters: {
+        type: "object",
+        properties: {
+          master_name: { type: "string", description: "Nome do produto" },
+          category: { type: "string", description: "Categoria (opcional)" },
+          unit: { type: "string", description: "Unidade (un, kg, l, etc) — default 'un'" },
+          brand: { type: "string", description: "Marca (opcional)" },
+        },
+        required: ["master_name"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "update_price",
+      description: "Atualiza o preço de um produto para um fornecedor específico. Use quando o utilizador disser 'muda o preço do produto X no fornecedor Y para Z'.",
+      parameters: {
+        type: "object",
+        properties: {
+          product_name: { type: "string", description: "Nome do produto (busca por master_name)" },
+          supplier_name: { type: "string", description: "Nome do fornecedor" },
+          new_price: { type: "number", description: "Novo preço unitário em EUR" },
+        },
+        required: ["product_name", "supplier_name", "new_price"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "hide_product",
+      description: "Oculta um produto (is_hidden=true) sem apagar. Use quando o utilizador disser 'esconde o produto X' ou 'não quero ver mais o X'.",
+      parameters: {
+        type: "object",
+        properties: {
+          product_name: { type: "string", description: "Nome do produto" },
+        },
+        required: ["product_name"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "hide_supplier",
+      description: "Oculta um fornecedor (is_hidden=true) sem apagar. Use quando o utilizador disser 'esconde o fornecedor X' ou 'não quero ver mais o X'.",
+      parameters: {
+        type: "object",
+        properties: {
+          supplier_name: { type: "string", description: "Nome do fornecedor" },
+        },
+        required: ["supplier_name"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "list_pending_orders",
+      description: "Lista as últimas ordens de compra (placed ou draft).",
+      parameters: {
+        type: "object",
+        properties: { limit: { type: "number", description: "Quantas listar (default 10)" } },
+      },
+    },
+  },
 ];
 
 // ===== Tool execution =====
@@ -148,6 +220,66 @@ async function executeTool(
     }
     if (name === "process_pending_imports") {
       return await processPendingImports(supabase, args.supplier_id);
+    }
+    if (name === "create_product") {
+      const validUnits = ["un", "kg", "g", "l", "ml", "cx", "pc", "gf", "lt", "sc", "dz"];
+      const unit = (args.unit || "un").toLowerCase();
+      const finalUnit = validUnits.includes(unit) ? unit : "un";
+      const { data, error } = await supabase.from("products").insert({
+        master_name: args.master_name,
+        category: args.category || "outros",
+        unit: finalUnit,
+        brand: args.brand || null,
+        is_active: true,
+        is_hidden: false,
+      }).select().single();
+      if (error) return { ok: false, error: error.message };
+      return { ok: true, data: { id: data.id, master_name: data.master_name } };
+    }
+    if (name === "update_price") {
+      // Buscar produto
+      const { data: prod } = await supabase.from("products")
+        .select("id, master_name").ilike("master_name", `%${args.product_name}%`).limit(1).maybeSingle();
+      if (!prod) return { ok: false, error: `Produto "${args.product_name}" não encontrado` };
+      // Buscar fornecedor
+      const { data: sup } = await supabase.from("suppliers")
+        .select("id, name").ilike("name", `%${args.supplier_name}%`).limit(1).maybeSingle();
+      if (!sup) return { ok: false, error: `Fornecedor "${args.supplier_name}" não encontrado` };
+      // Upsert preço
+      const { data, error } = await supabase.from("supplier_prices").upsert({
+        product_id: prod.id,
+        supplier_id: sup.id,
+        unit_price: args.new_price,
+        price: args.new_price,
+        currency: "EUR",
+        package_qty: 1,
+        min_order_qty: 1,
+        source: "ai_update",
+        is_current: true,
+        updated_at: new Date().toISOString(),
+      }, { onConflict: "product_id,supplier_id" }).select().single();
+      if (error) return { ok: false, error: error.message };
+      return { ok: true, data: { product: prod.master_name, supplier: sup.name, new_price: args.new_price } };
+    }
+    if (name === "hide_product" || name === "hide_supplier") {
+      const table = name === "hide_product" ? "products" : "suppliers";
+      const col = name === "hide_product" ? "master_name" : "name";
+      const val = name === "hide_product" ? args.product_name : args.supplier_name;
+      const { data, error } = await supabase.from(table)
+        .update({ is_hidden: true })
+        .ilike(col, `%${val}%`);
+      if (error) return { ok: false, error: error.message };
+      return { ok: true, data: { hidden: val, count: (data || []).length } };
+    }
+    if (name === "list_pending_orders") {
+      const limit = args.limit || 10;
+      const { data, error } = await supabase
+        .from("purchase_orders")
+        .select("id, code, status, total_amount, currency, placed_at, supplier_id")
+        .order("placed_at", { ascending: false })
+        .limit(limit);
+      if (error) return { ok: false, error: error.message };
+      return { ok: true, data };
     }
     return { ok: false, error: `Tool desconhecida: ${name}` };
   } catch (e: any) {
@@ -492,13 +624,20 @@ Podes falar em português ou inglês. Sê conciso e prático.
 
 Tens acesso a ferramentas (tools) que te permitem:
 - create_supplier: criar fornecedor
-- list_suppliers: listar fornecedores
-- list_products: listar produtos
+- list_suppliers: listar fornecedores (com is_hidden)
+- list_products: listar produtos (com is_hidden)
 - get_data_health: ver estado da base de dados
 - list_pending_imports: listar uploads pendentes
-- process_pending_imports: PROCESSAR todos os uploads CSV/XLSX pendentes — extrai produtos/preços e cria no catálogo. Use quando o utilizador disser "processa os uploads", "analisa os ficheiros", "importa o que está na fila", "tens X uploads pendentes, processa-os", etc.
+- process_pending_imports: PROCESSAR todos os uploads CSV/XLSX pendentes
+- create_product: criar novo produto no catálogo
+- update_price: atualizar preço de um produto para um fornecedor
+- hide_product: OCULTAR um produto (não apaga, só esconde — pode reverter)
+- hide_supplier: OCULTAR um fornecedor (não apaga, só esconde — pode reverter)
+- list_pending_orders: listar últimas ordens de compra
 
-Quando o utilizador pedir para criar algo, confirma o nome e usa a tool. Não precisas de pedir campos opcionais.
+REGRA CRÍTICA DE TOOL CALLS: Quando o utilizador listar MÚLTIPLOS nomes (ex: "cria Alpha, Gergran e Makro"), faz UMA tool call por NOME em voltas separadas. O sistema vai continuar o loop até executares todas. NÃO mostres código, EXECUTA.
+
+REGRA DE OCULTAR vs APAGAR: Quando o utilizador disser "esconde", "não quero ver", "remove do menu", etc — USA hide_product/hide_supplier, NÃO apagues. Apagar é destrutivo, ocultar é reversível.
 
 Regras:
 - Se o utilizador pedir para criar fornecedor, usa create_supplier IMEDIATAMENTE com o nome dado.
