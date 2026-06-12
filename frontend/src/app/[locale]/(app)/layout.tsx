@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/stores/auth';
 import { useCompanyStore } from '@/stores/company';
 import { Sidebar } from '@/components/shared/Sidebar';
@@ -9,6 +10,7 @@ import { Header } from '@/components/shared/Header';
 import { getMyCompany } from '@/lib/supabase-data';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
   const { user, accessToken } = useAuthStore();
   const { company, setCompany } = useCompanyStore();
 
@@ -23,7 +25,21 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     }
   }, [accessToken, company, setCompany]);
 
+  // Redirecionar para login se não houver user (sessão expirou)
+  useEffect(() => {
+    if (!user) {
+      // pequena espera para não piscar se for refresh rápido
+      const t = setTimeout(() => {
+        if (!useAuthStore.getState().user) {
+          router.replace('/login');
+        }
+      }, 500);
+      return () => clearTimeout(t);
+    }
+  }, [user, router]);
+
   if (!user) {
+    // Sem user: renderiza só children, mas se houver token no localStorage, deixa o client restaurar
     return <>{children}</>;
   }
 
