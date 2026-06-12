@@ -1371,7 +1371,8 @@ type EventType =
   | 'search_performed'
   | 'export_viewed'
   | 'error'
-  | 'page_view';
+  | 'page_view'
+  | 'assistant_used';
 
 interface EventOpts {
   event_type: EventType;
