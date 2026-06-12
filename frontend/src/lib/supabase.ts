@@ -23,11 +23,13 @@ export function getSupabase() {
     }
     return null;
   }
-  // Em produção, cookies HttpOnly+Secure. Em dev (localhost), Secure=false.
+  // Em browser, document.cookie não suporta httpOnly (só server-side).
+  // O Supabase Auth emite cookies via Set-Cookie header quando o cliente
+  // chama signInWithPassword/signOut — esses são HttpOnly no servidor.
+  // Aqui só configuramos o que o browser-side pode controlar.
   const isProd = typeof window !== 'undefined' && window.location.protocol === 'https:';
   _client = createBrowserClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     cookieOptions: {
-      httpOnly: isProd,         // true em prod (cookie não acedido por JS)
       secure: isProd,           // true em prod (só HTTPS)
       sameSite: 'lax',          // CSRF protection
       path: '/',

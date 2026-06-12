@@ -511,8 +511,9 @@ Regras:
     let allMessages = [...messages];
     const toolResults: any[] = [];
     let lastAssistant: any = null;
+    let noToolStreak = 0;
 
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 8; i++) {
       const resp = await callProvider(
         provider,
         resolvedKey,
@@ -545,6 +546,7 @@ Regras:
 
       // Se tem tool_calls, executar
       if (msg.tool_calls && msg.tool_calls.length > 0) {
+        noToolStreak = 0;
         for (const tc of msg.tool_calls) {
           const fnName = tc.function?.name || tc.name;
           const fnArgsRaw = tc.function?.arguments || tc.arguments || "{}";
@@ -569,8 +571,47 @@ Regras:
         continue;
       }
 
-      // Sem tool_calls → resposta final
-      break;
+      // FALLBACK: detetar pseudo-tool-calls no texto
+      // Formato: functions.create_supplier({"name": "X"}) OU <fct_create_supplier name="X"/>
+      const text = String(msg.content || msg.text || "");
+      const pseudoCalls: { name: string; args: any }[] = [];
+
+      // Formato 1: functions.create_supplier({"name": "X"})
+      const fnRegex = /functions\.(\w+)\((\{[^}]+\})\)/g;
+      let m: RegExpExecArray | null;
+      while ((m = fnRegex.exec(text))) {
+        try { pseudoCalls.push({ name: m[1], args: JSON.parse(m[2]) }); } catch { /* ignore */ }
+      }
+      // Formato 2: <fct_create_supplier name="X"/>
+      const tagRegex = /<fct_(\w+)\s+([^/>]+)\/?>/g;
+      while ((m = tagRegex.exec(text))) {
+        const attrs: any = {};
+        for (const am of m[2].matchAll(/(\w+)="([^"]+)"/g)) attrs[am[1]] = am[2];
+        pseudoCalls.push({ name: m[1], args: attrs });
+      }
+
+      if (pseudoCalls.length > 0) {
+        noToolStreak = 0;
+        for (const pc of pseudoCalls) {
+          const result = await executeTool(pc.name, pc.args, user.id, supabaseAdmin);
+          toolResults.push({ tool: pc.name, args: pc.args, result });
+        }
+        // Inserir como tool result sintético (sem tool_call_id real)
+        allMessages.push({
+          role: "tool",
+          tool_call_id: `pseudo_${i}_${pseudoCalls.length}`,
+          content: JSON.stringify(pseudoCalls.map(pc => ({ tool: pc.name, result: executeTool(pc.name, pc.args, user.id, supabaseAdmin) }))),
+        });
+        // Continuar loop
+        continue;
+      }
+
+      // Sem tool_calls — incrementar streak
+      noToolStreak++;
+      if (noToolStreak >= 1) {
+        // Resposta final
+        break;
+      }
     }
 
     const reply = lastAssistant?.content || lastAssistant?.text || lastAssistant?.message || "(sem resposta)";

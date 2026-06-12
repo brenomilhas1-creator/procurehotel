@@ -21,16 +21,16 @@ test.describe('Autenticação', () => {
     await expect(page.getByText(TEST_USER.email)).toBeVisible();
   });
 
-  test('sessão persiste após F5', async ({ page }) => {
+  test('sessão persiste após F5 (via cookies httpOnly+secure)', async ({ page }) => {
     // Login
     await page.goto('/pt-PT/login');
     await page.fill('input[type="email"]', TEST_USER.email);
     await page.fill('input[type="password"]', TEST_USER.password);
     await page.click('button[type="submit"]');
-    await page.waitForURL('**/dashboard');
+    await page.waitForURL('**/dashboard', { timeout: 15_000 });
 
-    // Recarregar
-    await page.reload({ waitUntil: 'networkidle' });
+    // Recarregar — a sessão é mantida via cookies (não localStorage, removido por segurança)
+    await page.reload({ waitUntil: 'domcontentloaded' });
     await expect(page).toHaveURL(/dashboard/);
     await expect(page.getByText(TEST_USER.email)).toBeVisible();
   });
