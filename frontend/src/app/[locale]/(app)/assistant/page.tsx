@@ -280,7 +280,7 @@ export default function AssistantPage() {
             disabled={busy}
             className="flex-1"
           />
-          <Button onClick={() => send(input)} disabled={busy || !input.trim()}>
+          <Button onClick={() => send(input)} disabled={busy} title="Enviar mensagem">
             {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
             Enviar
           </Button>

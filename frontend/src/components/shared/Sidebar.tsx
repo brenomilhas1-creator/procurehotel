@@ -58,7 +58,7 @@ export function Sidebar() {
         </div>
         <div>
           <div className="font-semibold leading-none">Compra Facil</div>
-          <div className="text-xs text-muted-foreground">v0.1.0</div>
+          <div className="text-xs text-muted-foreground">v0.8.0</div>
         </div>
       </div>
       <nav className="flex-1 space-y-1 p-3">
