@@ -1,11 +1,11 @@
 'use client';
 
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
 import type { User } from '@/types';
 
 interface AuthState {
-  // O access_token do Supabase (será enviado ao FastAPI)
+  // Tokens em MEMÓRIA APENAS — não persistem. O Supabase Auth guarda os tokens
+  // em cookies HttpOnly + Secure configurados via supabase.ts.
   accessToken: string | null;
   refreshToken: string | null;
   user: User | null;
@@ -14,17 +14,12 @@ interface AuthState {
   clear: () => void;
 }
 
-export const useAuthStore = create<AuthState>()(
-  persist(
-    (set) => ({
-      accessToken: null,
-      refreshToken: null,
-      user: null,
-      setSession: ({ accessToken, refreshToken, user }) =>
-        set({ accessToken, refreshToken, user: user ?? null }),
-      setUser: (user) => set({ user }),
-      clear: () => set({ user: null, accessToken: null, refreshToken: null }),
-    }),
-    { name: 'procurehotel.auth' }
-  )
-);
+export const useAuthStore = create<AuthState>((set) => ({
+  accessToken: null,
+  refreshToken: null,
+  user: null,
+  setSession: ({ accessToken, refreshToken, user }) =>
+    set({ accessToken, refreshToken, user: user ?? null }),
+  setUser: (user) => set({ user }),
+  clear: () => set({ user: null, accessToken: null, refreshToken: null }),
+}));

@@ -81,7 +81,7 @@ export default function FavoritesPage() {
     await useFavorite(f.id);
     trackEvent({ event_type: 'favorite_used', entity_id: f.id });
     // Redirecionar para /order com os items pré-preenchidos via localStorage
-    localStorage.setItem('procurehotel.preorder', JSON.stringify(f.items));
+    sessionStorage.setItem('cf.preorder', JSON.stringify(f.items));
     router.push('/order?from_fav=' + f.id);
   }
 

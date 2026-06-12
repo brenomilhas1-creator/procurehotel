@@ -8,11 +8,15 @@ import { Sidebar } from '@/components/shared/Sidebar';
 import { MobileMenu } from '@/components/shared/MobileMenu';
 import { Header } from '@/components/shared/Header';
 import { getMyCompany } from '@/lib/supabase-data';
+import { runLocalStorageMigration } from '@/lib/migrate-localstorage';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const { user, accessToken } = useAuthStore();
   const { company, setCompany } = useCompanyStore();
+
+  // Migração one-time de localStorage (limpar tokens antigos)
+  useEffect(() => { runLocalStorageMigration(); }, []);
 
   // Carregar branding ao iniciar sessão
   useEffect(() => {

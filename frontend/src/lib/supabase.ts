@@ -1,6 +1,9 @@
 /**
  * Cliente Supabase para o browser.
  * Usa a anon key (publishable) — segura no frontend.
+ *
+ * Cookies são configurados como HttpOnly + Secure (em produção) para que
+ * JavaScript malicioso (XSS) não possa ler os tokens de auth.
  */
 
 'use client';
@@ -15,12 +18,21 @@ let _client: ReturnType<typeof createBrowserClient> | null = null;
 export function getSupabase() {
   if (_client) return _client;
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-    // Não rebentar em SSR/build — só no browser quando for usado
     if (typeof window !== 'undefined') {
       console.warn('[supabase] NEXT_PUBLIC_SUPABASE_URL / ANON_KEY em falta');
     }
     return null;
   }
-  _client = createBrowserClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  // Em produção, cookies HttpOnly+Secure. Em dev (localhost), Secure=false.
+  const isProd = typeof window !== 'undefined' && window.location.protocol === 'https:';
+  _client = createBrowserClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    cookieOptions: {
+      httpOnly: isProd,         // true em prod (cookie não acedido por JS)
+      secure: isProd,           // true em prod (só HTTPS)
+      sameSite: 'lax',          // CSRF protection
+      path: '/',
+      maxAge: 60 * 60 * 24 * 7, // 7 dias
+    },
+  });
   return _client;
 }

@@ -35,7 +35,7 @@ function OrderPageInner() {
     }).catch(() => null);
 
     // Verificar se há preorder (de Favoritos ou Repetir)
-    const pre = localStorage.getItem('procurehotel.preorder');
+    const pre = sessionStorage.getItem('cf.preorder');
     if (pre) {
       try {
         const arr = JSON.parse(pre);
@@ -52,7 +52,7 @@ function OrderPageInner() {
         })));
         if (arr[0]?.unit_price) setStep('optimized');
         else setStep('parsed');
-        localStorage.removeItem('procurehotel.preorder');
+        sessionStorage.removeItem('cf.preorder');
         if (arr[0]?.supplier_id) setSupplierId(arr[0].supplier_id);
       } catch {}
     }

@@ -38,7 +38,7 @@ export default function OrdersPage() {
       quantity: Number(i.quantity),
       unit_price: Number(i.unit_price),
     }));
-    localStorage.setItem('procurehotel.preorder', JSON.stringify(payload));
+    sessionStorage.setItem('cf.preorder', JSON.stringify(payload));
     window.location.href = '/order?from_order=' + id;
   }
 

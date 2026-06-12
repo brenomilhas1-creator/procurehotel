@@ -64,6 +64,27 @@ const TOOLS = [
       parameters: { type: "object", properties: {} },
     },
   },
+  {
+    type: "function",
+    function: {
+      name: "list_pending_imports",
+      description: "Lista imports ainda não processados (status='uploaded'). Use quando o utilizador perguntar sobre uploads pendentes ou quiser processar uploads.",
+      parameters: { type: "object", properties: {} },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "process_pending_imports",
+      description: "Processa TODOS os imports pendentes (status='uploaded') que tenham ficheiro Excel/CSV no storage. Para cada um, extrai produtos e preços e cria/atualiza no catálogo. Use quando o utilizador disser 'processa os uploads', 'analisa os ficheiros', 'importa o que está na fila', etc.",
+      parameters: {
+        type: "object",
+        properties: {
+          supplier_id: { type: "string", description: "ID do fornecedor a usar (opcional, se null tenta detectar pelo filename)" },
+        },
+      },
+    },
+  },
 ];
 
 // ===== Tool execution =====
@@ -115,10 +136,218 @@ async function executeTool(
         },
       };
     }
+    if (name === "list_pending_imports") {
+      const { data, error } = await supabase
+        .from("imports")
+        .select("id, original_filename, stored_path, size_bytes, status, created_at, supplier_id")
+        .eq("status", "uploaded")
+        .order("created_at", { ascending: false })
+        .limit(20);
+      if (error) return { ok: false, error: error.message };
+      return { ok: true, data };
+    }
+    if (name === "process_pending_imports") {
+      return await processPendingImports(supabase, args.supplier_id);
+    }
     return { ok: false, error: `Tool desconhecida: ${name}` };
   } catch (e: any) {
     return { ok: false, error: e?.message || String(e) };
   }
+}
+
+// ===== Process pending imports (download file from storage + parse client-side equivalent) =====
+async function processPendingImports(supabase: any, supplierIdArg?: string) {
+  const { data: pending, error } = await supabase
+    .from("imports")
+    .select("id, original_filename, stored_path, size_bytes, supplier_id, mime_type")
+    .eq("status", "uploaded")
+    .order("created_at", { ascending: false });
+  if (error) return { ok: false, error: error.message };
+  if (!pending || pending.length === 0) {
+    return { ok: true, data: { processed: 0, message: "Nenhum import pendente" } };
+  }
+
+  // Filtrar apenas CSV/XLSX (os outros precisam OCR — fora do scope)
+  const structured = pending.filter((p: any) => /\.(csv|xlsx|xls)$/i.test(p.original_filename || ""));
+  if (structured.length === 0) {
+    return {
+      ok: true,
+      data: { processed: 0, message: `Nenhum import CSV/XLSX pendente (${pending.length} outros tipos, precisam OCR)` },
+    };
+  }
+
+  const results: any[] = [];
+  for (const imp of structured) {
+    try {
+      // Download do Storage
+      const { data: fileData, error: dlErr } = await supabase.storage
+        .from("ocr-uploads")
+        .download(imp.stored_path);
+      if (dlErr || !fileData) {
+        results.push({ id: imp.id, filename: imp.original_filename, error: dlErr?.message || "Download falhou" });
+        continue;
+      }
+
+      const buf = new Uint8Array(await fileData.arrayBuffer());
+      const ext = (imp.original_filename || "").split(".").pop()?.toLowerCase();
+      let rows: string[][] = [];
+      if (ext === "csv") {
+        const text = new TextDecoder("utf-8").decode(buf);
+        rows = parseCsvText(text);
+      } else {
+        // xlsx — usar SheetJS
+        const { read, utils } = await import("https://esm.sh/xlsx@0.18.5");
+        const wb = read(buf, { type: "array" });
+        const ws = wb.Sheets[wb.SheetNames[0]];
+        rows = utils.sheet_to_json(ws, { header: 1, defval: "" }) as string[][];
+      }
+
+      if (rows.length === 0) {
+        results.push({ id: imp.id, filename: imp.original_filename, error: "Ficheiro vazio" });
+        continue;
+      }
+
+      const mapping = detectColumns(rows[0]);
+      if (mapping.name < 0) {
+        results.push({ id: imp.id, filename: imp.original_filename, error: "Sem coluna de nome/produto" });
+        continue;
+      }
+
+      const supplierId = supplierIdArg || imp.supplier_id;
+      let created = 0;
+      let updated = 0;
+
+      for (let i = 1; i < rows.length; i++) {
+        const row = rows[i];
+        const name = String(row[mapping.name] || "").trim();
+        if (!name || name.length < 2) continue;
+        const price = mapping.price >= 0 ? parseNumVal(row[mapping.price]) : null;
+        const unit = mapping.unit >= 0 ? String(row[mapping.unit] || "").trim() : null;
+        const code = mapping.code >= 0 ? String(row[mapping.code] || "").trim() : null;
+
+        // Upsert product
+        const { data: existing } = await supabase
+          .from("products")
+          .select("id")
+          .ilike("master_name", name)
+          .limit(1)
+          .maybeSingle();
+
+        let productId: string;
+        if (existing) {
+          productId = existing.id;
+        } else {
+          const unitNorm = unit ? (unit.toLowerCase().slice(0, 2)) : "un";
+          const validUnits = ["un", "kg", "g", "l", "ml", "cx", "pc", "gf", "lt", "sc", "dz"];
+          const finalUnit = validUnits.includes(unitNorm) ? unitNorm : "un";
+          const { data: np, error: npErr } = await supabase.from("products").insert({
+            master_name: name,
+            category: "importado",
+            unit: finalUnit,
+            is_active: true,
+          }).select("id").single();
+          if (npErr || !np) continue;
+          productId = np.id;
+          created++;
+        }
+
+        if (code) {
+          await supabase.from("product_aliases").upsert({
+            product_id: productId,
+            alias: code,
+            locale: "pt-PT",
+            hit_count: 0,
+          }, { onConflict: "product_id,alias,locale" });
+        }
+
+        if (supplierId && price && price > 0) {
+          await supabase.from("supplier_prices").upsert({
+            product_id: productId,
+            supplier_id: supplierId,
+            unit_price: price,
+            price: price,
+            currency: "EUR",
+            package_qty: 1,
+            min_order_qty: 1,
+            source: "import",
+            is_current: true,
+            updated_at: new Date().toISOString(),
+          }, { onConflict: "product_id,supplier_id" });
+          updated++;
+        }
+      }
+
+      // Marcar como processado
+      await supabase.from("imports").update({
+        status: "approved",
+        rows_total: rows.length - 1,
+        rows_approved: created + updated,
+        approved_at: new Date().toISOString(),
+      }).eq("id", imp.id);
+
+      results.push({
+        id: imp.id,
+        filename: imp.original_filename,
+        created,
+        updated,
+        rows: rows.length - 1,
+      });
+    } catch (e: any) {
+      results.push({ id: imp.id, filename: imp.original_filename, error: e?.message || String(e) });
+    }
+  }
+
+  return {
+    ok: true,
+    data: {
+      processed: results.filter((r) => !r.error).length,
+      failed: results.filter((r) => r.error).length,
+      results,
+    },
+  };
+}
+
+function parseCsvText(text: string): string[][] {
+  const lines = text.split(/\r?\n/).filter((l) => l.trim());
+  return lines.map((line) => {
+    const cells: string[] = [];
+    let cur = "";
+    let inQ = false;
+    for (let i = 0; i < line.length; i++) {
+      const c = line[i];
+      if (c === '"' && !inQ) { inQ = true; continue; }
+      if (c === '"' && inQ) {
+        if (line[i + 1] === '"') { cur += '"'; i++; continue; }
+        inQ = false; continue;
+      }
+      if (c === "," && !inQ) { cells.push(cur); cur = ""; continue; }
+      cur += c;
+    }
+    cells.push(cur);
+    return cells;
+  });
+}
+
+function detectColumns(header: string[]): { name: number; price: number; unit: number; code: number } {
+  const m = { name: -1, price: -1, unit: -1, code: -1 };
+  const lower = header.map((h) => String(h || "").toLowerCase().trim());
+  for (let i = 0; i < lower.length; i++) {
+    const c = lower[i];
+    if (m.name < 0 && /^(nome|produto|descri[çc][ãa]o|artigo|item|description|product|name)/i.test(c)) m.name = i;
+    else if (m.price < 0 && /(pre[çc]o|price|valor|custo|pvp|€|eur)/i.test(c) && !/custo[ea]/i.test(c)) m.price = i;
+    else if (m.unit < 0 && /(unidade|unit|un\.|embalagem|pack)/i.test(c)) m.unit = i;
+    else if (m.code < 0 && /(c[óo]digo|code|ref|sku|ean|refer[êe]ncia)/i.test(c)) m.code = i;
+  }
+  if (m.name < 0 && header.length > 0) m.name = 0;
+  return m;
+}
+
+function parseNumVal(v: any): number | null {
+  if (typeof v === "number") return v;
+  if (!v) return null;
+  const s = String(v).replace(/[^\d,.-]/g, "").replace(",", ".");
+  const n = parseFloat(s);
+  return isNaN(n) ? null : n;
 }
 
 // ===== Provider adapters =====
@@ -266,12 +495,15 @@ Tens acesso a ferramentas (tools) que te permitem:
 - list_suppliers: listar fornecedores
 - list_products: listar produtos
 - get_data_health: ver estado da base de dados
+- list_pending_imports: listar uploads pendentes
+- process_pending_imports: PROCESSAR todos os uploads CSV/XLSX pendentes — extrai produtos/preços e cria no catálogo. Use quando o utilizador disser "processa os uploads", "analisa os ficheiros", "importa o que está na fila", "tens X uploads pendentes, processa-os", etc.
 
 Quando o utilizador pedir para criar algo, confirma o nome e usa a tool. Não precisas de pedir campos opcionais.
 
 Regras:
 - Se o utilizador pedir para criar fornecedor, usa create_supplier IMEDIATAMENTE com o nome dado.
-- Se o utilizador perguntar o que podes fazer, explica as 4 tools.
+- Se o utilizador disser para processar uploads, usa process_pending_imports e depois resume os resultados.
+- Se o utilizador perguntar o que podes fazer, explica as 6 tools.
 - Se não souberes, diz que não tens essa capacidade.
 - Respostas curtas e diretas.`;
 
