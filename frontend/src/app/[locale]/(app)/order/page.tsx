@@ -12,7 +12,7 @@ import { useSearchParams } from 'next/navigation';
 
 function OrderPageInner() {
   const sp = useSearchParams();
-  const [text, setText] = useState('10 coca cola\n5 leite 1L\n2kg arroz\n3 iogurtes natural\n8kg bananas');
+  const [text, setText] = useState('');
   const [items, setItems] = useState<FreeTextItem[]>([]);
   const [suppliers, setSuppliers] = useState<Page<Supplier> | null>(null);
   const [supplierId, setSupplierId] = useState<string>('');

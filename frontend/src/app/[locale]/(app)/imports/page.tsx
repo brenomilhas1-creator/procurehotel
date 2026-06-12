@@ -55,7 +55,32 @@ export default function ImportsPage() {
       payload: { filename: file.name, size_bytes: file.size, supplier_id: supplierId || null, type: importType },
     });
 
-    setMsg({ kind: 'ok', text: `Ficheiro "${file.name}" enviado. Processamento em fila.` });
+    // Para CSV/XLSX, tentar extrair e gravar produtos/preços automaticamente
+    const isStructured = /\.(csv|xlsx|xls)$/i.test(file.name);
+    if (isStructured) {
+      setMsg({ kind: 'ok', text: `A processar "${file.name}"...` });
+      try {
+        const result = await processStructuredFile(file, supplierId, importType);
+        if (result.created + result.updated > 0) {
+          setMsg({
+            kind: 'ok',
+            text: `Ficheiro "${file.name}" processado: ${result.created} produtos criados, ${result.updated} preços atualizados.`,
+          });
+        } else if (result.errors.length > 0) {
+          setMsg({
+            kind: 'err',
+            text: `Não foi possível extrair produtos de "${file.name}". Verifica o formato (colunas: nome/produto, preço).`,
+          });
+        } else {
+          setMsg({ kind: 'ok', text: `Ficheiro "${file.name}" enviado (sem linhas válidas).` });
+        }
+      } catch (err: any) {
+        setMsg({ kind: 'err', text: `Erro a processar: ${err?.message || err}` });
+      }
+    } else {
+      setMsg({ kind: 'ok', text: `Ficheiro "${file.name}" enviado. Processamento em fila.` });
+    }
+
     setUploading(false);
     if (inputRef.current) inputRef.current.value = '';
     await refresh();
@@ -143,4 +168,165 @@ export default function ImportsPage() {
       </Card>
     </div>
   );
+}
+
+// ============= PROCESSAMENTO DE CSV/XLSX =============
+
+interface ProcessResult {
+  created: number;
+  updated: number;
+  errors: string[];
+}
+
+async function processStructuredFile(
+  file: File,
+  supplierId: string,
+  importType: string
+): Promise<ProcessResult> {
+  const result: ProcessResult = { created: 0, updated: 0, errors: [] };
+  const sb = getSupabase();
+  if (!sb) throw new Error('Supabase indisponível');
+
+  // 1. Parse do ficheiro
+  const rows = await parseFile(file);
+  if (rows.length === 0) {
+    result.errors.push('Ficheiro vazio ou sem linhas válidas');
+    return result;
+  }
+
+  // 2. Detectar mapeamento de colunas (header row)
+  const mapping = detectColumns(rows[0]);
+  if (mapping.name < 0) {
+    result.errors.push('Não foi possível encontrar coluna de nome/produto');
+    return result;
+  }
+
+  // 3. Para cada linha, criar/atualizar produto e preço
+  for (let i = 1; i < rows.length; i++) {
+    const row = rows[i];
+    const name = String(row[mapping.name] || '').trim();
+    if (!name || name.length < 2) continue;
+    const price = mapping.price >= 0 ? parseNumber(row[mapping.price]) : null;
+    const unit = mapping.unit >= 0 ? String(row[mapping.unit] || '').trim() : null;
+    const code = mapping.code >= 0 ? String(row[mapping.code] || '').trim() : null;
+
+    try {
+      // Upsert product
+      const { data: existing } = await sb.from('products')
+        .select('id')
+        .ilike('master_name', name)
+        .limit(1)
+        .maybeSingle();
+
+      let productId: string;
+      if (existing) {
+        productId = existing.id;
+      } else {
+        const { data: np, error: npErr } = await sb.from('products').insert({
+          master_name: name,
+          brand: null,
+          category: importType === 'invoice' ? 'fatura' : 'importado',
+          unit: unit || 'UN',
+          is_active: true,
+        }).select('id').single();
+        if (npErr || !np) { result.errors.push(`Linha ${i}: ${npErr?.message}`); continue; }
+        productId = np.id;
+        result.created++;
+      }
+
+      // Adicionar alias se tiver código
+      if (code) {
+        await sb.from('product_aliases').upsert({
+          product_id: productId,
+          alias: code,
+          locale: 'pt-PT',
+          hit_count: 0,
+        }, { onConflict: 'product_id,alias,locale' }).select();
+      }
+
+      // Adicionar preço se tiver fornecedor + preço
+      if (supplierId && price && price > 0) {
+        await sb.from('supplier_prices').upsert({
+          product_id: productId,
+          supplier_id: supplierId,
+          unit_price: price,
+          price: price,
+          currency: 'EUR',
+          package_qty: 1,
+          min_order_qty: 1,
+          source: 'manual',
+          is_current: true,
+          updated_at: new Date().toISOString(),
+        }, { onConflict: 'product_id,supplier_id' }).select();
+        result.updated++;
+      }
+    } catch (err: any) {
+      result.errors.push(`Linha ${i}: ${err?.message || err}`);
+    }
+  }
+  return result;
+}
+
+async function parseFile(file: File): Promise<string[][]> {
+  const buf = await file.arrayBuffer();
+  const ext = file.name.split('.').pop()?.toLowerCase();
+  if (ext === 'csv') {
+    // CSV: parse simples
+    const text = new TextDecoder('utf-8').decode(buf);
+    return parseCSV(text);
+  } else if (ext === 'xlsx' || ext === 'xls') {
+    // XLSX: usar SheetJS
+    const XLSX = await import('xlsx');
+    const wb = XLSX.read(buf, { type: 'array' });
+    const ws = wb.Sheets[wb.SheetNames[0]];
+    return XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' }) as string[][];
+  }
+  return [];
+}
+
+function parseCSV(text: string): string[][] {
+  // Parser CSV simples (lida com aspas e vírgulas)
+  const lines = text.split(/\r?\n/).filter((l) => l.trim());
+  return lines.map((line) => {
+    const cells: string[] = [];
+    let cur = '';
+    let inQuotes = false;
+    for (let i = 0; i < line.length; i++) {
+      const c = line[i];
+      if (c === '"' && !inQuotes) { inQuotes = true; continue; }
+      if (c === '"' && inQuotes) {
+        if (line[i + 1] === '"') { cur += '"'; i++; continue; }
+        inQuotes = false; continue;
+      }
+      if (c === ',' && !inQuotes) { cells.push(cur); cur = ''; continue; }
+      cur += c;
+    }
+    cells.push(cur);
+    return cells;
+  });
+}
+
+interface ColumnMapping { name: number; price: number; unit: number; code: number; }
+
+function detectColumns(header: string[]): ColumnMapping {
+  const m: ColumnMapping = { name: -1, price: -1, unit: -1, code: -1 };
+  const lower = header.map((h) => String(h || '').toLowerCase().trim());
+  for (let i = 0; i < lower.length; i++) {
+    const c = lower[i];
+    if (m.name < 0 && /^(nome|produto|descri[çc][ãa]o|artigo|item|description|product|name)/i.test(c)) m.name = i;
+    else if (m.price < 0 && /(pre[çc]o|price|valor|custo|pvp|€|eur)/i.test(c) && !/custo[ea]/i.test(c)) m.price = i;
+    else if (m.unit < 0 && /(unidade|unit|un\.|embalagem|pack)/i.test(c)) m.unit = i;
+    else if (m.code < 0 && /(c[óo]digo|code|ref|sku|ean|refer[êe]ncia)/i.test(c)) m.code = i;
+  }
+  // Fallback: se não encontrou nome, usar primeira coluna
+  if (m.name < 0 && header.length > 0) m.name = 0;
+  return m;
+}
+
+function parseNumber(v: any): number | null {
+  if (typeof v === 'number') return v;
+  if (!v) return null;
+  const s = String(v).replace(/[^\d,.-]/g, '').replace(',', '.');
+  const n = parseFloat(s);
+  return isNaN(n) ? null : n;
 }

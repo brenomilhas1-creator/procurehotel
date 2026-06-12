@@ -19,8 +19,8 @@ function LoginForm() {
   const locale = useLocale();
   const setSession = useAuthStore((s) => s.setSession);
 
-  const [email, setEmail] = useState('admin@fourpoint.pt');
-  const [password, setPassword] = useState('#Four1010');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
@@ -126,7 +126,7 @@ function LoginForm() {
             <div className="space-y-1.5">
               <label className="text-sm font-medium">{t('email')}</label>
               <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
-                     placeholder="admin@procurehotel.pt" required autoComplete="email" />
+                     placeholder="email@empresa.com" required autoComplete="email" />
             </div>
             <div className="space-y-1.5">
               <label className="text-sm font-medium">{t('password')}</label>
@@ -149,7 +149,7 @@ function LoginForm() {
               </Button>
             </div>
             <p className="text-center text-xs text-muted-foreground">
-              Autenticação via Supabase · primeiro admin deve ser criado no dashboard.
+              Autenticação via Supabase. Se não tens conta, pede ao admin.
             </p>
           </form>
         </CardContent>
