@@ -30,7 +30,7 @@ export default function StatusPage() {
     // Frontend (this page loaded = OK)
     setChecks((c) => c.map((x) => x.name === 'Frontend (Vercel)' ? { ...x, status: 'ok', detail: 'Online · 200 OK', latency: 0 } : x));
 
-    // Supabase Auth check (REST root endpoint)
+    // Supabase Auth check (REST root endpoint — 401 = preciso de auth, MAS o serviço está vivo)
     try {
       const t0 = performance.now();
       const r = await fetch('https://fpjhvyydavssrzrkvlbd.supabase.co/rest/v1/', {
@@ -38,10 +38,17 @@ export default function StatusPage() {
         headers: { 'apikey': 'sb_publishable_sY6wLl6b0Ba5hbb_ezMPQA_MmzVkUBV' },
       });
       const t1 = performance.now();
+      // 200 = ok, 401 = ok (precisa de auth, mas serviço responde), 5xx = error
+      const s: HealthCheck['status'] = r.status < 500 ? 'ok' : 'error';
+      const detail = r.status === 200
+        ? 'Online (REST root)'
+        : r.status === 401
+          ? 'Online (401 = precisa auth)'
+          : `HTTP ${r.status}`;
       setChecks((c) => c.map((x) => x.name === 'Supabase Auth' ? {
         ...x,
-        status: r.status === 200 ? 'ok' : 'warning',
-        detail: r.status === 200 ? 'Online (REST root responde)' : `HTTP ${r.status}`,
+        status: s,
+        detail,
         latency: Math.round(t1 - t0),
       } : x));
     } catch (e: any) {
@@ -107,7 +114,8 @@ export default function StatusPage() {
     return () => clearInterval(interval);
   }, []);
 
-  const allOk = checks.every((c) => c.status === 'ok');
+  // "Tudo OK" só quando NÃO houver nenhum 'error' (warnings como 401 esperados são OK)
+  const allOk = checks.every((c) => c.status !== 'error');
 
   return (
     <div className="space-y-6 animate-fade-in">
