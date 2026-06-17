@@ -1,0 +1,48 @@
+{
+  "T1": {
+    "passou": true,
+    "detalhes": {
+      "title": "Compra Facil Hoteis \u2014 Compras inteligentes para hotelaria",
+      "form": true,
+      "redirected": true
+    }
+  },
+  "T2": {
+    "passou": true,
+    "detalhes": {
+      "console_errors": 0,
+      "secrets_in_urls": 0,
+      "total_responses": 146
+    }
+  },
+  "T3": {
+    "passou": true,
+    "url_antes": "https://compra-facil-hoteis.vercel.app/dashboard",
+    "url_depois": "https://compra-facil-hoteis.vercel.app/dashboard"
+  },
+  "T4": {
+    "passou": true,
+    "devices": [
+      [
+        "iPhone 14",
+        "ios"
+      ],
+      [
+        "Galaxy S23",
+        "android"
+      ],
+      [
+        "iPad",
+        "tablet"
+      ]
+    ]
+  },
+  "T5": {
+    "passou": true,
+    "items": [
+      "procurehotel.auth",
+      "procurehotel.theme"
+    ],
+    "secrets": 0
+  }
+}

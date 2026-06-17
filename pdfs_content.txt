@@ -1,0 +1,727 @@
+================================================================================
+FILE: 992b6954__a758c5e7-ecb7-4a4f-8c26-759141dfeefe.pdf
+================================================================================
+  Pages: 2
+  --- Page 1 ---
+ATCUD:J65985MZ-3040525129
+FATURA | ORIGINAL
+Número: ZFT2 BD0C/3040525129
+Apoio ao Cliente 808 200 232 Data: 12.06.2026
+Cond. Pagamento: RMF 30 dias
+cliente@sumolcompal.pt
+faturacao.central@sumolcompal.pt
+Entrega: Sede Fiscal:
+Cód.Cliente: 21011664 OCEANSESIMBRA, LDA
+FOUR POINTS BY SHERATON RUA 4 DE MAIO 50, ALTINHO DE S. JOÃ
+RUA 4 DE MAIO 50, ALTINHO DE S. JOÃ 2970-152 SESIMBRA
+2970-152 SESIMBRA Portugal
+Portugal
+Contribuinte: PT514443880
+Pedido Compra: 2026-06-11 05:10:43 Cód. Cliente: 1018317
+Guia Remessa | Data Remessa
+2022004122 11.06.2026
+Moeda: EUR
+Cód Designação Quant Un Preço Desc Qtd Desc Pr Val Líq Val SDR IEC IVA%
+147020 Água Serra Estrela 12 GR 1L VTR 6 TAB 12,96 58,05 0,00 32,62 0,00 0,00 13
+150033 Frize Original 12 GR 0,75L VTP 5 TAB 28,44 67,51 0,00 46,20 0,00 0,00 13
+114075 Pepsi Reg 24 GR 0,30L VTR 3 TAB 20,16 58,10 0,00 25,34 0,00 1,50 23
+125122 Compal Vital Aox Frt Vermelhos 12TSA 1L 2 TAB 46,08 76,19 0,00 21,94 0,00 0,00 6
+114073 Pepsi Zero 24 GR 0,30L VTR 3 TAB 20,16 58,10 0,00 25,34 0,00 0,25 23
+125156 Compal Clás Néc Pêssego 12 TSA 1L 2 TAB 41,76 73,65 0,00 22,01 0,00 0,00 6
+125159 Compal Clás Néc Manga FC 12 TSA 1L 2 TAB 41,76 73,65 0,00 22,01 0,00 0,00 6
+125108 Compal Clás Néc Ananás 12 TSA 1L 2 TAB 46,08 76,19 0,00 21,94 0,00 0,00 6
+110044 7UP Reg 6 GR 1,5L PET Nv 4 TAB 19,50 51,62 0,00 37,74 0,00 2,50 23
+Depósito SDR 24 UN 0,10 0,00 0,00 0,00 2,40 0,00 (SDR)
+147012 Água Serra Estrela 12 GR 1,5L PET Nv 8 TAB 18,72 77,31 0,00 33,98 0,00 0,00 13
+Depósito SDR 96 UN 0,10 0,00 0,00 0,00 9,60 0,00 (SDR)
+125150 Compal Orig Néc Lar Alg 12TSA1L 7 TAB 57,36 76,20 0,00 95,57 0,00 0,00 6
+VASILHAME (***)
+19041 Caixa vasilhame 12x1L ASE 6 CX 3,00 0,00 0,00 18,00 0,00 (***)
+19048 Caixa vasilhame 24x0,30L Pepsi 3 CX 5,00 0,00 0,00 15,00 0,00 (***)
+19048 Caixa vasilhame 24x0,30L Pepsi 3 CX 5,00 0,00 0,00 15,00 0,00 (***)
+Conforme estabelece a Portaria 313/96, de 29 de Julho que regulamenta o Decreto-lei 322/95, de 28 de Novembro, o vasilhame
+aqui descrito e entregue mediante a cobrança do respetivo depósito, sendo o cliente seu fiel depositario.
+O valor do depósito sera reembolsado no momento da devolução do mesmo vasilhame, desde que se encontre em bom estado
+de conservação.
+(***)Iva Isento: Artº16, nº6 al.d) do CIVA
+(SDR)Não sujeito: Decreto-Lei n.º 152-D/2017, 11/1
+jjTW-Processado por programa certificado n.º 2563/AT 1 de 2
+  --- Page 2 ---
+ATCUD:J65985MZ-3040525129
+FATURA | ORIGINAL
+Número: ZFT2 BD0C/3040525129
+Apoio ao Cliente 808 200 232 Data: 12.06.2026
+Cond. Pagamento: RMF 30 dias
+cliente@sumolcompal.pt
+faturacao.central@sumolcompal.pt
+Entrega: Sede Fiscal:
+Cód.Cliente: 21011664 OCEANSESIMBRA, LDA
+FOUR POINTS BY SHERATON RUA 4 DE MAIO 50, ALTINHO DE S. JOÃ
+RUA 4 DE MAIO 50, ALTINHO DE S. JOÃ 2970-152 SESIMBRA
+2970-152 SESIMBRA Portugal
+Portugal
+Contribuinte: PT514443880
+Pedido Compra: 2026-06-11 05:10:43 Cód. Cliente: 1018317
+Guia Remessa | Data Remessa
+2022004122 11.06.2026
+Moeda: EUR
+Cód Designação Quant Un Preço Desc Qtd Desc Pr Val Líq Val SDR IEC IVA%
+Dados para Transferência IVA (%) | Base Tributável | IVA (Valor) Valor Líquido: 384,69
+Bancária (IBAN): 13% 112,80 14,66 IEC: 4,25
+23% 92,67 21,31 IVA: 46,98
+6% 183,47 11,01 Vasilhame: 48,00
+SDR: 12,00
+Valor Total: 495,92
+A responsabilidade pela gestão dos resíduos de embalagens foi transferida para as Ent. Gest. Sociedade Ponto Verde e Novo Verde. Mais informações,
+incluindo os valores das prestações financeiras fixadas a favor daquelas, em www.pontoverde.pt e www.novoverde.pt.
+Nos termos do Art 5 do Decreto Lei 166/13, de 27 de Dezembro, sobre os preços poderão incidir ainda os descontos de quantidade, financeiros ou
+promocionais que se encontrem identificados em contrato de fornecimento ou tabela de preços que sejam determináveis na data de emissão desta fatura
+e que sejam identificáveis quanto ao produto, respetiva quantidade e período por que vão vigorar.
+jjTW-Processado por programa certificado n.º 2563/AT 2 de 2
+
+================================================================================
+FILE: 9f900e93__79170b10-9c1d-4475-a38a-943cb610e3e9.pdf
+================================================================================
+  Pages: 2
+  --- Page 1 ---
+Pág.:1/2
+MAKROPalmela·QuintadaMarquesa·2950-557Palmela 212134813•www.makro.pt
+Guia de remessa 9-178546163
+Cliente Dataencomenda
+4/902891 11/06/2026
+OCEANSESIMBRA, LDA FOUR POINTS BY SHERATON SESIMBRA FOUR
+POINTSBYSHERATONSESIMBRA
+BrenoMoraes
+Tel:+351210518370
+Nº:PT514443880
+Métodospagamento Soma
+Crédito:549,31€ Totalmercadoriasemiva: 498,16€
+Totalcomiva: 549,31€
+Informaçãoentrega Moradaentrega
+Tipodeentrega::Entrega FOURPOINTSBYSHE-RUA4DEMAIO
+enviado:Makro LOTE50
+Dataprevistaentrega:12/06/2026 2970-624SESIMBRA
+Primarypayment:Crédito Comentáriosentrega:LYZER
+Artigossemalterações
+Valorunitário
+Artigo Descriçãoartigo Quantidade Bundle (semiva) Valortotal(semiva) IVA
+MANTEIGA
+215052 MANTCHEFS/S1KGGRESSO 5/5 1UNIDADE 8,56€ 42,80€ 6%
+GTIN:5603722504846
+NATAS
+52484 NATAUHT35%MG1LRPICOT 8/8 1UNIDADE 4,08€ 32,64€ 6%
+GTIN:8410379941002
+CTN:0
+62014 NATACUL22%G1LTRPICOT 8/8 1UNIDADE 2,89€ 23,12€ 6%
+GTIN:8410379941347
+CTN:0
+OVOS
+82404 OVOINTEIROLIQUIDO1KG"DOVO" 64/64 1UNIDADE 4,29€ 274,56€ 6%
+GTIN:5604550110230
+CTN:0
+GELADO
+118153 ACAI+GUARANA2,3LTNATIVE 2/2 1UNIDADE 17,97€ 35,94€ 23%
+GTIN:5600308050063
+140521 MCGELADOBAUNILHA4,5LT 2/2 1UNIDADE 7,20€ 14,40€ 23%
+GTIN:5601660995078
+CTN:0
+140524 MCGELADONATA4,5LT 2/2 1UNIDADE 7,20€ 14,40€ 23%
+GTIN:5601660995061
+CTN:0
+CARNECOZIDA
+157309 PAIOYORKFT500GLIMIANA 1/1 1UNIDADE 3,70€ 3,70€ 23%
+GTIN:5600318113116
+CTN:0
+Comexcepçãoparaerroseomissões-TodosospreçoscotadossãopreçosbrutosqueincluemIVA-ParabebidasoDepósito/Vasilhameestá
+incluído,talcomoérequeridoporlei-Ospreçospublicadoscorrespondemaoqueésabidonomomentodaimpressão-Estedocumentonão
+conferequalquerdireitoadeduçãodeimpostos-Aplicam-seosnossostermosgeraisdenegócio.
+  --- Page 2 ---
+Guiaderemessa9-178546163
+4/902891OCEANSESIMBRA,LDAFOURPOINTSBYSHERATONSESIMBRAFOURPOINTSBYSHERATONSPEáSgIM.:B2R/A2
+Valorunitário
+Artigo Descriçãoartigo Quantidade Bundle (semiva) Valortotal(semiva) IVA
+PEIXECONGELADO
+156223 MCPOLVOCOZ.TENTACU1KG(12PC) 1/1 1UNIDADE 33,98€ 33,98€ 23%
+GTIN:5601660998116
+CTN:0
+MOLHOSMESA/TEMPEROS
+87713 MOSTARDADIJON215GRMAILLE 6/6 1UNIDADE 2,85€ 17,10€ 23%
+GTIN:3036810201280
+BISCOITOS/BOLOS/PASTELARIA
+274374 BOL.MARIADOURADAARO4X200G 4/4 1UNIDADE 1,38€ 5,52€ 23%
+GTIN:8414892352482
+CTN:19059045
+Semiva: 498,16€
+Comiva: 549,31€
+TipodepagamentoCrédito
+Comexcepçãoparaerroseomissões-TodosospreçoscotadossãopreçosbrutosqueincluemIVA-ParabebidasoDepósito/Vasilhameestá
+incluído,talcomoérequeridoporlei-Ospreçospublicadoscorrespondemaoqueésabidonomomentodaimpressão-Estedocumentonão
+conferequalquerdireitoadeduçãodeimpostos-Aplicam-seosnossostermosgeraisdenegócio.
+
+================================================================================
+FILE: 29853769__39997e4c-e0e4-48df-9105-2092693077c5.pdf
+================================================================================
+  Pages: 6
+  --- Page 1 ---
+Original
+Fatura FT FT1/7979
+SÉRIE: FT1
+DATA: 2026-06-11
+Avoneto, Produtos Horticolas, Lda
+NIF: 517776022 Oceansesimbra, Lda
+Rua Luís de Albuquerque nº9
+2970-842
+Altinho de São João, 50
+Charneca da Cotovia - Sesimbra
+2970-152
+Capital Social : 5 000,00
+Telefone: 914 115 682 Sesimbra
+E-mail: avonetoprodutoshorticolas@gmail.com Portugal
+IBAN: PT50 0045 6425403817932 404 0
+Moeda: EUR
+Valor Transportado: 0,00
+Software PHC GO - XiKD - Processado por programa certificado nº 2867/AT - (ATCUD:JJ22G27S-7979) - (ID:105480)
+Data e Hora de Emissão: 2026-06-11@ 22:48:06
+Contribuinte Cliente Estab. Vendedor Enc/Orç Cod. Pagamento Vencimento Saldo em Aberto:
+514443880 14 0 2026-06-11 14917,05€
+REFERÊNCIA ORIGEM DESIGNAÇÃO LOTE QTD. UNI PREÇO IVA DESCONTO TOTAL
+Encomenda de Cliente - NE 2026BO1/1545 - 2026-06-
+11
+AbaFru001 CR Abacaxi ABACAXI11062 80,2 Kg 1,35 6 % 108,27
+026
+AleErv001 POR Alecrim 100g ALECRIM11062 1,0 Uni 2,00 6 % 2,00
+026
+AlfHor006 POR Alface Frisada Verde ALFFRIV11062 2,0 CX 6,00 6 % 12,00
+026
+AmoFru001 POR Amoras AMORA11062 5,0 Uni 2,20 6 % 11,00
+026
+AzeEmb006 POR Azeitona Cobrançosa AZEITONA26 1,0 Bald 12,50 23 % 12,50
+AzeEmb008 POR Azeitona Preta Laminada AZEITONA26 1,0 Bald 6,50 23 % 6,50
+BanFru002 CR Banana Delmonte BANANA08062 18,5 Uni 1,35 6 % 24,98
+026
+BatLeg001 ESP Batata Agrea BATATAGRIA0 40,0 KG 0,55 6 % 22,00
+8062026
+BerLeg012 POR Beringela BERINGELA110 12,5 Kg 1,70 6 % 21,25
+62026
+CebLeg002 POR Cebola 80/110 CEBOLA08062 15,0 KG 0,75 6 % 11,25
+026
+CebLeg003 ESP Cebola Roxa CEBR11062026 5,0 KG 1,00 6 % 5,00
+CenLeg001 POR Cenoura CEN11062026 20,0 KG 0,85 6 % 17,00
+CoeErv001 POR Coentro CONE1106202 1,0 Molh 3,00 6 % 3,00
+6
+CogFun012 CSUL Cogumelo Eryngi COGERYNGI11 2,0 KG 9,00 6 % 18,00
+062026
+CogFun001 HOL Cogumelo Branco Caixa COGB1106202 15,0 KG 4,00 6 % 60,00
+6
+CouLeg001 POR Courgete COURJ110620 20,0 Kg 1,20 6 % 24,00
+26
+DamFru001 POR Damasco DAMASCO110 5,4 kg 2,40 6 % 12,96
+62026
+EndHor001 HOL Endivias ENDIVIA11062 3,0 Uni 2,50 6 % 7,50
+026
+EspHor001 PRU Espargo Verde ESPARGO1106 2,0 Uni 2,70 6 % 5,40
+2026
+FloFlo001 POR Flores Comestiveis FLOCOM11062 3,0 Uni 3,75 6 % 11,25
+026
+FraFru001 POR Framboesa FRAMB110620 5,0 Uni 2,30 6 % 11,50
+26
+HorErv001 POR Hortelã HORT1106202 2,0 Molh 2,00 6 % 4,00
+6
+KiwFru003 POR Kiwi Germinado KIWI11062026 50,0 KG 2,10 6 % 105,00
+LarFru003 POR Laranja Sumo calibre 6 LARANJS11062 347,3 kg 0,95 6 % 329,94
+026
+LimFru002 BR Limas LIMAS1106202 4,5 kg 2,20 6 % 9,90
+6
+LimFru001 POR Limão LIMAO110620 10,6 kg 1,80 6 % 19,08
+26
+1/3 Valor a Transportar: 875,28EUR
+  --- Page 2 ---
+Original
+Fatura FT FT1/7979
+SÉRIE: FT1
+DATA: 2026-06-11
+Avoneto, Produtos Horticolas, Lda
+NIF: 517776022 Oceansesimbra, Lda
+Rua Luís de Albuquerque nº9
+2970-842
+Altinho de São João, 50
+Charneca da Cotovia - Sesimbra
+2970-152
+Capital Social : 5 000,00
+Telefone: 914 115 682 Sesimbra
+E-mail: avonetoprodutoshorticolas@gmail.com Portugal
+IBAN: PT50 0045 6425403817932 404 0
+Moeda: EUR
+Valor Transportado: 875,28
+Software PHC GO - XiKD - Processado por programa certificado nº 2867/AT - (ATCUD:JJ22G27S-7979) - (ID:105480)
+Data e Hora de Emissão: 2026-06-11@ 22:48:06
+REFERÊNCIA ORIGEM DESIGNAÇÃO LOTE QTD. UNI PREÇO IVA DESCONTO TOTAL
+MacFru011 ESP Maçã Granny smith 70/75 MAÇASMITH0 9,5 kg 1,80 6 % 17,10
+8062026
+MamFru001 BR Mamão 4,5Kg MAMAO11062 45,0 KG 3,30 6 % 148,50
+026
+ManErv001 POR Mangericão 100g MANJ1106202 1,0 Uni 2,00 6 % 2,00
+6
+MelFru001 ESP Melancia MELANCIA080 94,3 kg 1,30 6 % 122,59
+62026
+MelFru011 ESP Melão MELAO110620 32,4 KG 1,50 6 % 48,60
+26
+MelFruoo8 MARR Meloa Galia Grossa MELOA110620 61,6 KG 2,30 6 % 141,68
+26
+MirFru001 POR Mirtilo MIRTILO11062 5,0 Uni 2,00 6 % 10,00
+026
+PepLeg001 POR Pepino MIRTILO11062 10,0 kg 1,00 6 % 10,00
+026
+PerFru010 AFSUL Pera Williams PERAWILL1106 12,5 kg 1,60 6 % 20,00
+2026
+PimLeg005 POR Pimento Vermelho PIMVERM1106 3,1 kg 2,30 6 % 7,13
+2026
+RebErv001 POR Rebentos de Coentro REBCOEN1106 1,0 Uni 2,85 6 % 2,85
+2026
+RebLeg001 POR Rebentos de Ervilha REBERV110620 2,0 Uni 2,85 6 % 5,70
+26
+SalErv001 POR Salsa SALSA1106202 1,0 Molh 2,50 6 % 2,50
+6
+TomLeg008 POR Tomate salada Médio TOMSALM110 50,0 KG 1,20 6 % 60,00
+62026
+TomLeg003 ESP Tomate Cherry TOMCHERRY1 3,0 kg 3,20 6 % 9,60
+1062026
+TomErv001 POR Tomilho 100g TOMILHO1106 1,0 Uni 2,00 6 % 2,00
+2026
+UvaFru001 CHIL Uva Branca UVAB1106202 5,0 kg 5,00 6 % 25,00
+6
+AlhLeg002 ESP Alho Seco ALHOS110620 3,0 Kg 3,50 6 % 10,50
+26
+MorFru001 POR Morango MORANGO110 10,0 kg 3,50 6 % 35,00
+62026
+TARACXALFACE Caixa Alface 3,0 Uni 2,00 0 % 6,00
+Artigo 16.º n.º 6 alíneas a) a d) do CIVA
+TARACXFRUTA Caixa Fruta 41,0 Uni 2,00 0 % 82,00
+Artigo 16.º n.º 6 alíneas a) a d) do CIVA
+TARATABULEIR Tabuleiro 2,0 Uni 1,00 0 % 2,00
+Artigo 16.º n.º 6 alíneas a) a d) do CIVA
+Bens e serviços colocados à disposição do adquirente em 2026-06-11 (Art. 36 do CIVA, Nº5 alínea F)
+2/3 Valor a Transportar: 1 646,03EUR
+  --- Page 3 ---
+Original
+Fatura FT FT1/7979
+SÉRIE: FT1
+DATA: 2026-06-11
+Avoneto, Produtos Horticolas, Lda
+NIF: 517776022 Oceansesimbra, Lda
+Rua Luís de Albuquerque nº9
+2970-842
+Altinho de São João, 50
+Charneca da Cotovia - Sesimbra
+2970-152
+Capital Social : 5 000,00
+Telefone: 914 115 682 Sesimbra
+E-mail: avonetoprodutoshorticolas@gmail.com Portugal
+IBAN: PT50 0045 6425403817932 404 0
+Moeda: EUR
+Valor Transportado: 1 646,03
+Software PHC GO - XiKD - Processado por programa certificado nº 2867/AT - (ATCUD:JJ22G27S-7979) - (ID:105480)
+Data e Hora de Emissão: 2026-06-11@ 22:48:06
+ATCUD:JJ22G27S-7979
+TAXA IVA BASE DE INCIDÊNCIA TOTAL DE IVA
+0 % 90,00 0,00
+6 % 1 537,03 92,22 TOTAL ANTES DE DESCONTOS 1 646,03
+23 % 19,00 4,37 DESCONTO COMERCIAL 0,00
+DESCONTO GLOBAL 0,00
+INCIDÊNCIA 1 646,03
+TOTAL IVA 96,59
+TAXA RETENÇÃO TOTAL SEM RETENÇÃO IMPOSTO RETIDO
+0 % 1 742,62 0,00
+TOTAL 1 742,62EUR
+MEIOS DE PAGAMENTO VALOR
+Transporte DATA HORA DATA HORA
+Carga Descarga
+Observações
+Saldo de Vasilhame
+Caixa Alface Caixa Fruta Caixa Petit Paletes Tabuleiros
+21,0 60,0 0,00 0,00 10,0
+Página 3/3
+  --- Page 4 ---
+Duplicado
+Fatura FT FT1/7979
+SÉRIE: FT1
+DATA: 2026-06-11
+Avoneto, Produtos Horticolas, Lda
+NIF: 517776022 Oceansesimbra, Lda
+Rua Luís de Albuquerque nº9
+2970-842
+Altinho de São João, 50
+Charneca da Cotovia - Sesimbra
+2970-152
+Capital Social : 5 000,00
+Telefone: 914 115 682 Sesimbra
+E-mail: avonetoprodutoshorticolas@gmail.com Portugal
+IBAN: PT50 0045 6425403817932 404 0
+Moeda: EUR
+Valor Transportado: 0,00
+Software PHC GO - XiKD - Processado por programa certificado nº 2867/AT - (ATCUD:JJ22G27S-7979) - (ID:105480)
+Data e Hora de Emissão: 2026-06-11@ 22:48:06
+Contribuinte Cliente Estab. Vendedor Enc/Orç Cod. Pagamento Vencimento Saldo em Aberto:
+514443880 14 0 2026-06-11 14917,05€
+REFERÊNCIA ORIGEM DESIGNAÇÃO LOTE QTD. UNI PREÇO IVA DESCONTO TOTAL
+Encomenda de Cliente - NE 2026BO1/1545 - 2026-06-
+11
+AbaFru001 CR Abacaxi ABACAXI11062 80,2 Kg 1,35 6 % 108,27
+026
+AleErv001 POR Alecrim 100g ALECRIM11062 1,0 Uni 2,00 6 % 2,00
+026
+AlfHor006 POR Alface Frisada Verde ALFFRIV11062 2,0 CX 6,00 6 % 12,00
+026
+AmoFru001 POR Amoras AMORA11062 5,0 Uni 2,20 6 % 11,00
+026
+AzeEmb006 POR Azeitona Cobrançosa AZEITONA26 1,0 Bald 12,50 23 % 12,50
+AzeEmb008 POR Azeitona Preta Laminada AZEITONA26 1,0 Bald 6,50 23 % 6,50
+BanFru002 CR Banana Delmonte BANANA08062 18,5 Uni 1,35 6 % 24,98
+026
+BatLeg001 ESP Batata Agrea BATATAGRIA0 40,0 KG 0,55 6 % 22,00
+8062026
+BerLeg012 POR Beringela BERINGELA110 12,5 Kg 1,70 6 % 21,25
+62026
+CebLeg002 POR Cebola 80/110 CEBOLA08062 15,0 KG 0,75 6 % 11,25
+026
+CebLeg003 ESP Cebola Roxa CEBR11062026 5,0 KG 1,00 6 % 5,00
+CenLeg001 POR Cenoura CEN11062026 20,0 KG 0,85 6 % 17,00
+CoeErv001 POR Coentro CONE1106202 1,0 Molh 3,00 6 % 3,00
+6
+CogFun012 CSUL Cogumelo Eryngi COGERYNGI11 2,0 KG 9,00 6 % 18,00
+062026
+CogFun001 HOL Cogumelo Branco Caixa COGB1106202 15,0 KG 4,00 6 % 60,00
+6
+CouLeg001 POR Courgete COURJ110620 20,0 Kg 1,20 6 % 24,00
+26
+DamFru001 POR Damasco DAMASCO110 5,4 kg 2,40 6 % 12,96
+62026
+EndHor001 HOL Endivias ENDIVIA11062 3,0 Uni 2,50 6 % 7,50
+026
+EspHor001 PRU Espargo Verde ESPARGO1106 2,0 Uni 2,70 6 % 5,40
+2026
+FloFlo001 POR Flores Comestiveis FLOCOM11062 3,0 Uni 3,75 6 % 11,25
+026
+FraFru001 POR Framboesa FRAMB110620 5,0 Uni 2,30 6 % 11,50
+26
+HorErv001 POR Hortelã HORT1106202 2,0 Molh 2,00 6 % 4,00
+6
+KiwFru003 POR Kiwi Germinado KIWI11062026 50,0 KG 2,10 6 % 105,00
+LarFru003 POR Laranja Sumo calibre 6 LARANJS11062 347,3 kg 0,95 6 % 329,94
+026
+LimFru002 BR Limas LIMAS1106202 4,5 kg 2,20 6 % 9,90
+6
+LimFru001 POR Limão LIMAO110620 10,6 kg 1,80 6 % 19,08
+26
+1/3 Valor a Transportar: 875,28EUR
+  --- Page 5 ---
+Duplicado
+Fatura FT FT1/7979
+SÉRIE: FT1
+DATA: 2026-06-11
+Avoneto, Produtos Horticolas, Lda
+NIF: 517776022 Oceansesimbra, Lda
+Rua Luís de Albuquerque nº9
+2970-842
+Altinho de São João, 50
+Charneca da Cotovia - Sesimbra
+2970-152
+Capital Social : 5 000,00
+Telefone: 914 115 682 Sesimbra
+E-mail: avonetoprodutoshorticolas@gmail.com Portugal
+IBAN: PT50 0045 6425403817932 404 0
+Moeda: EUR
+Valor Transportado: 875,28
+Software PHC GO - XiKD - Processado por programa certificado nº 2867/AT - (ATCUD:JJ22G27S-7979) - (ID:105480)
+Data e Hora de Emissão: 2026-06-11@ 22:48:06
+REFERÊNCIA ORIGEM DESIGNAÇÃO LOTE QTD. UNI PREÇO IVA DESCONTO TOTAL
+MacFru011 ESP Maçã Granny smith 70/75 MAÇASMITH0 9,5 kg 1,80 6 % 17,10
+8062026
+MamFru001 BR Mamão 4,5Kg MAMAO11062 45,0 KG 3,30 6 % 148,50
+026
+ManErv001 POR Mangericão 100g MANJ1106202 1,0 Uni 2,00 6 % 2,00
+6
+MelFru001 ESP Melancia MELANCIA080 94,3 kg 1,30 6 % 122,59
+62026
+MelFru011 ESP Melão MELAO110620 32,4 KG 1,50 6 % 48,60
+26
+MelFruoo8 MARR Meloa Galia Grossa MELOA110620 61,6 KG 2,30 6 % 141,68
+26
+MirFru001 POR Mirtilo MIRTILO11062 5,0 Uni 2,00 6 % 10,00
+026
+PepLeg001 POR Pepino MIRTILO11062 10,0 kg 1,00 6 % 10,00
+026
+PerFru010 AFSUL Pera Williams PERAWILL1106 12,5 kg 1,60 6 % 20,00
+2026
+PimLeg005 POR Pimento Vermelho PIMVERM1106 3,1 kg 2,30 6 % 7,13
+2026
+RebErv001 POR Rebentos de Coentro REBCOEN1106 1,0 Uni 2,85 6 % 2,85
+2026
+RebLeg001 POR Rebentos de Ervilha REBERV110620 2,0 Uni 2,85 6 % 5,70
+26
+SalErv001 POR Salsa SALSA1106202 1,0 Molh 2,50 6 % 2,50
+6
+TomLeg008 POR Tomate salada Médio TOMSALM110 50,0 KG 1,20 6 % 60,00
+62026
+TomLeg003 ESP Tomate Cherry TOMCHERRY1 3,0 kg 3,20 6 % 9,60
+1062026
+TomErv001 POR Tomilho 100g TOMILHO1106 1,0 Uni 2,00 6 % 2,00
+2026
+UvaFru001 CHIL Uva Branca UVAB1106202 5,0 kg 5,00 6 % 25,00
+6
+AlhLeg002 ESP Alho Seco ALHOS110620 3,0 Kg 3,50 6 % 10,50
+26
+MorFru001 POR Morango MORANGO110 10,0 kg 3,50 6 % 35,00
+62026
+TARACXALFACE Caixa Alface 3,0 Uni 2,00 0 % 6,00
+Artigo 16.º n.º 6 alíneas a) a d) do CIVA
+TARACXFRUTA Caixa Fruta 41,0 Uni 2,00 0 % 82,00
+Artigo 16.º n.º 6 alíneas a) a d) do CIVA
+TARATABULEIR Tabuleiro 2,0 Uni 1,00 0 % 2,00
+Artigo 16.º n.º 6 alíneas a) a d) do CIVA
+Bens e serviços colocados à disposição do adquirente em 2026-06-11 (Art. 36 do CIVA, Nº5 alínea F)
+2/3 Valor a Transportar: 1 646,03EUR
+  --- Page 6 ---
+Duplicado
+Fatura FT FT1/7979
+SÉRIE: FT1
+DATA: 2026-06-11
+Avoneto, Produtos Horticolas, Lda
+NIF: 517776022 Oceansesimbra, Lda
+Rua Luís de Albuquerque nº9
+2970-842
+Altinho de São João, 50
+Charneca da Cotovia - Sesimbra
+2970-152
+Capital Social : 5 000,00
+Telefone: 914 115 682 Sesimbra
+E-mail: avonetoprodutoshorticolas@gmail.com Portugal
+IBAN: PT50 0045 6425403817932 404 0
+Moeda: EUR
+Valor Transportado: 1 646,03
+Software PHC GO - XiKD - Processado por programa certificado nº 2867/AT - (ATCUD:JJ22G27S-7979) - (ID:105480)
+Data e Hora de Emissão: 2026-06-11@ 22:48:06
+ATCUD:JJ22G27S-7979
+TAXA IVA BASE DE INCIDÊNCIA TOTAL DE IVA
+0 % 90,00 0,00
+6 % 1 537,03 92,22 TOTAL ANTES DE DESCONTOS 1 646,03
+23 % 19,00 4,37 DESCONTO COMERCIAL 0,00
+DESCONTO GLOBAL 0,00
+INCIDÊNCIA 1 646,03
+TOTAL IVA 96,59
+TAXA RETENÇÃO TOTAL SEM RETENÇÃO IMPOSTO RETIDO
+0 % 1 742,62 0,00
+TOTAL 1 742,62EUR
+MEIOS DE PAGAMENTO VALOR
+Transporte DATA HORA DATA HORA
+Carga Descarga
+Observações
+Saldo de Vasilhame
+Caixa Alface Caixa Fruta Caixa Petit Paletes Tabuleiros
+21,0 60,0 0,00 0,00 10,0
+Página 3/3
+
+================================================================================
+FILE: 9f282005__80f72e4e-246b-4929-a372-82d09314a12b.pdf
+================================================================================
+  Pages: 1
+  --- Page 1 ---
+Pág.:1/1
+MAKROPalmela·QuintadaMarquesa·2950-557Palmela 212134813•www.makro.pt
+Guia de remessa 9-178596151
+Cliente Dataencomenda
+4/902891 11/06/2026
+OCEANSESIMBRA, LDA FOUR POINTS BY SHERATON SESIMBRA FOUR
+POINTSBYSHERATONSESIMBRA
+BrenoMoraes
+Tel:+351210518370
+Nº:PT514443880
+Métodospagamento Soma
+Crédito:80,79€ Totalmercadoriasemiva: 65,68€
+Totalcomiva: 80,79€
+Informaçãoentrega Moradaentrega
+Tipodeentrega::Entrega FOURPOINTSBYSHE-RUA4DEMAIO
+enviado:Makro LOTE50
+Dataprevistaentrega:12/06/2026 2970-624SESIMBRA
+Primarypayment:Crédito Comentáriosentrega:LYZER
+Artigossemalterações
+Valorunitário
+Artigo Descriçãoartigo Quantidade Bundle (semiva) Valortotal(semiva) IVA
+MOLHOSMESA/TEMPEROS
+101863 KETCHUPSAQU.200X10MLHEINZ 1/1 1CAIXA 10,99€ 10,99€ 23%
+GTIN:5000157159557
+CTN:0
+EspumanteBranco
+138937 ESP.VALMARONEBRUT75CL 3/3 6CAIXA 1,85€ 33,21€ 23%
+GTIN:4333465054322
+CTN:0
+EspumanteRosé
+161084 V.LAMBRUSCOVALMAR.ROSE75CL 2/2 6CAIXA 1,79€ 21,48€ 23%
+GTIN:4333465054384
+CTN:0
+Semiva: 65,68€
+Comiva: 80,79€
+TipodepagamentoCrédito
+Comexcepçãoparaerroseomissões-TodosospreçoscotadossãopreçosbrutosqueincluemIVA-ParabebidasoDepósito/Vasilhameestá
+incluído,talcomoérequeridoporlei-Ospreçospublicadoscorrespondemaoqueésabidonomomentodaimpressão-Estedocumentonão
+conferequalquerdireitoadeduçãodeimpostos-Aplicam-seosnossostermosgeraisdenegócio.
+
+================================================================================
+FILE: 87e13d2d__50baa3cc-72e6-4842-8d7b-26b3c1f240ea.pdf
+================================================================================
+  Pages: 3
+  --- Page 1 ---
+Pág.:1/3
+MAKROPalmela·QuintadaMarquesa·2950-557Palmela 212134813•www.makro.pt
+Guia de remessa 9-178587425
+Cliente Dataencomenda
+4/902891 11/06/2026
+OCEANSESIMBRA, LDA FOUR POINTS BY SHERATON SESIMBRA FOUR
+POINTSBYSHERATONSESIMBRA
+BrenoMoraes
+Tel:+351210518370
+Nº:PT514443880
+Métodospagamento Soma
+Crédito:605,34€ Totalmercadoriasemiva: 529,51€
+Totalcomiva: 605,34€
+Informaçãoentrega Moradaentrega
+Tipodeentrega::Entrega FOURPOINTSBYSHE-RUA4DEMAIO
+enviado:Makro LOTE50
+Dataprevistaentrega:12/06/2026 2970-624SESIMBRA
+Primarypayment:Crédito Comentáriosentrega:LYZER
+Artigoscomalterações
+next Valorunitário
+Artigo Descriçãoartigo Quantidade delivery Bundle (semiva) Valortotal(semiva) IVA
+CERVEJAESPECIAL
+155126 CERV. HEINEKEN 0/1 1CAIXA 20,43€ 0,00€ 23%
+24X33CL
+CTN:0
+158624 CERV. HEINEKEN 1/1 1CAIXA 13,71€ 13,71€ 23%
+24X25CLTP
+GTIN:8712000900175
+CTN:0
+Artigossemalterações
+Valorunitário
+Artigo Descriçãoartigo Quantidade Bundle (semiva) Valortotal(semiva) IVA
+MANTEIGA
+152197 MANTC/S8G*100MIMOSA 3/3 1CAIXA 7,66€ 22,98€ 6%
+GTIN:15603722520973
+CTN:0
+MARGARINA
+110611 BECEL10GRX100 1/1 1CAIXA 7,38€ 7,38€ 6%
+GTIN:8719200266735
+CTN:0
+LEITE
+124352 MCLTUHTGORDOACORES1LT*6 3/3 1CAIXA 5,24€ 15,72€ 6%
+GTIN:5601660983648
+CTN:0
+Comexcepçãoparaerroseomissões-TodosospreçoscotadossãopreçosbrutosqueincluemIVA-ParabebidasoDepósito/Vasilhameestá
+incluído,talcomoérequeridoporlei-Ospreçospublicadoscorrespondemaoqueésabidonomomentodaimpressão-Estedocumentonão
+conferequalquerdireitoadeduçãodeimpostos-Aplicam-seosnossostermosgeraisdenegócio.
+  --- Page 2 ---
+Guiaderemessa9-178587425
+4/902891OCEANSESIMBRA,LDAFOURPOINTSBYSHERATONSESIMBRAFOURPOINTSBYSHERATONSPEáSgIM.:B2R/A3
+Valorunitário
+Artigo Descriçãoartigo Quantidade Bundle (semiva) Valortotal(semiva) IVA
+126601 MCLTUHTMAGROAÇORES1LT*6 3/3 1CAIXA 4,35€ 13,05€ 6%
+GTIN:5601660983631
+CTN:0
+139508 LTMG0%LACTPASTG1LT*6NAC 3/3 1CAIXA 1,13€ 20,31€ 6%
+GTIN:5601883062038
+CTN:0
+162841 MCBEBAMENDOAVEGETAL1LT 6/6 1UNIDADE 1,20€ 7,20€ 6%
+CTN:0
+PRODUTOSLÁCTEOS
+119419 MCIOGURTENATURAL5KG 6/6 1UNIDADE 11,94€ 71,64€ 6%
+GTIN:5601660984126
+CTN:0
+125954 IOGAROMAMO/ANA/BA7+1MIMOSA 6/6 1UNIDADE 1,79€ 10,74€ 6%
+GTIN:5603722517655
+152362 IOGLIQBANANA4*151MLMIMOSA 6/6 1UNIDADE 1,58€ 9,48€ 6%
+GTIN:5603722521546
+CTN:0
+152363 IOGLIQFRTTROP4*151MLMIMOSA 6/6 1UNIDADE 1,58€ 9,48€ 6%
+GTIN:5603722521560
+CTN:0
+152365 IOGLIQMORANGO4*151MLMIMOS 6/6 1UNIDADE 1,58€ 9,48€ 6%
+GTIN:5603722521539
+CTN:0
+PIZZA/MASSA
+93416 MASSAKADAIF500GRJR 2/2 1UNIDADE 4,54€ 9,08€ 23%
+GTIN:3760033620121
+FRUTASECA
+58991 MCAMEIXASECAS/CAROCO1K 2/2 1UNIDADE 7,13€ 14,26€ 6%
+GTIN:5601660966009
+102083 MCTAMARAC/CAROCO1K 1/1 1UNIDADE 4,38€ 4,38€ 6%
+GTIN:5601660978637
+125182 MCCOCOLAMINADO500G 1/1 1UNIDADE 5,81€ 5,81€ 23%
+GTIN:5601660991414
+FRUTOSSECOSDESIDRATADOSESE
+58951 MCMIOLONOZQUARTOS1K 1/1 1UNIDADE 10,33€ 10,33€ 6%
+GTIN:5601660966252
+116836 MCSEMENTECHIA1K 1/1 1UNIDADE 6,52€ 6,52€ 6%
+GTIN:5601660984669
+DOCES/COMPOTAS/CREMES
+160978 MCMELFLORESFRASCO1KG 6/6 1UNIDADE 4,52€ 27,12€ 6%
+GTIN:8414892328784
+CTN:0
+CEREAIS/BARRAS
+124883 FLOCOSAVEIA1KGCIMARROM 10/10 1UNIDADE 1,75€ 17,50€ 13%
+GTIN:5601254058158
+CTN:0
+154364 CEREAISCLASSICO700GRSK 1/1 1UNIDADE 4,55€ 4,55€ 23%
+GTIN:5059319025681
+CTN:0
+159214 CEREAISCHOCAPIC900GNESTLE 4/4 1UNIDADE 4,85€ 19,40€ 23%
+GTIN:8445291297784
+CTN:0
+162953 MCMUESLIFRUTAEXOTICA1KG 1/1 1UNIDADE 4,60€ 4,60€ 23%
+GTIN:8026924067426
+CTN:0
+Comexcepçãoparaerroseomissões-TodosospreçoscotadossãopreçosbrutosqueincluemIVA-ParabebidasoDepósito/Vasilhameestá
+incluído,talcomoérequeridoporlei-Ospreçospublicadoscorrespondemaoqueésabidonomomentodaimpressão-Estedocumentonão
+conferequalquerdireitoadeduçãodeimpostos-Aplicam-seosnossostermosgeraisdenegócio.
+  --- Page 3 ---
+Guiaderemessa9-178587425
+4/902891OCEANSESIMBRA,LDAFOURPOINTSBYSHERATONSESIMBRAFOURPOINTSBYSHERATONSPEáSgIM.:B3R/A3
+Valorunitário
+Artigo Descriçãoartigo Quantidade Bundle (semiva) Valortotal(semiva) IVA
+WHISKY
+225706 *WHISKYJACKDANIEL’S70CL 1/1 1GARRAFA 19,46€ 19,46€ 23%
+GTIN:5099873090473
+CTN:0
+BEBIDASESPIRITUOSASDEGRÃO
+61118 GINTANQUERAYTEN70CL 2/2 1UNIDADE 29,67€ 59,34€ 23%
+GTIN:5000291027576
+CTN:0
+88466 GINNORDES70CL 2/2 1GARRAFA 25,75€ 51,50€ 23%
+GTIN:8435449500002
+CTN:0
+LICORES
+9662 LIMONCELLOMADRUZZO70CL 1/1 1GARRAFA 7,20€ 7,20€ 23%
+CTN:0
+25924 *AMENDOAAMAR.AMARGUINHA70CL 1/1 1GARRAFA 7,88€ 7,88€ 23%
+GTIN:5600702555409
+177502 BATIDADECOCOXARAO70CL16º 2/2 1UNIDADE 5,82€ 11,64€ 23%
+GTIN:5603076010017
+CTN:0
+Vinhosfortificados
+27523 MOSCATELSET.BACALHOA75CL 4/4 1UNIDADE 4,93€ 19,72€ 23%
+GTIN:5601237219224
+XAROPES
+98456 SYRUPRIOBAGRENADINE70CL 1/1 1GARRAFA 4,35€ 4,35€ 23%
+GTIN:4337182233527
+CTN:0
+98471 SYRUPRIOBACOCO70CL 1/1 1UNIDADE 4,35€ 4,35€ 23%
+GTIN:4337182234470
+CTN:0
+151898 RIOBA-PUREEMORANGO1,32KG 1/1 1GARRAFA 9,35€ 9,35€ 23%
+GTIN:4337182252771
+CTN:0
+Semiva: 529,51€
+Comiva: 605,34€
+TipodepagamentoCrédito
+Comexcepçãoparaerroseomissões-TodosospreçoscotadossãopreçosbrutosqueincluemIVA-ParabebidasoDepósito/Vasilhameestá
+incluído,talcomoérequeridoporlei-Ospreçospublicadoscorrespondemaoqueésabidonomomentodaimpressão-Estedocumentonão
+conferequalquerdireitoadeduçãodeimpostos-Aplicam-seosnossostermosgeraisdenegócio.
+

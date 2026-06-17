@@ -1,0 +1,125 @@
+{
+  "app": {
+    "name": "Compra Facil Hoteis",
+    "tagline": "Compras inteligentes para hotelaria"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "order": "Faça o pedido aqui",
+    "products": "Produtos",
+    "suppliers": "Fornecedores",
+    "imports": "Importações",
+    "orders": "Pedidos",
+    "analytics": "Analytics",
+    "users": "Utilizadores",
+    "logout": "Sair",
+    "pending": "Pendentes",
+    "invoices": "Faturas"
+  },
+  "auth": {
+    "login": "Entrar",
+    "email": "Email",
+    "password": "Password",
+    "submit": "Entrar",
+    "register": "Registar primeiro admin",
+    "invalid": "Credenciais inválidas",
+    "logout": "Sair"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "subtitle": "Visão geral da sua operação de procurement",
+    "products": "Produtos",
+    "suppliers": "Fornecedores"
+  },
+  "order": {
+    "title": "Faça o pedido aqui",
+    "placeholder": "Ex: 10 caixas coca cola\n5kg queijo flamengo\n20kg farinha nacional",
+    "parse": "Interpretar pedido",
+    "optimize": "Otimizar preços",
+    "copy": "Copiar pedido",
+    "markPlaced": "Marcar como pedido realizado",
+    "supplier": "Fornecedor",
+    "total": "Total",
+    "items": "Itens",
+    "noResults": "Sem itens para mostrar"
+  },
+  "orders": {
+    "title": "Histórico de pedidos"
+  },
+  "products": {
+    "title": "Catálogo de produtos",
+    "add": "Novo produto",
+    "search": "Pesquisar produtos...",
+    "name": "Nome",
+    "brand": "Marca",
+    "category": "Categoria",
+    "unit": "Unidade",
+    "status": "Estado"
+  },
+  "suppliers": {
+    "title": "Fornecedores",
+    "add": "Novo fornecedor",
+    "search": "Pesquisar fornecedores...",
+    "name": "Nome",
+    "email": "Email",
+    "phone": "Telefone"
+  },
+  "imports": {
+    "title": "Importações de preços",
+    "upload": "Carregar ficheiro",
+    "supplier": "Fornecedor",
+    "status": "Estado",
+    "rows": "Linhas",
+    "approve": "Aprovar selecionadas",
+    "ignore": "Ignorar"
+  },
+  "analytics": {
+    "title": "Analytics & KPIs",
+    "monthly": "Compras mensais",
+    "topProducts": "Top produtos",
+    "topSuppliers": "Fornecedores mais competitivos",
+    "savings": "Poupança estimada"
+  },
+  "admin": {
+    "title": "Painel Administrativo"
+  },
+  "common": {
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "edit": "Editar",
+    "delete": "Apagar",
+    "search": "Pesquisar",
+    "loading": "A carregar...",
+    "noData": "Sem dados",
+    "actions": "Ações",
+    "confirm": "Confirmar",
+    "language": "Idioma",
+    "theme": "Tema"
+  },
+  "catalog": {
+    "title": "Catálogo Mestre"
+  },
+  "favorites": {
+    "title": "Pedidos Rápidos"
+  },
+  "prices": {
+    "title": "Revisão de Preços"
+  },
+  "health": {
+    "title": "Saúde da Base"
+  },
+  "exceptions": {
+    "title": "Centro de Exceções"
+  },
+  "settings": {
+    "company": "Definições da Empresa",
+    "users": "Membros",
+    "audit": "Auditoria"
+  },
+  "pending": {
+    "title": "Pendentes de Cotação"
+  },
+  "invoices": {
+    "title": "Faturas Recebidas"
+  }
+}
