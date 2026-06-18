@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl';
 import { ShoppingCart, Package, Truck, TrendingDown, Euro, AlertCircle, Star, Heart, BarChart3, Activity, FileText, Clock } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { getAnalyticsSummary, getDataHealth, getExceptions, getFrequentItems, type KpiSummary, type DataHealth, type Exceptions, type FrequentItem } from '@/lib/supabase-data';
+import { getAnalyticsSummary, getDataHealth, getExceptions, getFrequentItems, getStaleSummary, type KpiSummary, type DataHealth, type Exceptions, type FrequentItem, type StaleSummary } from '@/lib/supabase-data';
 import { formatCurrency } from '@/lib/utils';
 
 export default function DashboardPage() {
@@ -15,6 +15,7 @@ export default function DashboardPage() {
   const [exc, setExc] = useState<Exceptions | null>(null);
   const [frequent, setFrequent] = useState<FrequentItem[]>([]);
   const [invoiceAlerts, setInvoiceAlerts] = useState<{ unmatched: number; pending: number; total: number; recent_total: number } | null>(null);
+  const [stale, setStale] = useState<StaleSummary | null>(null);
 
   useEffect(() => {
     getAnalyticsSummary().then(setKpi).catch(() => null);
@@ -23,6 +24,7 @@ export default function DashboardPage() {
     getFrequentItems(5).then(setFrequent).catch(() => null);
     // Carregar alertas de invoices
     fetch('/api/invoices/alerts').then(r => r.ok ? r.json() : null).then(setInvoiceAlerts).catch(() => null);
+    getStaleSummary().then(setStale).catch(() => null);
   }, []);
 
   return (
@@ -70,6 +72,45 @@ export default function DashboardPage() {
                   {exc.total} {exc.total === 1 ? 'issue' : 'issues'} para resolver →
                 </a>
               )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Alerta de Preços Críticos (se houver) */}
+      {stale && (stale.critical_count > 0 || stale.no_price_count > 0) && (
+        <Card className="border-red-500/40 bg-red-500/5">
+          <CardContent className="p-4">
+            <div className="flex items-start gap-3">
+              <div className="h-9 w-9 rounded-full bg-red-500/15 flex items-center justify-center flex-shrink-0">
+                <TrendingDown className="h-5 w-5 text-red-600" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="font-semibold text-red-700 dark:text-red-400">⚠️ Preços críticos</span>
+                  {stale.critical_count > 0 && (
+                    <Badge variant="destructive" className="text-xs">
+                      {stale.critical_count} com preço &gt; 90 dias
+                    </Badge>
+                  )}
+                  {stale.no_price_count > 0 && (
+                    <Badge variant="outline" className="text-xs border-amber-500 text-amber-700">
+                      {stale.no_price_count} sem preço
+                    </Badge>
+                  )}
+                </div>
+                {stale.top_critical.length > 0 && (
+                  <ul className="mt-2 space-y-1 text-xs text-muted-foreground">
+                    {stale.top_critical.map((p) => (
+                      <li key={p.product_id} className="flex items-center gap-2">
+                        <span className="flex-1 truncate">• {p.product_name}</span>
+                        <span className="text-red-600 font-medium">{p.days_since_update}d</span>
+                        <a href="/prices" className="text-primary hover:underline">rever →</a>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
             </div>
           </CardContent>
         </Card>

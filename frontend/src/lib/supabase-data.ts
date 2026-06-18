@@ -236,6 +236,25 @@ export async function getPriceHistory(productId: string, days = 90): Promise<Sup
 }
 
 /**
+ * Resumo rápido de preços críticos para o dashboard.
+ */
+export interface StaleSummary {
+  critical_count: number;
+  warning_count: number;
+  no_price_count: number;
+  top_critical: StalePrice[];
+}
+export async function getStaleSummary(): Promise<StaleSummary> {
+  const all = await getStalePrices(30);
+  return {
+    critical_count: all.filter((s) => s.urgency === 'critical').length,
+    warning_count: all.filter((s) => s.urgency === 'warning').length,
+    no_price_count: all.filter((s) => !s.current_price).length,
+    top_critical: all.filter((s) => s.urgency === 'critical').slice(0, 5),
+  };
+}
+
+/**
  * M12: Tendência de preço por produto.
  * Para cada produto, retorna: preço atual, preço anterior, variação (€ e %).
  * Baseado em todas as supplier_prices históricas do produto (independente do fornecedor).
