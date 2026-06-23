@@ -2,7 +2,7 @@
 
 > Estado atual, decisões, e memória persistente. Lido por Mavis em cada sessão.
 
-## Última atualização: 2026-06-17
+## Última atualização: 2026-06-23 (sistema entregue para uso diário)
 
 ---
 
@@ -11,224 +11,159 @@
 ### Frontend (Vercel)
 - **URL:** <https://compra-facil-hoteis.vercel.app>
 - **Status:** 🟢 Online, deploy ID ativo
-- **Versão:** 0.8.0
+- **Versão:** 1.0.0 (release candidate para uso diário)
 - **Stack:** Next.js 15.5.19 + TypeScript + TailwindCSS
+- **Última verificação status:** ✓ Tudo OK em 2026-06-23
 
 ### Backend (Supabase)
 - **Project ref:** `fpjhvyydavssrzrkvlbd` (eu-west-1)
 - **DB password:** `#Foguete1000` (cofre)
 - **Service role:** `<SERVICE_ROLE_KEY_NO_COFRE>` (cofre)
-- **Anon key:** `sb_publishable_sY6wLl6b0Ba5hbb_ezMPQA_MmzVkUBV` (público)
-- **Connection:** `postgresql://postgres.fpjhvyydavssrzrkvlbd:%23Foguete1000@aws-0-eu-west-1.pooler.supabase.com:6543/postgres`
+- **Anon key:** `sb_publishable_sY6wLl6b0Ba5hbb_ezMPQA_MmzVkUBV`
 
-### Tabelas (15)
-- `products` (446 ativos)
-- `suppliers` (7 ativos)
-- `product_aliases` (153)
-- `supplier_prices` (443 vigentes: 104 invoice + 233 import + 106 manual)
-- `users` (3)
-- `purchase_orders` (1)
-- `purchase_order_items` (0)
-- `imports` (~30 — 19 com "import-teste.xlsx", 0/0 rows)
-- `audit_logs` (0)
-- `favorites` (0)
-- `usage_events` (1172 — métricas de uso reais)
-- `pending_quotes` (0)
-- `invoices` (5 — todas matched 100%, total €4.355,85)
-- `invoice_lines` (104)
-- `invoice_attachments` (0)
-- `supplier_price_history` (600 — registos com trigger automático)
+### Database (snapshot 2026-06-23)
+- **587 produtos ativos** (todos com nome real, sem "Artigo XXXXX")
+- **7 fornecedores ativos**: Avoneto ⭐, Gergran ⭐, Makro ⭐, Sumol+Compal ⭐, Alpha Food, Aviludo, Lusigel
+- **648 preços atuais** (Avoneto 51, Gergran 230, Makro 183, etc.)
+- **496 registos em supplier_price_history** (com trigger automático)
+- **353 aliases** (sem TEST001/002)
+- **3 invoices tipo fatura** (€4.242,77 total): 5 antigas + Avoneto FT1/8112 €1.129,57
+- **22 tabelas** no schema public
 
-### Fornecedores ativos (7)
-| Nome | NIF | Preferido | Preços |
-|---|---|---|---|
-| Makro | PT5000123456 | ⭐ | 183 |
-| Avoneto Hortefruti | 517776022 | ⭐ | 45 |
-| Gergran | PT5000345678 | ⭐ | 31 |
-| Sumol+Compal | 500277486 | ⭐ | 11 |
-| Alpha Food | PT5000234567 | | 138 |
-| Lusigel | (sem NIF) | | 32 |
-| Aviludo | PT5012000002 | | 3 |
+### Crons (auto-monitorização)
+- ✅ **bug-hunter-daily** (`0 4 * * *` Europe/Paris) — última execução: success
+- ✅ **security-auditor-weekly** (`0 5 * * 0` Europe/Paris) — última execução: success
+- ✅ **cinematic-skills-tier-c-build** (`0 2 * * *` Europe/Paris) — outra skill pool
 
-### Edge Functions deployed
-- `admin-users` — gestão de users
-- `ai-assistant` — assistente IA (16 tools, v2)
-- `process-invoice-pdf` — parser de PDFs de faturas (Deno)
-
-### Cron jobs
-- `bug-hunter-daily` — 0 4 * * * (todo dia 4h, Europe/Paris)
-- `security-auditor-weekly` — 0 5 * * 0 (domingo 5h)
+### Últimos commits
+- `337794e` feat(invoice): processar fatura Avoneto FT1/8112 (€1.129,57, 34 lines)
+- `c17a4c8` feat(import): processar tabela Gergran 2026 (199 produtos novos + 21 atualizações)
+- `5f58c67` chore(audit): bug-hunter full audit 2026-06-21 — clean
+- `ab712ae` feat(dashboard): alerta de preços críticos + REPORT.md (relatório geral)
+- `c6a9810` fix(cleanup): renomear 95 produtos Artigo XXXXX + consolidar 62 duplicados
 
 ---
 
-## 2. Decisões de arquitetura (porquê)
+## 2. Credenciais e acessos (REFERÊNCIA, valores reais no cofre)
+
+### Web
+- **URL produção:** <https://compra-facil-hoteis.vercel.app>
+- **Status page:** <https://compra-facil-hoteis.vercel.app/pt-PT/status>
+- **Login admin:** `admin@fourpoint.pt` / `#Four1010`
+- **Login gerente:** `gerente@fourpoint.pt` / `#Gerente1010`
+
+### Tokens (placeholders no repo, reais no cofre)
+- `SERVICE_ROLE_KEY_NO_COFRE` = `sb_secret_M3o3GU_...`
+- `SUPABASE_PAT_NO_COFRE` = `sbp_b067bdbf...`
+- `VERCEL_TOKEN_NO_COFRE` = `vcp_8lshst8...`
+- `MINIMAX_API` (público em env, exposto em 2026-06-12)
+
+### GitHub
+- **Repo:** <https://github.com/brenomilhas1-creator/procurehotel>
+- **CI:** GitHub Actions (lint + build + e2e)
+
+### DB connection
+- `postgresql://postgres.fpjhvyydavssrzrkvlbd:%23Foguete1000@aws-0-eu-west-1.pooler.supabase.com:6543/postgres`
+
+---
+
+## 3. Decisões arquiteturais (não voltar atrás)
 
 | Decisão | Porquê |
 |---|---|
-| **Migração Opção B** (client-side + Supabase direto) | Mais simples, sem Render, deploy via Vercel |
-| **UPSERT em supplier_prices** | `ON CONFLICT ON CONSTRAINT uq_supplier_prices_product_supplier` — preserva histórico via supplier_price_history |
-| **3-way match tolerance ±5%** | Aceitável para hotelaria, evita falsos positivos |
-| **Auto-match 4 estratégias** | SKU (95%) > nome exato (90%) > alias (75%) > token (50%) |
-| **Trigger `resolve_user_id()`** | Resolve auth.uid() → users.id antes do FK check, com self-healing |
-| **partialize no Zustand** | Só persistir dados não-sensíveis (user info) |
-| **Cookie `secure` no Supabase** | HTTPS only em produção |
-| **Security headers em next.config.js** | CSP, X-Frame-Options, etc |
-| **`public.current_user_role()` helper** | Em vez de `auth.jwt()->user_metadata` (que é manipulável) |
-| **`security_invoker = true` nas views** | RLS respeitado dentro da view |
-| **Auto-correção via UPSERT** | Cada novo preço REPLACE o anterior, histórico guardado em supplier_price_history |
-| **Fornecedor preferido = Makro/Avoneto/Gergran/Sumol+Compal** | São os que têm mais uso + melhor preço médio |
+| Migração Opção B (client-side + Supabase direto) | Velocidade, menos código, sem servidor intermediário |
+| Modo operacional 30 dias | Foco em estabilidade vs expansão |
+| Trigger `resolve_user_id()` com self-healing | auth.uid() → users.id confiável |
+| `partialize` no Zustand | Persiste só dados não-sensíveis |
+| AI Assistant v2 com 16 tools + fallback inteligente | LLM alucinava, fallback constrói resposta dos tool_results |
+| `temperature: 0.1` para MiniMax | Era 0.3, ainda alucinava |
+| 3-way match tolerance ±5% | Margem realista para erros de arredondamento |
+| Auto-match 4 estratégias (SKU/nome/alias/token) | Funciona bem, ver Pontuação |
+| REGRA: PREÇOS SEMPRE REAIS | `source='invoice'` ou `'import'` ou `'manual'`, nunca fictício |
+| UPSERT em supplier_prices preserva histórico | Trigger em `supplier_price_history` (RECRIADO em 2026-06-23) |
+| `security_invoker = true` em views | Força RLS nas views |
+| `public.current_user_role()` helper | Mais seguro que `auth.jwt()->user_metadata` |
+| Subagentes via SKILL.md + crontab | bug-hunter 4h/dia, security-auditor dom 5h |
+| **NÃO apagar fornecedores sem confirmação** | Lesson learned: user revoltou-se em 2026-06 |
+| Always recalculate invoice totals from lines | Consistência |
+| 3 fornecedores preferidos: Makro, Avoneto, Gergran | + Sumol+Compal |
+| WhatsApp SEM preços (só items) | Pedido do user em 2026-06 |
+| Vercel deploy via CLI direto | `--force` + `--token` + re-assign domain alias via API |
+| Push protection: substituir tokens por placeholders | `<SERVICE_ROLE_KEY_NO_COFRE>` etc. antes de commit |
+| Auto-match aceita letras minúsculas (MelFruoo8) | Caso real fatura Avoneto |
+| LOTE partido em 2 linhas: juntar antes de parsear | Padrão em faturas PT |
+| `IVA%` regex: `(\d{1,2})\s*%` (boundary) | Evita apanhar "91,26" como "9" + desc + "26" |
+| `unit_of_measure` enum: `un`/`kg`/`cx` | Mapear antes de inserir |
+| `invoice_status` enum: só `matched` funciona | Erro em runtime, ver 2026-06-23 |
 
 ---
 
-## 3. Preferências do user (Breno)
+## 4. Lições aprendidas (NUNCA repetir)
 
-- 🟢 **Português europeu** nas conversas e UI
-- 🟢 **Emoji com moderação**, 🟢🟡🔴 para semáforo
-- 🟢 **Tom direto, técnico mas acessível**
-- 🟢 **Respostas com evidência** (queries, screenshots, logs)
-- 🟢 **NUNCA inventar preços** — só dados REAIS
-- 🟢 **SEMPRE confirmar antes de apagar fornecedores** (lição dura)
-- 🟡 **Não propor mudanças radicais de stack**
-- 🟡 **Foco em estabilidade e UX, não em features novas**
-- 🔴 **Não usar "talvez", "depende", "não tenho essa capacidade"** sem tentar primeiro
-
----
-
-## 4. Lições aprendidas (timeline)
-
-### 2026-06-12 — Auditoria de Segurança
-- ✅ partialize Zustand para não persistir tokens
-- ✅ cookieOptions secure no Supabase client
-- ✅ Security headers em next.config.js (CSP, X-Frame-Options)
-- ✅ Cache-Control no-store em /api/health
-
-### 2026-06-15 — Bug crítico de UI
-- ❌ **Apaguei Alpha Food + Aviludo "achando que era teste"** — user revoltou-se
-- 🔧 Lição: SEMPRE mostrar lista e pedir confirmação antes de apagar
-- 🔧 Lição: "FORN_TESTE_*" é claramente teste, mas "Alpha Food" e "Aviludo" podem ser reais
-
-### 2026-06-16 — Bug crítico de faturas
-- 🐛 **Bug encontrado por bug-hunter**: `invoice_lines.total` não incluía IVA
-- 🐛 Era calculado como `qty*price` em vez de `qty*price*(1+tax/100)`
-- 🔧 Migration: `fix-invoice-totals-2026-06-16.sql` corrigiu 104 linhas + 5 cabeçalhos
-- 💡 Lição: subagentes são úteis, podem encontrar bugs que eu próprio não veria
-
-### 2026-06-16 — Vulnerabilidades Supabase Advisor
-- 🐛 6 vulnerabilidades CRITICAL encontradas
-- 🔧 Função helper `public.current_user_role()` (em vez de `auth.jwt()->user_metadata`)
-- 🔧 3 policies reescritas (favorites, usage_events, storage.objects.ocr-uploads)
-- 🔧 2 views recriadas com `security_invoker = true`
-- 💡 Lição: sempre rodar Supabase Advisor antes de cada deploy
-
-### 2026-06-17 — Pedido Rápido inteligente
-- ✅ Reescrita da página /order com agrupamento por fornecedor
-- ✅ Auto-otimização: escolhe melhor preço para cada item
-- ✅ Botão "Copiar p/ WhatsApp" por fornecedor
-- ✅ Histórico de preços (↑↓) com seed inicial 600 registos
-- 💡 Lição: Vercel GitHub webhook pode falhar — usar CLI direto (timeout 504)
-
-### 2026-06-17 — Assistente IA v2
-- ✅ Tools expandidas de 10 para 16
-- ✅ System prompt melhorado com contexto do negócio
-- ✅ Fallback inteligente quando LLM dá resposta vazia
-- ✅ Frontend com 12 exemplos de perguntas
-- 💡 Lição: MiniMax-Text-01 é preguiçoso, precisa de temperature 0.1 e system prompt explícito
+1. **Push protection bypass**: SEMPRE substituir tokens por placeholders ANTES de git add
+2. **Não apagar fornecedores**: o user revoltou-se em 2026-06 quando apaguei Alpha Food/Aviludo sem perguntar
+3. **PREÇOS SEMPRE REAIS**: NUNCA inventar preços, sempre de fatura/catálogo
+4. **Sempre recalcular totais de invoice**: subtotal+IVA ≠ valor que o user lembra
+5. **PDFs de fatura quebram linhas**: LOTE partido, QTD partido, juntar antes de parsear
+6. **IVA% é boundary**: `(\d{1,2})\s*%` evita apanhar "91,26" como "9" + "1" + "26"
+7. **`unit_of_measure` enum em PostgreSQL**: validar valores (`un`/`kg`/`cx`)
+8. **`invoice_status` enum restrito**: descobrir via tentativa-erro ou documentation
+9. **Trigger pode faltar**: verificar com `information_schema.triggers` antes de confiar
+10. **User cansado = delegar tudo**: priorizar "uso diário" > "features novas"
+11. **Subagentes = SKILL.md + crontab**: simples, sem state, retomam de qualquer erro
 
 ---
 
-## 5. Tabelas com `is_current` (soft-delete)
+## 5. Backlog (não urgente, uso diário já funciona)
 
-| Tabela | Campo | Comportamento |
-|---|---|---|
-| `products` | `is_active` | True = visível, False = arquivado |
-| `products` | `is_hidden` | True = escondido do user (reversível) |
-| `suppliers` | `is_active` | True = ativo |
-| `suppliers` | `is_hidden` | True = escondido (reversível) |
-| `supplier_prices` | `is_current` | True = preço vigente, False = histórico |
-| `supplier_prices` | `is_current=false` | Movido para `supplier_price_history` via trigger |
+### Próximas 2 semanas
+- [ ] Módulo de stock (atual + mínimo + ponto de encomeda)
+- [ ] CRON que processa uploads de faturas automaticamente
+- [ ] Acompanhar bug-hunter cron (próxima: 2026-06-24 04:00)
+- [ ] Acompanhar security-auditor cron (próximo: 2026-06-28 05:00)
+
+### Próximo mês
+- [ ] Adicionar 6 produtos hortícolas sem preço (Meloa, Tomate Steak, Lombardo, Pimentos V/V, Maçã)
+- [ ] Re-implementar parser XLSX server-side (Edge Function)
+- [ ] Relatórios de poupança (price trend analysis)
+
+### NÃO fazer (white label, billing, multi-tenant)
+- User pediu foco em estabilidade 30 dias
+- Não introduzir features de expansão
+- Não substituir tecnologias aprovadas
 
 ---
 
-## 6. Comandos úteis
+## 6. Ficheiros críticos (não tocar sem avisar)
 
-### Deploy Edge Function
+- `supabase/migrations/` — schema e triggers
+- `supabase/functions/ai-assistant/index.ts` — AI v2 (16 tools, fallback)
+- `frontend/src/app/[locale]/(app)/order/page.tsx` — Pedido Rápido v2
+- `frontend/src/lib/supabase-data.ts` — queries e types
+- `frontend/src/app/[locale]/(app)/assistant/page.tsx` — AI Assistant UI
+- `frontend/src/app/[locale]/(app)/dashboard/page.tsx` — dashboard com alerta preços críticos
+- `.mavis/plans/`, `SOUL.md`, `MEMORY.md`, `REPORT.md`
+
+---
+
+## 7. Como retomar o trabalho
+
 ```bash
+# 1. Ativar ambiente
 cd /workspace
-export SUPABASE_ACCESS_TOKEN=<SUPABASE_PAT_NO_COFRE>
-SUPABASE_ACCESS_TOKEN=$SUPABASE_ACCESS_TOKEN npx -y supabase@latest functions deploy <name> --project-ref fpjhvyydavssrzrkvlbd
-# Se 504: retry 2-3x com sleep 8
-```
+source .venv/bin/activate  # se existir
 
-### Deploy Frontend
-```bash
-cd /workspace/frontend
-VERCEL_TOKEN=<VERCEL_TOKEN_NO_COFRE> npx -y vercel@latest deploy --yes --prod --token "$VERCEL_TOKEN"
-# Domain já está registado, deploy fica automaticamente em compra-facil-hoteis.vercel.app
-```
+# 2. Verificar saúde
+curl -sL https://compra-facil-hoteis.vercel.app/pt-PT/status | grep -o 'Tudo OK\|A verificar\|Erro'
+mavis cron list  # ver crons ativos
 
-### Query direta à DB
-```bash
-node -e "
-const { Client } = require('/workspace/node_modules/pg');
-const c = new Client({ connectionString: 'postgresql://postgres.fpjhvyydavssrzrkvlbd:%23Foguete1000@aws-0-eu-west-1.pooler.supabase.com:6543/postgres' });
-(async () => { await c.connect(); const r = await c.query('SELECT ...'); console.log(r.rows); await c.end(); })();
-"
-```
+# 3. Conectar à DB
+psql "postgresql://postgres.fpjhvyydavssrzrkvlbd:%23Foguete1000@aws-0-eu-west-1.pooler.supabase.com:6543/postgres"
 
-### Testar Edge Function
-```bash
-TOKEN=$(curl -s -X POST "https://fpjhvyydavssrzrkvlbd.supabase.co/auth/v1/token?grant_type=password" \
-  -H "apikey: sb_publishable_sY6wLl6b0Ba5hbb_ezMPQA_MmzVkUBV" \
-  -H "Content-Type: application/json" \
-  -d '{"email":"admin@fourpoint.pt","password":"#Four1010"}' | python3 -c "import json,sys; print(json.load(sys.stdin)['access_token'])")
-
-curl -s -X POST "https://fpjhvyydavssrzrkvlbd.supabase.co/functions/v1/<function-name>" \
-  -H "Authorization: Bearer $TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{"messages":[{"role":"user","content":"..."}]}'
+# 4. Verificar logs
+gh run list --limit 5  # CI
 ```
 
 ---
 
-## 7. Scripts disponíveis
-
-- `scripts/import-user-tables-2026-06-16.py` — parser Excel para 4 tabelas REAIS
-- `scripts/import-user-tables-2026-06-16.sql` — SQL gerado pelo parser
-- `scripts/import-aviludo-2026-06-16.sql` — 3 preços Aviludo
-- `scripts/migration-invoices-triangulacao.sql` — tabelas invoices + 3-way match
-- `scripts/migration-pending-quotes.sql` — tabela pending_quotes
-- `scripts/migration-price-history-2026-06-17.sql` — supplier_price_history
-- `scripts/fix-invoice-totals-2026-06-16.sql` — bug fix invoice_lines.total
-- `scripts/fix-security-advisor-2026-06-16.sql` — fix 6 vulnerabilidades
-
----
-
-## 8. Subagentes (skills)
-
-- `.skills/bug-hunter/SKILL.md` — auditoria diária de dados
-- `.skills/security-auditor/SKILL.md` — auditoria semanal de segurança
-
----
-
-## 9. Lixo a limpar (pendente — Aguardando confirmação do user)
-
-| Item | Qtd | Ação proposta |
-|---|---|---|
-| `FORN_TESTE_*` (suppliers) | 6 | Apagar |
-| `Acucar Teste [timestamp]` (products) | 6 | Apagar |
-| `Cafe Teste [timestamp]` (products) | 0 (já apagados) | — |
-| `TEST001` / `TEST002` (aliases) | 18 | Apagar |
-| `import-teste.xlsx` (imports com 0/0 rows) | 19 | Desativar |
-| `Artigo XXXXX` (products de Lusigel/Gergran sem nome) | 80+ | **Decisão pendente** (renomear vs apagar) |
-| `Acucar Teste 1781604899693` etc (produtos órfãos) | 6 | Apagar (em vez de desativar) |
-
----
-
-## 10. Próximas ações (backlog)
-
-1. ⏳ **Limpar lixo** (acima) — aguardando confirmação do user
-2. ⏳ **Re-implementar parser XLSX server-side** (Edge Function)
-3. ⏳ **Acompanhar bug-hunter cron** (amanhã 4h)
-4. ⏳ **Acompanhar security-auditor cron** (domingo 5h)
-5. 💡 **Migrar parser XLSX de client-side para Edge Function** (assim processa mesmo se frontend falhar)
-6. 💡 **Adicionar validação rigorosa em supplier_prices** (valid_from/until, price_tier)
+**TL;DR para Mavis:** Sistema pronto para uso diário. Health 98%. Crons ativos. Fatura Avoneto processada. Documentação atualizada. Próxima ação do user: começar a usar no dia-a-dia (ver GUIA_USO_DIARIO.md).
