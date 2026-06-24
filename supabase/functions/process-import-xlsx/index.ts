@@ -175,7 +175,14 @@ Deno.serve(async (req) => {
       if (columnMap.unit !== undefined) item.unit = (row[columnMap.unit] || "").trim();
       if (columnMap.price !== undefined) item.unit_price = parsePrice(row[columnMap.price]);
       if (columnMap.quantity !== undefined) item.quantity = parseNumber(row[columnMap.quantity]);
-      if (columnMap.tax !== undefined) {
+      if (supabaseAdmin) {
+      const { data: sugg } = await supabaseAdmin.rpc('suggest_category', { p_name: item.name });
+      if (sugg && sugg[0]) {
+        item.suggested_category = sugg[0].suggested_category;
+        item.category_confidence = sugg[0].confidence;
+      }
+    }
+    if (columnMap.tax !== undefined) {
         const taxStr = (row[columnMap.tax] || "").replace("%", "").trim();
         item.tax_rate = parseNumber(taxStr);
       }
