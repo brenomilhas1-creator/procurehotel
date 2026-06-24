@@ -138,14 +138,25 @@ Enviado via Compra Facil Hoteis
 
 ### Quando queres adicionar 1 item rápido sem pensar (buscador de catálogo)
 1. **Abrir `/pt-PT/catalog`** (Catálogo Mestre)
-2. **Pesquisar** pelo produto (ex: "banana", "queijo")
-3. **Clica no botão "Pedir"** (verde, à direita) — vai direto para o Pedido Rápido com 1 unidade adicionada
-4. Aparece toast "Produto adicionado! Acrescenta mais items ou confirma"
-5. Podes **acrescentar mais** items OU **confirmar o pedido** direto
+2. **Filtrar** (opcional) — escolhe tags de Categoria, Fornecedor, Preço ou Popularidade na sidebar
+3. **Pesquisar** pelo produto (ex: "banana", "queijo")
+4. **Clica no botão "Pedir"** (verde, à direita) — vai direto para o Pedido Rápido com 1 unidade adicionada
+5. Aparece toast "Produto adicionado! Acrescenta mais items ou confirma"
+6. Podes **acrescentar mais** items OU **confirmar o pedido** direto
 
 **Atalho:** Clica 2x no mesmo produto = adiciona 2 unidades. (Auto-incremento de qty.)
 
 É um padrão "buscador" — pesquisa → clica → vai para confirmar.
+
+### Filtros disponíveis no Catálogo
+- **Categoria** (chips) — multi-select, mostra só produtos dessa(s) categoria(s)
+- **Fornecedor** (chips verdes) — mostra só produtos comprados a esse(s) fornecedor(es)
+- **Preço** (chips âmbar) — Todos / Com preço / Sem preço / < 90 dias / > 90 dias
+- **Já pedi antes?** (chips azuis) — Todos / Sim / Nunca
+
+**Lógica:** AND entre grupos, OR dentro do mesmo grupo.
+**Tags de filtros ativos** no topo (clicáveis para remover).
+**Botão "Limpar"** quando há filtros ativos.
 
 ## 🧾 6. FATURAS
 
