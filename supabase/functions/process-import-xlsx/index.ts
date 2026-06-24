@@ -59,7 +59,7 @@ function detectHeader(rows: string[][]): { headerIdx: number; columnMap: Record<
     tax: ["iva", "tax", "taxa"],
   };
   for (let i = 0; i < Math.min(5, rows.length); i++) {
-    const row = rows[i].map((c) => (c || "").toLowerCase());
+    const row = rows[i].map((c) => normalize(c));
     const colMap: Record<string, number> = {};
     for (const [field, kws] of Object.entries(KEYWORDS)) {
       for (let j = 0; j < row.length; j++) {
@@ -113,10 +113,35 @@ function parseNumber(val: string | undefined): number | undefined {
   return isNaN(num) ? undefined : num;
 }
 
+/**
+ * Normaliza string removendo acentos + lowercase.
+ * Usado para matching de cabeçalhos CSV (acentos tornavam 'preço'.includes('preco') = false).
+ */
+function normalize(s: string | undefined): string {
+  return (s || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: CORS });
 
   try {
+    // FIX BUG: validação de auth obrigatória (serviço usa service_role key)
+    const auth = req.headers.get("authorization");
+    if (!auth) {
+      return new Response(JSON.stringify({ error: "Não autenticado" }), { status: 401, headers: CORS });
+    }
+    const supabaseUser = createClient(SUPABASE_URL, Deno.env.get("SUPABASE_ANON_KEY")!, {
+      global: { headers: { Authorization: auth } },
+    });
+    const { data: { user }, error: userErr } = await supabaseUser.auth.getUser();
+    if (userErr || !user) {
+      return new Response(JSON.stringify({ error: "Token inválido" }), { status: 401, headers: CORS });
+    }
+
     const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
 
     const body = await req.json();
