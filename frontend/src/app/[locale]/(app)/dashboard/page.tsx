@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl';
 import { ShoppingCart, Package, Truck, TrendingDown, Euro, AlertCircle, Star, Heart, BarChart3, Activity, FileText, Clock } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { getAnalyticsSummary, getDataHealth, getExceptions, getFrequentItems, getStaleSummary, type KpiSummary, type DataHealth, type Exceptions, type FrequentItem, type StaleSummary } from '@/lib/supabase-data';
+import { getAnalyticsSummary, getDataHealth, getExceptions, getFrequentItems, getStaleSummary, getMonthlySpend, getTopSuppliersBySpend, getTopProductsBySpend, type KpiSummary, type DataHealth, type Exceptions, type FrequentItem, type StaleSummary, type MonthlySpend, type SupplierSpend, type ProductSpend } from '@/lib/supabase-data';
 import { formatCurrency } from '@/lib/utils';
 
 export default function DashboardPage() {
@@ -16,6 +16,9 @@ export default function DashboardPage() {
   const [frequent, setFrequent] = useState<FrequentItem[]>([]);
   const [invoiceAlerts, setInvoiceAlerts] = useState<{ unmatched: number; pending: number; total: number; recent_total: number } | null>(null);
   const [stale, setStale] = useState<StaleSummary | null>(null);
+  const [monthly, setMonthly] = useState<MonthlySpend[]>([]);
+  const [topSuppliers, setTopSuppliers] = useState<SupplierSpend[]>([]);
+  const [topProducts, setTopProducts] = useState<ProductSpend[]>([]);
 
   useEffect(() => {
     getAnalyticsSummary().then(setKpi).catch(() => null);
@@ -25,6 +28,10 @@ export default function DashboardPage() {
     // Carregar alertas de invoices
     fetch('/api/invoices/alerts').then(r => r.ok ? r.json() : null).then(setInvoiceAlerts).catch(() => null);
     getStaleSummary().then(setStale).catch(() => null);
+    // Gráficos
+    getMonthlySpend(12).then(setMonthly).catch(() => null);
+    getTopSuppliersBySpend(5).then(setTopSuppliers).catch(() => null);
+    getTopProductsBySpend(10).then(setTopProducts).catch(() => null);
   }, []);
 
   return (
@@ -183,6 +190,100 @@ export default function DashboardPage() {
                   <a href={`/order?product=${f.product_id}`}>
                     <Badge variant="secondary" className="cursor-pointer">Repetir</Badge>
                   </a>
+                </li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Análise Mensal (M11) */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        {/* Gráfico de compras mensais */}
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <BarChart3 className="h-4 w-4" /> Compras mensais
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {monthly.length === 0 ? (
+              <p className="text-sm text-muted-foreground py-8 text-center">Sem dados de faturas processadas.</p>
+            ) : (
+              <div className="space-y-3">
+                {(() => {
+                  const max = Math.max(...monthly.map((m) => Number(m.total_spend)));
+                  return monthly.slice(0, 6).reverse().map((m) => {
+                    const pct = max > 0 ? (Number(m.total_spend) / max) * 100 : 0;
+                    const monthLabel = new Date(m.month).toLocaleDateString('pt-PT', { month: 'short', year: '2-digit' });
+                    return (
+                      <div key={m.month} className="space-y-1">
+                        <div className="flex justify-between text-xs">
+                          <span className="font-medium capitalize">{monthLabel}</span>
+                          <span className="tabular-nums">{formatCurrency(Number(m.total_spend))} <span className="text-muted-foreground">({m.invoice_count})</span></span>
+                        </div>
+                        <div className="h-6 bg-muted rounded-md overflow-hidden">
+                          <div
+                            className="h-full bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-md transition-all"
+                            style={{ width: `${pct}%` }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  });
+                })()}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Top fornecedores por gasto */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-sm">
+              <Truck className="h-4 w-4" /> Top fornecedores
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-0">
+            {topSuppliers.length === 0 ? (
+              <p className="text-sm text-muted-foreground py-8 text-center">Sem dados.</p>
+            ) : (
+              <ul className="divide-y">
+                {topSuppliers.filter((s) => Number(s.total_spend) > 0).slice(0, 5).map((s) => (
+                  <li key={s.supplier_id} className="px-4 py-2.5 flex items-center justify-between text-sm">
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium truncate flex items-center gap-1">
+                        {s.is_preferred && <Star className="h-3 w-3 text-amber-500 fill-amber-500" />}
+                        {s.supplier_name}
+                      </div>
+                      <div className="text-xs text-muted-foreground">{s.invoice_count} fatura{s.invoice_count !== 1 ? 's' : ''}</div>
+                    </div>
+                    <div className="font-semibold tabular-nums">{formatCurrency(Number(s.total_spend))}</div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Top produtos por gasto */}
+      {topProducts.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Package className="h-4 w-4" /> Top produtos por gasto
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-0">
+            <ul className="divide-y">
+              {topProducts.slice(0, 10).map((p) => (
+                <li key={p.product_id} className="px-4 py-2.5 flex items-center justify-between text-sm">
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium truncate">{p.master_name}</div>
+                    <div className="text-xs text-muted-foreground">{p.category || '—'} · {Number(p.total_quantity).toFixed(1)} un · {p.line_count} linha{p.line_count !== 1 ? 's' : ''}</div>
+                  </div>
+                  <div className="font-semibold tabular-nums">{formatCurrency(Number(p.total_spend))}</div>
                 </li>
               ))}
             </ul>

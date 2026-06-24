@@ -2026,3 +2026,66 @@ export async function getStockSummary(): Promise<{ critical: number; low: number
     total_tracked: items.filter((i) => i.stock_min !== null).length,
   };
 }
+
+/**
+ * Dashboard Analytics — gráficos de compras mensais
+ */
+
+export interface MonthlySpend {
+  month: string; // YYYY-MM-01
+  invoice_count: number;
+  total_spend: number;
+  total_tax: number;
+  avg_invoice: number;
+}
+
+export interface SupplierSpend {
+  supplier_id: string;
+  supplier_name: string;
+  is_preferred: boolean;
+  invoice_count: number;
+  total_spend: number;
+  last_invoice_date: string | null;
+}
+
+export interface ProductSpend {
+  product_id: string;
+  master_name: string;
+  category: string | null;
+  line_count: number;
+  total_spend: number;
+  total_quantity: number;
+}
+
+export async function getMonthlySpend(months = 12): Promise<MonthlySpend[]> {
+  const c = sb();
+  if (!c) return [];
+  const { data, error } = await c
+    .from('monthly_spend')
+    .select('*')
+    .limit(months);
+  if (error) return [];
+  return (data || []) as MonthlySpend[];
+}
+
+export async function getTopSuppliersBySpend(limit = 10): Promise<SupplierSpend[]> {
+  const c = sb();
+  if (!c) return [];
+  const { data, error } = await c
+    .from('top_suppliers_by_spend')
+    .select('*')
+    .limit(limit);
+  if (error) return [];
+  return (data || []) as SupplierSpend[];
+}
+
+export async function getTopProductsBySpend(limit = 10): Promise<ProductSpend[]> {
+  const c = sb();
+  if (!c) return [];
+  const { data, error } = await c
+    .from('top_products_by_spend')
+    .select('*')
+    .limit(limit);
+  if (error) return [];
+  return (data || []) as ProductSpend[];
+}
