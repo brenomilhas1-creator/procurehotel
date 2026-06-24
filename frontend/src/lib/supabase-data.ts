@@ -1897,3 +1897,42 @@ export async function getPendingQuotesBySupplier(): Promise<Array<{ supplier_id:
   if (error) return [];
   return (data || []) as any;
 }
+
+/**
+ * Atualiza o status de uma purchase order.
+ * Quando status='placed', também preenche placed_at com a data atual.
+ * Quando status='pending', limpa placed_at.
+ */
+export async function updateOrderStatus(orderId: string, status: 'placed' | 'pending' | 'draft'): Promise<{ ok: boolean; error?: string }> {
+  const c = sb();
+  if (!c) return { ok: false, error: 'sem cliente supabase' };
+  
+  const update: Record<string, any> = { status };
+  if (status === 'placed') {
+    update.placed_at = new Date().toISOString();
+  } else {
+    update.placed_at = null;
+  }
+  
+  const { error } = await c.from('purchase_orders')
+    .update(update)
+    .eq('id', orderId);
+  
+  if (error) return { ok: false, error: error.message };
+  return { ok: true };
+}
+
+/**
+ * Gera texto WhatsApp (sem preços) a partir de items de um pedido.
+ * Formato limpo: bullet list de "{qty} {unit?} {nome}".
+ */
+export function formatOrderAsWhatsApp(order: PurchaseOrder, items: PurchaseOrderItem[]): string {
+  const supplierName = order.supplier?.name || 'Fornecedor';
+  const lines = items.map((i: any) => {
+    const name = i.products?.master_name || i.raw_line || 'item';
+    const qty = Number(i.quantity);
+    const unit = i.products?.unit ? ` ${i.products.unit}` : '';
+    return `• ${qty}${unit} ${name}`;
+  });
+  return `🛒 *Pedido - ${supplierName}*\n\n${lines.join('\n')}\n\nEnviado via Compra Facil Hoteis`;
+}
