@@ -18,6 +18,7 @@ import {
 } from '@/lib/supabase-data';
 import { formatCurrency } from '@/lib/utils';
 import { useSearchParams } from 'next/navigation';
+import { toast } from 'sonner';
 
 function OrderPageInner() {
   const sp = useSearchParams();
@@ -41,7 +42,7 @@ function OrderPageInner() {
   useEffect(() => {
     listSuppliers({ limit: 50 }).then((d) => setSuppliers(d)).catch(() => null);
 
-    // Verificar se há preorder (de Favoritos ou Repetir)
+    // Verificar se há preorder (de Favoritos, Repetir, ou Catálogo)
     const pre = sessionStorage.getItem('cf.preorder');
     if (pre) {
       try {
@@ -59,6 +60,15 @@ function OrderPageInner() {
         }));
         setItems(seeded);
         sessionStorage.removeItem('cf.preorder');
+
+        // Toast de feedback se veio do catálogo
+        const fromCatalog = sp.get('from_catalog');
+        if (fromCatalog) {
+          toast.success('Produto adicionado!', {
+            description: 'Acrescenta mais items ou confirma o pedido abaixo.',
+            duration: 4000,
+          });
+        }
       } catch {}
     }
   }, []);

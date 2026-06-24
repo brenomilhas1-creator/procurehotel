@@ -1,18 +1,50 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Search, Tag, Truck, Calendar, ShoppingCart, ChevronDown, ChevronRight, Package, AlertCircle } from 'lucide-react';
+import { Search, Tag, Truck, Calendar, ShoppingCart, ChevronDown, ChevronRight, Package, AlertCircle, Check, Plus } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { getCatalog, type CatalogProduct } from '@/lib/supabase-data';
 import { formatCurrency } from '@/lib/utils';
+
+/**
+ * Adiciona um produto ao preorder do sessionStorage.
+ * O Pedido Rápido (v2) lê isto no mount e injeta os items.
+ */
+function addToPreorder(product: { id: string; master_name: string; unit_price?: number; unit?: string }) {
+  try {
+    const existing = JSON.parse(sessionStorage.getItem('cf.preorder') || '[]');
+    // Verificar se já existe — se sim, incrementar qty
+    const idx = existing.findIndex((i: any) => i.product_id === product.id);
+    if (idx >= 0) {
+      existing[idx].quantity = (existing[idx].quantity || 1) + 1;
+    } else {
+      existing.push({
+        product_id: product.id,
+        product_name: product.master_name,
+        quantity: 1,
+        unit_price: product.unit_price || 0,
+      });
+    }
+    sessionStorage.setItem('cf.preorder', JSON.stringify(existing));
+  } catch {
+    sessionStorage.setItem('cf.preorder', JSON.stringify([{
+      product_id: product.id,
+      product_name: product.master_name,
+      quantity: 1,
+      unit_price: product.unit_price || 0,
+    }]));
+  }
+}
 
 export default function CatalogPage() {
   const [data, setData] = useState<CatalogProduct[]>([]);
   const [q, setQ] = useState('');
   const [expanded, setExpanded] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [adding, setAdding] = useState<string | null>(null);
 
   useEffect(() => {
     setLoading(true);
@@ -22,11 +54,29 @@ export default function CatalogPage() {
     return () => clearTimeout(t);
   }, [q]);
 
+  /**
+   * "Pedir" — adiciona 1 unidade do produto ao preorder e vai para o Pedido Rápido.
+   * O user pode depois acrescentar mais ou confirmar.
+   */
+  function handlePedir(p: CatalogProduct) {
+    setAdding(p.id);
+    addToPreorder({
+      id: p.id,
+      master_name: p.master_name,
+      unit_price: p.suppliers[0]?.unit_price,
+      unit: p.unit,
+    });
+    // Pequeno delay para mostrar feedback visual antes de navegar
+    setTimeout(() => {
+      window.location.href = '/order?from_catalog=' + p.id;
+    }, 250);
+  }
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Catálogo Mestre</h1>
-        <p className="text-sm text-muted-foreground">{data.length} produtos — ver aliases, fornecedores e última atualização de preço</p>
+        <p className="text-sm text-muted-foreground">{data.length} produtos — pesquisa e clica "Pedir" para enviar ao Pedido Rápido</p>
       </div>
 
       <Card>
@@ -56,17 +106,18 @@ export default function CatalogPage() {
             <ul className="divide-y">
               {data.map((p) => {
                 const isOpen = expanded === p.id;
+                const isAdding = adding === p.id;
                 const daysAgo = p.last_price_update
                   ? Math.floor((Date.now() - new Date(p.last_price_update).getTime()) / (1000 * 60 * 60 * 24))
                   : null;
                 const priceStale = daysAgo !== null && daysAgo > 90;
                 return (
                   <li key={p.id}>
-                    <button
-                      onClick={() => setExpanded(isOpen ? null : p.id)}
-                      className="w-full px-4 py-3 flex items-center justify-between gap-3 hover:bg-accent text-left"
-                    >
-                      <div className="flex-1 min-w-0">
+                    <div className="px-4 py-3 flex items-center justify-between gap-3 hover:bg-accent/50">
+                      <button
+                        onClick={() => setExpanded(isOpen ? null : p.id)}
+                        className="flex-1 min-w-0 text-left"
+                      >
                         <div className="font-medium text-sm flex items-center gap-2">
                           {isOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
                           {p.master_name}
@@ -79,8 +130,8 @@ export default function CatalogPage() {
                           <span className="flex items-center gap-1"><Truck className="h-3 w-3" /> {p.suppliers.length} fornecedor{p.suppliers.length !== 1 ? 'es' : ''}</span>
                           {p.total_orders > 0 && <span>· {p.total_orders} ordens</span>}
                         </div>
-                      </div>
-                      <div className="flex items-center gap-2">
+                      </button>
+                      <div className="flex items-center gap-2 shrink-0">
                         {p.suppliers.length > 0 && (
                           <Badge variant="default">{formatCurrency(p.suppliers[0].unit_price)}/{p.unit}</Badge>
                         )}
@@ -92,8 +143,28 @@ export default function CatalogPage() {
                         {p.suppliers.length === 0 && (
                           <Badge variant="outline">sem preço</Badge>
                         )}
+                        <Button
+                          size="sm"
+                          variant="default"
+                          onClick={(e) => { e.stopPropagation(); handlePedir(p); }}
+                          disabled={isAdding}
+                          title="Enviar para o Pedido Rápido (qty=1)"
+                          className="ml-1"
+                        >
+                          {isAdding ? (
+                            <>
+                              <Check className="h-4 w-4" />
+                              <span>Adicionado</span>
+                            </>
+                          ) : (
+                            <>
+                              <Plus className="h-4 w-4" />
+                              <span>Pedir</span>
+                            </>
+                          )}
+                        </Button>
                       </div>
-                    </button>
+                    </div>
                     {isOpen && (
                       <div className="px-4 py-3 bg-muted/30 space-y-3 text-sm">
                         {/* Aliases */}
@@ -130,8 +201,16 @@ export default function CatalogPage() {
                           </div>
                         )}
                         <div className="flex gap-2 pt-2">
-                          <a href={`/order?product=${p.id}`} className="text-xs text-primary hover:underline flex items-center gap-1">
-                            <ShoppingCart className="h-3 w-3" /> Adicionar a um pedido
+                          <Button
+                            size="sm"
+                            variant="default"
+                            onClick={() => handlePedir(p)}
+                            disabled={isAdding}
+                          >
+                            {isAdding ? <><Check className="h-4 w-4" /> Adicionado</> : <><Plus className="h-4 w-4" /> Pedir este produto</>}
+                          </Button>
+                          <a href={`/order?product=${p.id}`} className="text-xs text-primary hover:underline flex items-center gap-1 self-center">
+                            <ShoppingCart className="h-3 w-3" /> Adicionar a um pedido existente
                           </a>
                         </div>
                       </div>
