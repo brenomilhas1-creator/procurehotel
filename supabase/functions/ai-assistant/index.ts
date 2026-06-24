@@ -1050,6 +1050,24 @@ Deno.serve(async (req) => {
     const { data: { user }, error: userErr } = await supabaseUser.auth.getUser();
     if (userErr || !user) return new Response(JSON.stringify({ error: "Token inválido" }), { status: 401, headers: CORS });
 
+    // ====== RATE LIMITING (10 req/min por user) ======
+    const supabaseAdmin0 = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
+    const { data: rateCheck } = await supabaseAdmin0.rpc('check_rate_limit', {
+      p_user_id: user.id,
+      p_endpoint: 'ai-assistant',
+      p_window_seconds: 60,
+      p_max_requests: 10,
+    });
+    if (rateCheck && rateCheck.length > 0 && rateCheck[0].allowed === false) {
+      const reset = new Date(rateCheck[0].reset_at).toLocaleTimeString('pt-PT');
+      return new Response(JSON.stringify({
+        error: `Limite de 10 requests/min atingido. Tenta novamente às ${reset}.`,
+        code: 'RATE_LIMITED',
+        reset_at: rateCheck[0].reset_at,
+        current_count: rateCheck[0].current_count,
+      }), { status: 429, headers: { ...CORS, 'Retry-After': '60', 'X-RateLimit-Limit': '10', 'X-RateLimit-Remaining': '0' } });
+    }
+
     const body = await req.json();
     const { messages = [], provider = "minimax", apiKey = "", baseUrl = "", model = "" } = body;
 
