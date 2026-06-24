@@ -19,6 +19,7 @@ import {
 import { formatCurrency } from '@/lib/utils';
 import { useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
+import { useCart } from '@/stores/cart';
 
 function OrderPageInner() {
   const sp = useSearchParams();
@@ -38,37 +39,51 @@ function OrderPageInner() {
   const [autoResults, setAutoResults] = useState<{ id: string; name: string; brand: string | null; alias: string }[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // Cart persistente (localStorage)
+  const cart = useCart();
+  const cartItems = cart.items;
+  const cartTotalItems = cart.totalItems();
+  const cartTotalValue = cart.totalValue();
+
+  // Sincronizar: quando items mudam (qty, add, remove), persistir no cart
+  // Estratégia: o cart é a fonte da verdade. Items locais são derivados do cart + texto parseado.
+  useEffect(() => {
+    // Inicializar items a partir do cart (se houver)
+    if (cartItems.length > 0 && items.length === 0 && text === '') {
+      const fakeText = cartItems.map((i) => `${i.quantity} ${i.product_name}`).join('\n');
+      setText(fakeText);
+      const seeded: FreeTextItem[] = cartItems.map((i) => ({
+        raw_line: `${i.quantity} ${i.product_name}`,
+        product_id: i.product_id,
+        product_name: i.product_name,
+        quantity: i.quantity,
+        unit_price: i.unit_price,
+        line_total: i.quantity * i.unit_price,
+        needs_review: false,
+      }));
+      setItems(seeded);
+    }
+  }, [cartItems.length === 0]);  // só na primeira vez
+
   // Load suppliers
   useEffect(() => {
     listSuppliers({ limit: 50 }).then((d) => setSuppliers(d)).catch(() => null);
 
-    // Verificar se há preorder (de Favoritos, Repetir, ou Catálogo)
+    // Backward compat: ler do sessionStorage se existir (de fluxo antigo)
     const pre = sessionStorage.getItem('cf.preorder');
     if (pre) {
       try {
         const arr = JSON.parse(pre);
-        const fakeText = (arr as any[]).map((i: any) => `${i.quantity || 1} ${i.product_name || i.alias}`).join('\n');
-        setText(fakeText);
-        const seeded = arr.map((i: any) => ({
-          raw_line: `${i.quantity} ${i.product_name}`,
-          product_id: i.product_id,
-          product_name: i.product_name || i.alias,
-          quantity: i.quantity || 1,
-          unit_price: i.unit_price || 0,
-          line_total: (i.quantity || 1) * (i.unit_price || 0),
-          needs_review: false,
-        }));
-        setItems(seeded);
-        sessionStorage.removeItem('cf.preorder');
-
-        // Toast de feedback se veio do catálogo
-        const fromCatalog = sp.get('from_catalog');
-        if (fromCatalog) {
-          toast.success('Produto adicionado!', {
-            description: 'Acrescenta mais items ou confirma o pedido abaixo.',
-            duration: 4000,
+        arr.forEach((i: any) => {
+          cart.addItem({
+            product_id: i.product_id,
+            product_name: i.product_name || i.alias || 'Item',
+            unit_price: i.unit_price || 0,
+            quantity: i.quantity || 1,
           });
-        }
+        });
+        sessionStorage.removeItem('cf.preorder');
+        toast.success('Itens migrados para o carrinho persistente');
       } catch {}
     }
   }, []);
@@ -189,13 +204,34 @@ function OrderPageInner() {
   }
 
   function removeItem(idx: number) {
+    const removed = items[idx];
+    if (removed?.product_id) {
+      cart.removeItem(removed.product_id);
+    }
     setItems(items.filter((_, i) => i !== idx));
   }
 
   function updateQty(idx: number, qty: number) {
     const updated = [...items];
-    updated[idx] = { ...updated[idx], quantity: qty, line_total: qty * (updated[idx].unit_price || 0) };
+    const item = updated[idx];
+    updated[idx] = { ...item, quantity: qty, line_total: qty * (item.unit_price || 0) };
     setItems(updated);
+    // Sincronizar com cart
+    if (item.product_id) {
+      if (qty <= 0) {
+        cart.removeItem(item.product_id);
+      } else {
+        cart.updateQuantity(item.product_id, qty);
+      }
+    }
+  }
+
+  function clearCart() {
+    cart.clear();
+    setItems([]);
+    setText('');
+    setOrderCodes([]);
+    toast.success('Carrinho limpo');
   }
 
   function switchSupplier(itemIdx: number, newSupplierId: string, newPrice: number) {
@@ -227,10 +263,12 @@ function OrderPageInner() {
   }
 
   function clearAll() {
+    cart.clear();
     setItems([]);
     setText('');
     setOverrides({});
     setOrderCodes([]);
+    toast.success('Carrinho limpo');
   }
 
   /**
@@ -306,7 +344,11 @@ function OrderPageInner() {
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Pedido Rápido</h1>
           <p className="text-sm text-muted-foreground">
-            Escreve ou pesquisa. O sistema agrupa automaticamente pelo melhor preço por fornecedor.
+            {cartTotalItems > 0 ? (
+              <>🛒 {cartTotalItems} item(s) no carrinho · {formatCurrency(cartTotalValue)} — persistente até finalizar.</>
+            ) : (
+              <>Escreve ou pesquisa. O sistema agrupa automaticamente pelo melhor preço por fornecedor.</>
+            )}
           </p>
         </div>
         {hasItems && (

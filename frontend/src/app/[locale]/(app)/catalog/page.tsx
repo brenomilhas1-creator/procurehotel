@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
   Search, Tag, Truck, Calendar, ShoppingCart, ChevronDown, ChevronRight,
-  Package, AlertCircle, Check, Plus, Filter, X, SlidersHorizontal, Star,
+  Package, AlertCircle, Check, Plus, Filter, X, SlidersHorizontal, Star, ShoppingBag,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -12,35 +12,8 @@ import { Button } from '@/components/ui/button';
 import { getCatalog, type CatalogProduct } from '@/lib/supabase-data';
 import { formatCurrency } from '@/lib/utils';
 import { toast } from 'sonner';
-
-/**
- * Adiciona um produto ao preorder do sessionStorage.
- * O Pedido Rápido (v2) lê isto no mount e injeta os items.
- */
-function addToPreorder(product: { id: string; master_name: string; unit_price?: number; unit?: string }) {
-  try {
-    const existing = JSON.parse(sessionStorage.getItem('cf.preorder') || '[]');
-    const idx = existing.findIndex((i: any) => i.product_id === product.id);
-    if (idx >= 0) {
-      existing[idx].quantity = (existing[idx].quantity || 1) + 1;
-    } else {
-      existing.push({
-        product_id: product.id,
-        product_name: product.master_name,
-        quantity: 1,
-        unit_price: product.unit_price || 0,
-      });
-    }
-    sessionStorage.setItem('cf.preorder', JSON.stringify(existing));
-  } catch {
-    sessionStorage.setItem('cf.preorder', JSON.stringify([{
-      product_id: product.id,
-      product_name: product.master_name,
-      quantity: 1,
-      unit_price: product.unit_price || 0,
-    }]));
-  }
-}
+import { useCart } from '@/stores/cart';
+import Link from 'next/link';
 
 type StockStatus = 'any' | 'with_price' | 'no_price' | 'fresh' | 'stale';
 type Popularity = 'any' | 'ordered' | 'never_ordered';
@@ -77,19 +50,27 @@ export default function CatalogPage() {
   }, [q]);
 
   /**
-   * "Pedir" — adiciona 1 unidade do produto ao preorder e vai para o Pedido Rápido.
+   * "Adicionar ao carrinho" — não navega. O user pode adicionar vários items
+   * e depois ir ao Pedido Rápido quando quiser.
+   * Items ficam em localStorage (Zustand persist) até finalizar.
    */
+  const addToCart = useCart((s) => s.addItem);
+  const cartItems = useCart((s) => s.items);
+  const totalCartItems = useCart((s) => s.totalItems());
+
   function handlePedir(p: CatalogProduct) {
     setAdding(p.id);
-    addToPreorder({
-      id: p.id,
-      master_name: p.master_name,
-      unit_price: p.suppliers[0]?.unit_price,
-      unit: p.unit,
+    addToCart({
+      product_id: p.id,
+      product_name: p.master_name,
+      unit_price: p.suppliers[0]?.unit_price || 0,
+      quantity: 1,
     });
-    setTimeout(() => {
-      window.location.href = '/order?from_catalog=' + p.id;
-    }, 250);
+    toast.success('Adicionado ao carrinho', {
+      description: `${p.master_name} — ${totalCartItems + 1} item(s) no carrinho`,
+      duration: 2000,
+    });
+    setAdding(null);
   }
 
   // Extrair listas únicas para os filtros (a partir dos dados carregados)
