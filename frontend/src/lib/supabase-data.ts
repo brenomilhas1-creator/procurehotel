@@ -1936,3 +1936,93 @@ export function formatOrderAsWhatsApp(order: PurchaseOrder, items: PurchaseOrder
   });
   return `🛒 *Pedido - ${supplierName}*\n\n${lines.join('\n')}\n\nEnviado via Compra Facil Hoteis`;
 }
+
+/**
+ * Módulo de Stock — gestão de inventário
+ */
+
+export interface StockItem {
+  product_id: string;
+  master_name: string;
+  brand: string | null;
+  category: string | null;
+  stock_quantity: number | null;
+  stock_min: number | null;
+  stock_reorder_point: number | null;
+  stock_unit: string | null;
+  stock_location: string | null;
+  stock_last_counted_at: string | null;
+  stock_status: 'ok' | 'low' | 'critical' | 'unknown';
+}
+
+export async function listStock(opts: { q?: string; status?: 'critical' | 'low' | 'ok' | 'all'; limit?: number } = {}): Promise<StockItem[]> {
+  const c = sb();
+  if (!c) return [];
+  const { q = '', status = 'all', limit = 200 } = opts;
+
+  let qb = c.from('products')
+    .select('id, master_name, brand, category, stock_quantity, stock_min, stock_reorder_point, stock_unit, stock_location, stock_last_counted_at')
+    .eq('is_active', true)
+    .limit(limit);
+  if (q) qb = qb.ilike('master_name', `%${q}%`);
+
+  const { data: products } = await qb;
+  if (!products) return [];
+
+  const items: StockItem[] = (products as any[]).map((p) => {
+    let stock_status: StockItem['stock_status'] = 'unknown';
+    if (p.stock_quantity !== null && p.stock_min !== null) {
+      if (p.stock_quantity <= p.stock_min) stock_status = 'critical';
+      else if (p.stock_reorder_point !== null && p.stock_quantity <= p.stock_reorder_point) stock_status = 'low';
+      else stock_status = 'ok';
+    }
+    return {
+      product_id: p.id,
+      master_name: p.master_name,
+      brand: p.brand,
+      category: p.category,
+      stock_quantity: p.stock_quantity,
+      stock_min: p.stock_min,
+      stock_reorder_point: p.stock_reorder_point,
+      stock_unit: p.stock_unit,
+      stock_location: p.stock_location,
+      stock_last_counted_at: p.stock_last_counted_at,
+      stock_status,
+    };
+  });
+
+  // Filtro por status (client-side)
+  if (status === 'all') return items;
+  if (status === 'critical') return items.filter((i) => i.stock_status === 'critical' || i.stock_quantity === 0);
+  if (status === 'low') return items.filter((i) => i.stock_status === 'low' || i.stock_status === 'critical');
+  return items.filter((i) => i.stock_status === status);
+}
+
+export async function updateStock(productId: string, stock: {
+  stock_quantity?: number | null;
+  stock_min?: number | null;
+  stock_reorder_point?: number | null;
+  stock_unit?: string | null;
+  stock_location?: string | null;
+}): Promise<{ ok: boolean; error?: string }> {
+  const c = sb();
+  if (!c) return { ok: false, error: 'sem cliente supabase' };
+  const update: Record<string, any> = { ...stock };
+  update.stock_last_counted_at = new Date().toISOString();
+  const { error } = await c.from('products').update(update).eq('id', productId);
+  if (error) return { ok: false, error: error.message };
+  return { ok: true };
+}
+
+export async function getStockSummary(): Promise<{ critical: number; low: number; ok: number; unknown: number; total_tracked: number }> {
+  const c = sb();
+  if (!c) return { critical: 0, low: 0, ok: 0, unknown: 0, total_tracked: 0 };
+  const items = await listStock({ limit: 1000 });
+  return {
+    critical: items.filter((i) => i.stock_status === 'critical' || i.stock_quantity === 0).length,
+    low: items.filter((i) => i.stock_status === 'low').length,
+    ok: items.filter((i) => i.stock_status === 'ok').length,
+    unknown: items.filter((i) => i.stock_status === 'unknown').length,
+    total_tracked: items.filter((i) => i.stock_min !== null).length,
+  };
+}
