@@ -102,6 +102,23 @@ Enviado via Compra Facil Hoteis
 
 ---
 
+### Quando precisas de ver histórico / marcar como pedido feito
+1. **Abrir `/pt-PT/orders`** (Histórico de Pedidos)
+2. Vês todos os pedidos anteriores (com fornecedor, total, data)
+3. **Checkbox "Já pedi?"** — marca quando enviaste o pedido ao fornecedor
+4. **Botão "Copiar"** — copia o pedido formatado para WhatsApp (sem preços)
+5. **Botão "Repetir"** — recria o pedido no Pedido Rápido (v2)
+
+**Formato WhatsApp gerado:**
+```
+🛒 *Pedido - Makro*
+• 10 kg Bananas
+• 5 kg Queijo Flamengo
+• 20 kg Farinha Nacional
+
+Enviado via Compra Facil Hoteis
+```
+
 ## 💰 5. PREÇOS E HISTÓRICO
 
 **Onde:** Dashboard + Pedido Rápido + Detalhes de produto
