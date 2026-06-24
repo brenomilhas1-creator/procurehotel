@@ -14,7 +14,9 @@
     "users": "Utilizadores",
     "logout": "Sair",
     "pending": "Pendentes",
-    "invoices": "Faturas"
+    "invoices": "Faturas",
+    "stock": "Stock",
+    "status": "Estado do sistema"
   },
   "auth": {
     "login": "Entrar",
@@ -23,13 +25,19 @@
     "submit": "Entrar",
     "register": "Registar primeiro admin",
     "invalid": "Credenciais inválidas",
-    "logout": "Sair"
+    "logout": "Sair",
+    "forgot": "Esqueceu a password?"
   },
   "dashboard": {
     "title": "Dashboard",
     "subtitle": "Visão geral da sua operação de procurement",
     "products": "Produtos",
-    "suppliers": "Fornecedores"
+    "suppliers": "Fornecedores",
+    "monthly": "Compras mensais",
+    "topSuppliers": "Top fornecedores",
+    "topProducts": "Top produtos por gasto",
+    "mostOrdered": "Mais comprados",
+    "stockAlert": "Stock crítico"
   },
   "order": {
     "title": "Faça o pedido aqui",
@@ -41,10 +49,23 @@
     "supplier": "Fornecedor",
     "total": "Total",
     "items": "Itens",
-    "noResults": "Sem itens para mostrar"
+    "noResults": "Sem itens para mostrar",
+    "subtitle": "Escreve em linguagem natural, ex: 10 caixas coca cola, 5kg queijo, 20kg farinha",
+    "fromCatalog": "Produto adicionado! Acrescenta mais items ou confirma o pedido abaixo.",
+    "sendTo": "Enviar para fornecedor",
+    "repeat": "Repetir",
+    "noOrders": "Sem ordens ainda.",
+    "createFirst": "Criar a primeira →"
   },
   "orders": {
-    "title": "Histórico de pedidos"
+    "title": "Histórico de pedidos",
+    "placed": "Pedido feito ✓",
+    "pending": "Pendente",
+    "copied": "Copiado!",
+    "copy": "Copiar",
+    "markPlaced": "Marcar como pedido feito",
+    "noOrders": "Sem ordens.",
+    "createFirst": "Criar a primeira →"
   },
   "products": {
     "title": "Catálogo de produtos",
@@ -54,7 +75,11 @@
     "brand": "Marca",
     "category": "Categoria",
     "unit": "Unidade",
-    "status": "Estado"
+    "status": "Estado",
+    "suppliers": "Fornecedores",
+    "lastPrice": "Último preço",
+    "order": "Pedir",
+    "ordered": "vezes pedido"
   },
   "suppliers": {
     "title": "Fornecedores",
@@ -62,7 +87,10 @@
     "search": "Pesquisar fornecedores...",
     "name": "Nome",
     "email": "Email",
-    "phone": "Telefone"
+    "phone": "Telefone",
+    "preferred": "Preferido",
+    "tax_id": "NIF",
+    "active": "Ativo"
   },
   "imports": {
     "title": "Importações de preços",
@@ -71,17 +99,26 @@
     "status": "Estado",
     "rows": "Linhas",
     "approve": "Aprovar selecionadas",
-    "ignore": "Ignorar"
+    "ignore": "Ignorar",
+    "pending": "Pendente revisão",
+    "applied": "Aplicado",
+    "rejected": "Rejeitado",
+    "noImports": "Sem importações.",
+    "uploadFirst": "Carregar lista de preços →"
   },
   "analytics": {
     "title": "Analytics & KPIs",
     "monthly": "Compras mensais",
     "topProducts": "Top produtos",
     "topSuppliers": "Fornecedores mais competitivos",
-    "savings": "Poupança estimada"
+    "savings": "Poupança estimada",
+    "last30": "Últimos 30 dias"
   },
   "admin": {
-    "title": "Painel Administrativo"
+    "title": "Painel Administrativo",
+    "users": "Utilizadores",
+    "addUser": "Adicionar utilizador",
+    "role": "Papel"
   },
   "common": {
     "save": "Guardar",
@@ -94,32 +131,95 @@
     "actions": "Ações",
     "confirm": "Confirmar",
     "language": "Idioma",
-    "theme": "Tema"
+    "theme": "Tema",
+    "yes": "Sim",
+    "no": "Não",
+    "back": "Voltar",
+    "next": "Próximo",
+    "close": "Fechar",
+    "error": "Erro",
+    "success": "Sucesso"
   },
   "catalog": {
-    "title": "Catálogo Mestre"
+    "title": "Catálogo Mestre",
+    "subtitle": "Pesquisa e filtra 587 produtos por fornecedor, categoria, preço ou popularidade",
+    "search": "Pesquisar produto, marca ou alias...",
+    "order": "Pedir",
+    "ordered": "Adicionar mais",
+    "noResults": "Nenhum produto corresponde aos filtros.",
+    "clearFilters": "Limpar filtros",
+    "noProducts": "Sem produtos.",
+    "importFirst": "Importar uma lista →",
+    "filters": "Filtros",
+    "category": "Categoria",
+    "supplier": "Fornecedor",
+    "stockStatus": "Preço",
+    "popularity": "Já pedi antes?",
+    "all": "Todos",
+    "withPrice": "Com preço",
+    "noPrice": "Sem preço",
+    "fresh": "< 90 dias",
+    "stale": "> 90 dias",
+    "neverOrdered": "Nunca"
   },
   "favorites": {
     "title": "Pedidos Rápidos"
   },
   "prices": {
-    "title": "Revisão de Preços"
+    "title": "Revisão de Preços",
+    "current": "Atual",
+    "new": "Novo",
+    "delta": "Variação",
+    "trend": "Tendência"
   },
   "health": {
-    "title": "Saúde da Base"
+    "title": "Saúde da Base",
+    "score": "Pontuação",
+    "issues": "Problemas"
   },
   "exceptions": {
-    "title": "Centro de Exceções"
+    "title": "Centro de Exceções",
+    "noPrice": "Sem preço",
+    "stalePrice": "Preço antigo",
+    "noSupplier": "Sem fornecedor"
   },
   "settings": {
     "company": "Definições da Empresa",
     "users": "Membros",
-    "audit": "Auditoria"
+    "audit": "Auditoria",
+    "preferences": "Preferências"
   },
   "pending": {
-    "title": "Pendentes de Cotação"
+    "title": "Pendentes de Cotação",
+    "noPending": "Sem pendentes.",
+    "supplier": "Fornecedor",
+    "items": "Items",
+    "total": "Total"
   },
   "invoices": {
-    "title": "Faturas Recebidas"
+    "title": "Faturas Recebidas",
+    "noInvoices": "Sem faturas.",
+    "supplier": "Fornecedor",
+    "date": "Data",
+    "total": "Total",
+    "status": "Estado",
+    "queue": "Queue de processamento",
+    "matchPct": "Match %"
+  },
+  "stock": {
+    "title": "Stock & Inventário",
+    "subtitle": "Stock atual com mínimo e ponto de encomenda",
+    "current": "Atual",
+    "min": "Mínimo",
+    "reorderPoint": "P. encomenda",
+    "unit": "Unidade",
+    "location": "Localização",
+    "critical": "Crítico",
+    "low": "Baixo",
+    "ok": "OK",
+    "unknown": "Sem config",
+    "lastCounted": "Última contagem",
+    "configure": "Configurar",
+    "saveSuccess": "Stock atualizado"
   }
 }

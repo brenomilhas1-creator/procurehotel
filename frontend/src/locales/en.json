@@ -12,9 +12,11 @@
     "orders": "Orders",
     "analytics": "Analytics",
     "users": "Users",
-    "logout": "Logout",
+    "logout": "Sign out",
     "pending": "Pending",
-    "invoices": "Invoices"
+    "invoices": "Invoices",
+    "stock": "Stock",
+    "status": "System status"
   },
   "auth": {
     "login": "Sign in",
@@ -23,16 +25,23 @@
     "submit": "Sign in",
     "register": "Register first admin",
     "invalid": "Invalid credentials",
-    "logout": "Sign out"
+    "logout": "Sign out",
+    "forgot": "Forgot password?"
   },
   "dashboard": {
     "title": "Dashboard",
     "subtitle": "Overview of your procurement operation",
     "products": "Products",
-    "suppliers": "Suppliers"
+    "suppliers": "Suppliers",
+    "monthly": "Monthly spend",
+    "topSuppliers": "Top suppliers",
+    "topProducts": "Top products by spend",
+    "mostOrdered": "Most ordered",
+    "stockAlert": "Critical stock"
   },
   "order": {
     "title": "Place an order",
+    "subtitle": "Type in natural language, e.g.: 10 boxes coca cola, 5kg cheese, 20kg flour",
     "placeholder": "Ex: 10 boxes coca cola\n5kg ham cheese\n20kg national flour",
     "parse": "Parse order",
     "optimize": "Optimize prices",
@@ -41,10 +50,22 @@
     "supplier": "Supplier",
     "total": "Total",
     "items": "Items",
-    "noResults": "No items to show"
+    "noResults": "No items to show",
+    "fromCatalog": "Product added! Add more items or confirm the order below.",
+    "sendTo": "Send to supplier",
+    "repeat": "Repeat",
+    "noOrders": "No orders yet.",
+    "createFirst": "Create the first →"
   },
   "orders": {
-    "title": "Orders history"
+    "title": "Orders history",
+    "placed": "Placed ✓",
+    "pending": "Pending",
+    "copied": "Copied!",
+    "copy": "Copy",
+    "markPlaced": "Mark as placed",
+    "noOrders": "No orders yet.",
+    "createFirst": "Create the first →"
   },
   "products": {
     "title": "Product catalog",
@@ -54,7 +75,11 @@
     "brand": "Brand",
     "category": "Category",
     "unit": "Unit",
-    "status": "Status"
+    "status": "Status",
+    "suppliers": "Suppliers",
+    "lastPrice": "Last price",
+    "order": "Order",
+    "ordered": "times ordered"
   },
   "suppliers": {
     "title": "Suppliers",
@@ -62,7 +87,10 @@
     "search": "Search suppliers...",
     "name": "Name",
     "email": "Email",
-    "phone": "Phone"
+    "phone": "Phone",
+    "preferred": "Preferred",
+    "tax_id": "Tax ID",
+    "active": "Active"
   },
   "imports": {
     "title": "Price imports",
@@ -71,22 +99,26 @@
     "status": "Status",
     "rows": "Rows",
     "approve": "Approve selected",
-    "ignore": "Ignore"
+    "ignore": "Ignore",
+    "pending": "Pending review",
+    "applied": "Applied",
+    "rejected": "Rejected",
+    "noImports": "No imports yet.",
+    "uploadFirst": "Upload a price list →"
   },
   "analytics": {
     "title": "Analytics & KPIs",
     "monthly": "Monthly spend",
     "topProducts": "Top products",
     "topSuppliers": "Most competitive suppliers",
-    "savings": "Estimated savings"
+    "savings": "Estimated savings",
+    "last30": "Last 30 days"
   },
   "admin": {
-    "title": "Admin Panel"
-  },
-  "settings": {
-    "company": "Company Settings",
-    "users": "Members",
-    "audit": "Audit"
+    "title": "Admin Panel",
+    "users": "Users",
+    "addUser": "Add user",
+    "role": "Role"
   },
   "common": {
     "save": "Save",
@@ -99,12 +131,95 @@
     "actions": "Actions",
     "confirm": "Confirm",
     "language": "Language",
-    "theme": "Theme"
+    "theme": "Theme",
+    "yes": "Yes",
+    "no": "No",
+    "back": "Back",
+    "next": "Next",
+    "close": "Close",
+    "error": "Error",
+    "success": "Success"
+  },
+  "catalog": {
+    "title": "Master Catalog",
+    "subtitle": "Search and filter 587 products by supplier, category, price or popularity",
+    "search": "Search product, brand or alias...",
+    "order": "Order",
+    "ordered": "Add more",
+    "noResults": "No products match the filters.",
+    "clearFilters": "Clear filters",
+    "noProducts": "No products yet.",
+    "importFirst": "Import a list →",
+    "filters": "Filters",
+    "category": "Category",
+    "supplier": "Supplier",
+    "stockStatus": "Price",
+    "popularity": "Ordered before?",
+    "all": "All",
+    "withPrice": "With price",
+    "noPrice": "No price",
+    "fresh": "< 90 days",
+    "stale": "> 90 days",
+    "neverOrdered": "Never"
+  },
+  "favorites": {
+    "title": "Quick Orders"
+  },
+  "prices": {
+    "title": "Price Review",
+    "current": "Current",
+    "new": "New",
+    "delta": "Change",
+    "trend": "Trend"
+  },
+  "health": {
+    "title": "Database Health",
+    "score": "Score",
+    "issues": "Issues"
+  },
+  "exceptions": {
+    "title": "Exception Center",
+    "noPrice": "No price",
+    "stalePrice": "Stale price",
+    "noSupplier": "No supplier"
+  },
+  "settings": {
+    "company": "Company Settings",
+    "users": "Members",
+    "audit": "Audit",
+    "preferences": "Preferences"
   },
   "pending": {
-    "title": "Pending Quotes"
+    "title": "Pending Quotes",
+    "noPending": "No pending quotes.",
+    "supplier": "Supplier",
+    "items": "Items",
+    "total": "Total"
   },
   "invoices": {
-    "title": "Received Invoices"
+    "title": "Received Invoices",
+    "noInvoices": "No invoices yet.",
+    "supplier": "Supplier",
+    "date": "Date",
+    "total": "Total",
+    "status": "Status",
+    "queue": "Processing queue",
+    "matchPct": "Match %"
+  },
+  "stock": {
+    "title": "Stock & Inventory",
+    "subtitle": "Current stock with min and reorder point",
+    "current": "Current",
+    "min": "Minimum",
+    "reorderPoint": "Reorder point",
+    "unit": "Unit",
+    "location": "Location",
+    "critical": "Critical",
+    "low": "Low",
+    "ok": "OK",
+    "unknown": "Not configured",
+    "lastCounted": "Last counted",
+    "configure": "Configure",
+    "saveSuccess": "Stock updated"
   }
 }
