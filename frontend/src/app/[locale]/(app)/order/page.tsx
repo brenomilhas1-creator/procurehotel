@@ -19,7 +19,7 @@ import {
 import { formatCurrency } from '@/lib/utils';
 import { useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
-import { useCart } from '@/stores/cart';
+import { useCart, useCartRecovery } from '@/stores/cart';
 
 function OrderPageInner() {
   const sp = useSearchParams();
@@ -39,11 +39,12 @@ function OrderPageInner() {
   const [autoResults, setAutoResults] = useState<{ id: string; name: string; brand: string | null; alias: string }[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Cart persistente (localStorage)
+  // Cart persistente (localStorage) + Recovery
   const cart = useCart();
   const cartItems = cart.items;
   const cartTotalItems = cart.totalItems();
   const cartTotalValue = cart.totalValue();
+  const { recover, checkRecovery } = useCartRecovery();
 
   // Sincronizar: quando items mudam (qty, add, remove), persistir no cart
   // Estratégia: o cart é a fonte da verdade. Items locais são derivados do cart + texto parseado.
@@ -351,11 +352,25 @@ function OrderPageInner() {
             )}
           </p>
         </div>
-        {hasItems && (
-          <Button variant="outline" size="sm" onClick={clearAll}>
-            <X className="h-4 w-4" /> Limpar tudo
-          </Button>
-        )}
+        <div className="flex items-center gap-2">
+          {cartTotalItems === 0 && (() => {
+            const rec = checkRecovery();
+            return rec.available ? (
+              <Button variant="outline" size="sm" onClick={() => {
+                if (recover()) {
+                  toast.success(`${rec.count} items recuperados do backup!`);
+                }
+              }} title="Recuperar items que estavam no carrinho antes de refresh">
+                <History className="h-4 w-4" /> Recuperar {rec.count} items
+              </Button>
+            ) : null;
+          })()}
+          {hasItems && (
+            <Button variant="outline" size="sm" onClick={clearAll}>
+              <X className="h-4 w-4" /> Limpar tudo
+            </Button>
+          )}
+        </div>
       </div>
 
       {err && (
