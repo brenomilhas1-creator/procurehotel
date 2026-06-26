@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useCallback } from 'react';
+import { useRealtimeRefresh } from '@/hooks/useRealtimeRefresh';
 import {
   Search, Tag, Truck, Calendar, ShoppingCart, ChevronDown, ChevronRight,
   Package, AlertCircle, Check, Plus, Filter, X, SlidersHorizontal, Star, ShoppingBag,
@@ -41,13 +42,23 @@ export default function CatalogPage() {
   const [filters, setFilters] = useState<FilterState>(EMPTY_FILTERS);
   const [showFilters, setShowFilters] = useState(true);
 
+  const reload = useCallback(() => {
+    setLoading(true);
+    getCatalog({ q, limit: 500 }).then((d) => { setData(d); setLoading(false); });
+  }, [q]);
+
   useEffect(() => {
     setLoading(true);
-    const t = setTimeout(() => {
-      getCatalog({ q, limit: 500 }).then((d) => { setData(d); setLoading(false); });
-    }, 200);
+    const t = setTimeout(reload, 200);
     return () => clearTimeout(t);
-  }, [q]);
+  }, [q, reload]);
+
+  // Auto-refresh quando há mudanças em produtos/preços (ex: upload de fatura)
+  useRealtimeRefresh({
+    tables: ['products', 'supplier_prices', 'supplier_price_history'],
+    onChange: reload,
+    debounceMs: 3000,
+  });
 
   /**
    * "Adicionar ao carrinho" — não navega. O user pode adicionar vários items

@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
+import { useRealtimeRefresh } from '@/hooks/useRealtimeRefresh';
 import { useTranslations } from 'next-intl';
 import { ShoppingCart, Package, Truck, TrendingDown, Euro, AlertCircle, Star, Heart, BarChart3, Activity, FileText, Clock } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -20,19 +21,28 @@ export default function DashboardPage() {
   const [topSuppliers, setTopSuppliers] = useState<SupplierSpend[]>([]);
   const [topProducts, setTopProducts] = useState<ProductSpend[]>([]);
 
-  useEffect(() => {
+  const refetch = useCallback(() => {
     getAnalyticsSummary().then(setKpi).catch(() => null);
     getDataHealth().then(setHealth).catch(() => null);
     getExceptions().then(setExc).catch(() => null);
     getFrequentItems(5).then(setFrequent).catch(() => null);
-    // Carregar alertas de invoices
     fetch('/api/invoices/alerts').then(r => r.ok ? r.json() : null).then(setInvoiceAlerts).catch(() => null);
     getStaleSummary().then(setStale).catch(() => null);
-    // Gráficos
     getMonthlySpend(12).then(setMonthly).catch(() => null);
     getTopSuppliersBySpend(5).then(setTopSuppliers).catch(() => null);
     getTopProductsBySpend(10).then(setTopProducts).catch(() => null);
   }, []);
+
+  useEffect(() => {
+    refetch();
+  }, [refetch]);
+
+  // Auto-refresh quando há mudanças em invoices/POs/preços
+  useRealtimeRefresh({
+    tables: ['invoices', 'invoice_lines', 'supplier_prices', 'purchase_orders'],
+    onChange: refetch,
+    debounceMs: 2000,
+  });
 
   return (
     <div className="space-y-6 animate-fade-in">
