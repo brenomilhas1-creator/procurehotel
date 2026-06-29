@@ -1,6 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import { useAsync } from '@/hooks/useAsync';
+import { log } from '@/lib/logger';
 import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -21,25 +23,19 @@ const STATUS_LABELS: Record<string, { label: string; variant: 'default' | 'secon
 
 export default function PendingPage() {
   const t = useTranslations('pending');
-  const [data, setData] = useState<PendingQuote[]>([]);
-  const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'pending' | 'quoted' | 'ordered' | 'rejected' | 'cancelled'>('pending');
   const [expandedSuppliers, setExpandedSuppliers] = useState<Record<string, boolean>>({});
-
-  async function reload() {
-    setLoading(true);
-    try {
-      const list = filter === 'all' ? await listPendingQuotes({ limit: 500 }) : await listPendingQuotes({ status: filter, limit: 500 });
-      setData(list);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  useEffect(() => { reload(); }, [filter]);
+  const quotesA = useAsync(
+    () => filter === 'all' ? listPendingQuotes({ limit: 500 }) : listPendingQuotes({ status: filter, limit: 500 }),
+    { scope: 'pending', deps: [filter], retry: false }
+  );
+  const data = quotesA.data ?? [];
+  const loading = quotesA.loading;
+  const reload = quotesA.refetch;
 
   async function markStatus(id: string, status: 'quoted' | 'ordered' | 'rejected' | 'cancelled') {
-    await updatePendingQuote(id, { status });
+    const r = await updatePendingQuote(id, { status });
+    r.ok ? log.info('pending', 'status_updated', { id, status }) : log.error('pending', 'update_failed', { error: r.error });
     await reload();
   }
 

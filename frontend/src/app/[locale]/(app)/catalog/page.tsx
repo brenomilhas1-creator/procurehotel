@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useState, useCallback } from 'react';
 import { useRealtimeRefresh } from '@/hooks/useRealtimeRefresh';
+import { useAsync } from '@/hooks/useAsync';
+import { log } from '@/lib/logger';
 import {
   Search, Tag, Truck, Calendar, ShoppingCart, ChevronDown, ChevronRight,
   Package, AlertCircle, Check, Plus, Filter, X, SlidersHorizontal, Star, ShoppingBag,
@@ -34,24 +36,24 @@ const EMPTY_FILTERS: FilterState = {
 };
 
 export default function CatalogPage() {
-  const [data, setData] = useState<CatalogProduct[]>([]);
   const [q, setQ] = useState('');
   const [expanded, setExpanded] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
   const [adding, setAdding] = useState<string | null>(null);
   const [filters, setFilters] = useState<FilterState>(EMPTY_FILTERS);
   const [showFilters, setShowFilters] = useState(true);
+  const [debouncedQ, setDebouncedQ] = useState('');
 
-  const reload = useCallback(() => {
-    setLoading(true);
-    getCatalog({ q, limit: 500 }).then((d) => { setData(d); setLoading(false); });
+  // Debounce search
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedQ(q), 200);
+    return () => clearTimeout(t);
   }, [q]);
 
-  useEffect(() => {
-    setLoading(true);
-    const t = setTimeout(reload, 200);
-    return () => clearTimeout(t);
-  }, [q, reload]);
+  const { data: products = [], loading, refetch: reload } = useAsync(
+    () => getCatalog({ q: debouncedQ, limit: 500 }),
+    { scope: 'catalog', deps: [debouncedQ], immediate: true, retry: false }
+  );
+  const data = products as CatalogProduct[];
 
   // Auto-refresh quando há mudanças em produtos/preços (ex: upload de fatura)
   useRealtimeRefresh({
@@ -87,13 +89,13 @@ export default function CatalogPage() {
   // Extrair listas únicas para os filtros (a partir dos dados carregados)
   const availableCategories = useMemo(() => {
     const set = new Set<string>();
-    data.forEach((p) => p.category && set.add(p.category));
+    (data || []).forEach((p) => p.category && set.add(p.category));
     return Array.from(set).sort();
   }, [data]);
 
   const availableSuppliers = useMemo(() => {
     const map = new Map<string, string>(); // id → name
-    data.forEach((p) => p.suppliers.forEach((s) => map.set(s.id, s.name)));
+    (data || []).forEach((p) => p.suppliers.forEach((s) => map.set(s.id, s.name)));
     return Array.from(map.entries())
       .map(([id, name]) => ({ id, name }))
       .sort((a, b) => a.name.localeCompare(b.name));
@@ -101,7 +103,7 @@ export default function CatalogPage() {
 
   // Aplicar filtros
   const filtered = useMemo(() => {
-    return data.filter((p) => {
+    return (data || []).filter((p) => {
       // Categoria (OR dentro do grupo)
       if (filters.categories.size > 0 && !filters.categories.has(p.category || '')) {
         return false;
@@ -155,7 +157,7 @@ export default function CatalogPage() {
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Catálogo Mestre</h1>
         <p className="text-sm text-muted-foreground">
-          {filtered.length} de {data.length} produtos — pesquisa, filtra e clica "Pedir" para enviar ao Pedido Rápido
+          {filtered.length} de {(data || []).length} produtos — pesquisa, filtra e clica "Pedir" para enviar ao Pedido Rápido
         </p>
       </div>
 
@@ -367,7 +369,7 @@ export default function CatalogPage() {
                 <div className="text-center py-12">
                   <Package className="h-12 w-12 mx-auto text-muted-foreground mb-2" />
                   <p className="text-sm text-muted-foreground">
-                    {data.length === 0
+                    {(data || []).length === 0
                       ? <>Sem produtos. <a href="/imports" className="underline">Importar uma lista →</a></>
                       : <>Nenhum produto corresponde aos filtros. <button onClick={() => setFilters(EMPTY_FILTERS)} className="underline">Limpar filtros</button></>
                     }

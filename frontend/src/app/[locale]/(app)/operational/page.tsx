@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import { useAsync } from '@/hooks/useAsync';
 import { TrendingUp, TrendingDown, Clock, Database, AlertCircle, Brain, Upload, Users, Activity, Sparkles, BarChart3, CheckCircle2, ArrowRight, Lightbulb, Zap } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -9,20 +10,10 @@ import { getOperationalSummary, type OperationalSummary } from '@/lib/supabase-d
 import { formatCurrency } from '@/lib/utils';
 
 export default function OperationalPage() {
-  const [s, setS] = useState<OperationalSummary | null>(null);
-  const [err, setErr] = useState<string | null>(null);
   const [days, setDays] = useState(7);
-
-  useEffect(() => {
-    setS(null);
-    setErr(null);
-    const t = setTimeout(() => {
-      getOperationalSummary(days)
-        .then((d) => { setS(d); setErr(null); })
-        .catch((e) => { setErr(String(e?.message || e)); });
-    }, 50);
-    return () => clearTimeout(t);
-  }, [days]);
+  const opA = useAsync(() => getOperationalSummary(days), { scope: 'operational', deps: [days] });
+  const s = opA.data as OperationalSummary | null;
+  const err = opA.error?.message ?? null;
 
   if (!s) {
     return (

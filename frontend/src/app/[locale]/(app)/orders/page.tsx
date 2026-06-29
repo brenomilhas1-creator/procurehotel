@@ -18,18 +18,20 @@ import {
 } from '@/lib/supabase-data';
 import { formatCurrency } from '@/lib/utils';
 import { RefreshCw, Eye, X, Copy, Check, Loader2 } from 'lucide-react';
+import { useAsync } from '@/hooks/useAsync';
+import { log } from '@/lib/logger';
+import { toast } from 'sonner';
 
 export default function OrdersPage() {
   const t = useTranslations('orders');
-  const [data, setData] = useState<Page<PurchaseOrder> | null>(null);
   const [expanded, setExpanded] = useState<string | null>(null);
   const [orderItems, setOrderItems] = useState<Record<string, PurchaseOrderItem[]>>({});
   const [copyState, setCopyState] = useState<Record<string, 'idle' | 'copied'>>({});
   const [updating, setUpdating] = useState<string | null>(null);
-
-  useEffect(() => {
-    listOrders(50).then(setData).catch(() => null);
-  }, []);
+  const { data, refetch: fetchOrders } = useAsync(
+    () => listOrders(50),
+    { scope: 'orders' }
+  );
 
   async function toggleOrder(id: string) {
     if (expanded === id) { setExpanded(null); return; }
@@ -78,17 +80,12 @@ export default function OrdersPage() {
     const result = await updateOrderStatus(order.id, newStatus);
     setUpdating(null);
     if (result.ok && data) {
-      // Atualizar localmente sem refazer fetch
-      setData({
-        ...data,
-        items: data.items.map((o: PurchaseOrder) =>
-          o.id === order.id
-            ? { ...o, status: newStatus, placed_at: newStatus === 'placed' ? new Date().toISOString() : null }
-            : o
-        ),
-      });
+      // Refetch minimal (1 fetch é mais barato que state manipulation complexa)
+      log.info('orders', 'status_updated', { id: order.id, status: newStatus });
+      fetchOrders();
     } else if (!result.ok) {
-      alert('Erro a atualizar: ' + result.error);
+      log.error('orders', 'update_failed', { error: result.error });
+      toast.error('Erro a atualizar: ' + result.error);
     }
   }
 

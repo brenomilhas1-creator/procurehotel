@@ -1,7 +1,9 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useCallback } from 'react';
 import { useRealtimeRefresh } from '@/hooks/useRealtimeRefresh';
+import { useAsync } from '@/hooks/useAsync';
+import { log } from '@/lib/logger';
 import { useTranslations } from 'next-intl';
 import { ShoppingCart, Package, Truck, TrendingDown, Euro, AlertCircle, Star, Heart, BarChart3, Activity, FileText, Clock } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,31 +13,34 @@ import { formatCurrency } from '@/lib/utils';
 
 export default function DashboardPage() {
   const t = useTranslations('dashboard');
-  const [kpi, setKpi] = useState<KpiSummary | null>(null);
-  const [health, setHealth] = useState<DataHealth | null>(null);
-  const [exc, setExc] = useState<Exceptions | null>(null);
-  const [frequent, setFrequent] = useState<FrequentItem[]>([]);
-  const [invoiceAlerts, setInvoiceAlerts] = useState<{ unmatched: number; pending: number; total: number; recent_total: number } | null>(null);
-  const [stale, setStale] = useState<StaleSummary | null>(null);
-  const [monthly, setMonthly] = useState<MonthlySpend[]>([]);
-  const [topSuppliers, setTopSuppliers] = useState<SupplierSpend[]>([]);
-  const [topProducts, setTopProducts] = useState<ProductSpend[]>([]);
+  // useAsync substitui o padrão useState + useEffect + .then().catch()
+  const kpiA = useAsync(getAnalyticsSummary, { scope: 'kpi' });
+  const healthA = useAsync(getDataHealth, { scope: 'health' });
+  const excA = useAsync(getExceptions, { scope: 'exceptions' });
+  const frequentA = useAsync(() => getFrequentItems(5), { scope: 'frequent' });
+  const alertsA = useAsync(() => fetch('/api/invoices/alerts').then(r => r.ok ? r.json() : null), { scope: 'alerts' });
+  const staleA = useAsync(getStaleSummary, { scope: 'stale' });
+  const monthlyA = useAsync(() => getMonthlySpend(12), { scope: 'monthly' });
+  const topSuppliersA = useAsync(() => getTopSuppliersBySpend(5), { scope: 'top-suppliers' });
+  const topProductsA = useAsync(() => getTopProductsBySpend(10), { scope: 'top-products' });
+  // Aliases para manter compatibilidade com JSX existente
+  const kpi = kpiA.data as KpiSummary | null;
+  const health = healthA.data as DataHealth | null;
+  const exc = excA.data as Exceptions | null;
+  const frequent = (frequentA.data as FrequentItem[]) || [];
+  const invoiceAlerts = alertsA.data as { unmatched: number; pending: number; total: number; recent_total: number } | null;
+  const stale = staleA.data as StaleSummary | null;
+  const monthly = (monthlyA.data as MonthlySpend[]) || [];
+  const topSuppliers = (topSuppliersA.data as SupplierSpend[]) || [];
+  const topProducts = (topProductsA.data as ProductSpend[]) || [];
 
   const refetch = useCallback(() => {
-    getAnalyticsSummary().then(setKpi).catch(() => null);
-    getDataHealth().then(setHealth).catch(() => null);
-    getExceptions().then(setExc).catch(() => null);
-    getFrequentItems(5).then(setFrequent).catch(() => null);
-    fetch('/api/invoices/alerts').then(r => r.ok ? r.json() : null).then(setInvoiceAlerts).catch(() => null);
-    getStaleSummary().then(setStale).catch(() => null);
-    getMonthlySpend(12).then(setMonthly).catch(() => null);
-    getTopSuppliersBySpend(5).then(setTopSuppliers).catch(() => null);
-    getTopProductsBySpend(10).then(setTopProducts).catch(() => null);
+    kpiA.refetch(); healthA.refetch(); excA.refetch();
+    frequentA.refetch(); alertsA.refetch(); staleA.refetch();
+    monthlyA.refetch(); topSuppliersA.refetch(); topProductsA.refetch();
+    log.debug('dashboard', 'refetch_all');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  useEffect(() => {
-    refetch();
-  }, [refetch]);
 
   // Auto-refresh quando há mudanças em invoices/POs/preços
   useRealtimeRefresh({

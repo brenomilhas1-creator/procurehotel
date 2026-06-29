@@ -20,15 +20,22 @@ export default function AdminPage() {
   const [alerts, setAlerts] = useState<any[]>([]);
   const [imports, setImports] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]);
-  const [refresh, setRefresh] = useState(0);
+  const [refreshTick, setRefreshTick] = useState(0);
 
   useEffect(() => {
-    getAdminDashboard().then(setDash).catch(() => null);
-    getAuditLog(20).then(setAudit).catch(() => null);
-    getPriceAlerts(5).then(setAlerts).catch(() => null);
-    listImports(10).then((d) => setImports(d.items)).catch(() => null);
-    listUsers().then(setUsers).catch(() => null);
-  }, [refresh]);
+    Promise.all([
+      getAdminDashboard().catch(() => null),
+      getAuditLog(20).catch(() => []),
+      getPriceAlerts(5).catch(() => []),
+      listImports(10).catch(() => ({ items: [] })),
+      listUsers().catch(() => []),
+    ]).then(([d, a, al, imp, u]) => {
+      setDash(d); setAudit(a); setAlerts(al);
+      setImports(imp.items || []); setUsers(u);
+    });
+  }, [refreshTick]);
+
+  const refresh = () => setRefreshTick((t) => t + 1);
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -64,7 +71,7 @@ export default function AdminPage() {
                     key={u.id}
                     user={u}
                     isMe={u.id === currentUser?.id || u.email === currentUser?.email}
-                    onChange={() => setRefresh((r) => r + 1)}
+                    onChange={() => setRefreshTick((r) => r + 1)}
                   />
                 ))}
                 {!users.length && (
@@ -76,7 +83,7 @@ export default function AdminPage() {
         </TabsContent>
 
         <TabsContent value="newlogin">
-          <NewLoginForm onCreated={() => setRefresh((r) => r + 1)} />
+          <NewLoginForm onCreated={() => setRefreshTick((r) => r + 1)} />
         </TabsContent>
 
         <TabsContent value="password">

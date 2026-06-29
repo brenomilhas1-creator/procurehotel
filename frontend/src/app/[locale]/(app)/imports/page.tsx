@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
+import { useAsync } from '@/hooks/useAsync';
 import { useTranslations } from 'next-intl';
 import { UploadCloud, Check, X, Loader2, FileText } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,19 +11,21 @@ import { getSupabase } from '@/lib/supabase';
 import * as XLSX from 'xlsx';
 
 export default function ImportsPage() {
-  const [imports, setImports] = useState<Page<ImportRow> | null>(null);
-  const [suppliers, setSuppliers] = useState<Page<Supplier> | null>(null);
   const [uploading, setUploading] = useState(false);
   const [supplierId, setSupplierId] = useState('');
   const [importType, setImportType] = useState('price_list');
   const [msg, setMsg] = useState<{ kind: 'ok' | 'err'; text: string } | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-
-  async function refresh() {
-    const [a, b] = await Promise.all([listImports(20), listSuppliers({ limit: 100 })]);
-    setImports(a); setSuppliers(b);
-  }
-  useEffect(() => { refresh().catch(() => null); }, []);
+  const refreshAsync = useAsync(
+    async () => {
+      const [a, b] = await Promise.all([listImports(20), listSuppliers({ limit: 100 })]);
+      return { imports: a, suppliers: b };
+    },
+    { scope: 'imports' }
+  );
+  const imports = refreshAsync.data?.imports ?? null;
+  const suppliers = refreshAsync.data?.suppliers ?? null;
+  const refresh = refreshAsync.refetch;
 
   async function upload() {
     const file = inputRef.current?.files?.[0];
