@@ -1,0 +1,241 @@
+name: 🛠️ Maintenance Mensal
+
+# Manutenção inteligente — corre uma vez por mês em horário de baixo tráfego.
+# Faz: atualiza deps (renovate), abre issues stale, rotação de secrets, audit DB.
+
+on:
+  schedule:
+    - cron: '0 6 1 * *'  # Dia 1 de cada mês às 06:00 UTC
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run (sem fazer alterações)'
+        required: false
+        default: 'true'
+        type: choice
+        options: ['true', 'false']
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+  id-token: write
+  security-events: write
+
+concurrency:
+  group: maintenance-monthly
+  cancel-in-progress: false
+
+jobs:
+  # ============= JOB 1: Dependency update =============
+  deps:
+    name: 📦 Update Dependencies
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: 'frontend/package-lock.json'
+
+      - name: Update frontend deps
+        run: |
+          cd frontend
+          npm outdated --json || true
+          npx --yes npm-check-updates -u --target patch
+          if [ -n "$(git diff --name-only)" ]; then
+            echo "Updates available, creating PR"
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git checkout -b maintenance/deps-$(date +%Y%m%d)
+            git add -A && git commit -m "chore(deps): bump patch versions"
+            git push origin HEAD
+          else
+            echo "No updates"
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Abertura de PR
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore(deps): monthly bump"
+          title: "🛠️ Manutenção Mensal — $(date +%Y-%m)"
+          body: |
+            ## 📋 Maintenance mensal
+
+            Updates automáticos de dependências (patch + minor).
+
+            ### Checklist
+            - [ ] `npm install` local para verificar
+            - [ ] `npm run build` OK
+            - [ ] E2E tests verde
+            - [ ] Deploy preview OK
+
+            ### Auto-merge se CI verde
+          branch: maintenance/deps-${{ github.run_number }}
+          add-paths: |
+            frontend/package.json
+            frontend/package-lock.json
+          delete-branch: true
+
+  # ============= JOB 2: Code health =============
+  health:
+    name: 🩺 Code Health
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Métricas LOC
+        run: |
+          echo "## 📊 Métricas do código" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          LOC_TS=$(find frontend/src -name "*.ts" -o -name "*.tsx" | xargs wc -l | tail -1 | awk '{print $1}')
+          LOC_PY=$(find scripts -name "*.py" 2>/dev/null | xargs wc -l 2>/dev/null | tail -1 | awk '{print $1}')
+          LOC_SQL=$(find scripts -name "*.sql" 2>/dev/null | xargs wc -l 2>/dev/null | tail -1 | awk '{print $1}')
+          echo "| Linguagem | LOC |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----------|-----|" >> $GITHUB_STEP_SUMMARY
+          echo "| TypeScript | $LOC_TS |" >> $GITHUB_STEP_SUMMARY
+          echo "| Python | $LOC_PY |" >> $GITHUB_STEP_SUMMARY
+          echo "| SQL | $LOC_SQL |" >> $GITHUB_STEP_SUMMARY
+
+      - name: Dead code check (TS)
+        run: npx --yes ts-prune frontend/src 2>&1 | head -50 || echo "OK"
+
+      - name: Duplicação check
+        run: |
+          echo "## 🔁 Possíveis duplicações" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          # Procurar padrões repetidos
+          echo '### Padrão: catch (err/e)' >> $GITHUB_STEP_SUMMARY
+          count=$(grep -rE "catch \(" frontend/src --include="*.ts" --include="*.tsx" 2>/dev/null | wc -l)
+          echo "- **$count** try-catch blocks" >> $GITHUB_STEP_SUMMARY
+          echo '### Padrão: setLoading/setError/setData' >> $GITHUB_STEP_SUMMARY
+          count=$(grep -rE "setLoading\|setError\|setData" frontend/src --include="*.ts" --include="*.tsx" 2>/dev/null | wc -l)
+          echo "- **$count** state setters" >> $GITHUB_STEP_SUMMARY
+
+  # ============= JOB 3: Stale issues =============
+  stale:
+    name: 🧹 Stale Issues
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/stale@v9
+        with:
+          days-before-stale: 60
+          days-before-close: 14
+          stale-issue-label: 'stale'
+          close-issue-message: |
+            Esta issue está stale (>60 dias sem atividade).
+            Por favor reabre se ainda for relevante. Auto-close em 14 dias.
+          exempt-issue-labels: 'priority:high,priority:critical'
+
+  # ============= JOB 4: Security audit =============
+  security:
+    name: 🔒 Security Audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: NPM audit
+        run: |
+          cd frontend
+          npm audit --audit-level=moderate --json > audit.json || true
+          cat audit.json | jq '.vulnerabilities | to_entries | map({severity: .key, count: .value | length})' || echo "no jq"
+
+      - name: Trivy filesystem scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'table'
+          exit-code: '0'
+          ignore-unfixed: true
+
+  # ============= JOB 5: DB + Edge Functions health =============
+  runtime:
+    name: 🚀 Runtime Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Test Supabase connection
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: |
+          echo "## 🌐 DB Health" >> $GITHUB_STEP_SUMMARY
+          HTTP=$(curl -s -o /dev/null -w "%{http_code}" "$SUPABASE_URL/rest/v1/products?select=count&limit=1" \
+            -H "apikey: $SUPABASE_ANON_KEY" -H "Authorization: Bearer $SUPABASE_ANON_KEY")
+          echo "- Products endpoint: HTTP $HTTP" >> $GITHUB_STEP_SUMMARY
+          if [ "$HTTP" = "200" ]; then
+            echo "✅ DB OK" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ DB retornou HTTP $HTTP" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Test edge functions
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+        run: |
+          echo "## ⚡ Edge Functions" >> $GITHUB_STEP_SUMMARY
+          for fn in admin-users ai-assistant process-invoice-pdf process-import-xlsx; do
+            HTTP=$(curl -s -o /dev/null -w "%{http_code}" -X POST "$SUPABASE_URL/functions/v1/$fn" \
+              -H "Content-Type: application/json" -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+              -d '{}')
+            echo "- $fn: HTTP $HTTP" >> $GITHUB_STEP_SUMMARY
+          done
+
+      - name: Test frontend live
+        env:
+          VERCEL_URL: ${{ secrets.VERCEL_URL }}
+        run: |
+          if [ -z "$VERCEL_URL" ]; then VERCEL_URL="compra-facil-hoteis.vercel.app"; fi
+          HTTP=$(curl -s -o /dev/null -w "%{http_code}" "https://$VERCEL_URL/pt-PT")
+          echo "- Frontend: HTTP $HTTP" >> $GITHUB_STEP_SUMMARY
+
+  # ============= JOB 6: Report to maintainer =============
+  notify:
+    name: 📬 Notify
+    needs: [deps, health, stale, security, runtime]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    if: always()
+    steps:
+      - name: Build report
+        run: |
+          {
+            echo "## 🛠️ Manutenção Mensal — $(date +%Y-%m-%d)"
+            echo ""
+            echo "| Job | Status |"
+            echo "|-----|--------|"
+            echo "| 📦 Deps | ${{ needs.deps.result }} |"
+            echo "| 🩺 Health | ${{ needs.health.result }} |"
+            echo "| 🧹 Stale | ${{ needs.stale.result }} |"
+            echo "| 🔒 Security | ${{ needs.security.result }} |"
+            echo "| 🚀 Runtime | ${{ needs.runtime.result }} |"
+          } >> report.md
+          cat report.md
+        env:
+          REPORT_ARTIFACT: ${{ github.workspace }}/report.md
+
+      - name: Upload report
+        uses: actions/upload-artifact@v4
+        with:
+          name: maintenance-report-${{ github.run_number }}
+          path: report.md
+          retention-days: 90

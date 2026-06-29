@@ -47,3 +47,11 @@ compra-facil-hoteis-v0.*.tar.gz
 .vercel
 .skills/
 attachments/*.pdf
+supabase/.temp/
+supabase/functions/**/supabase/
+.supabase/
+.mavis/
+audit/db-raw.txt
+audit/edge-raw.txt
+audit/frontend-raw.txt
+audit/stress-raw.txt
