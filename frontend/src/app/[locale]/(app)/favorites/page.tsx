@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useAsync } from '@/hooks/useAsync';
 import { Star, Plus, Trash2, Play, ShoppingCart, X, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -12,27 +13,23 @@ import { useRouter } from 'next/navigation';
 
 export default function FavoritesPage() {
   const router = useRouter();
-  const [favs, setFavs] = useState<Favorite[]>([]);
-  const [frequent, setFrequent] = useState<FrequentItem[]>([]);
-  const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
   const [newName, setNewName] = useState('');
   const [newDesc, setNewDesc] = useState('');
   const [newItems, setNewItems] = useState<Favorite['items']>([]);
-  const [products, setProducts] = useState<{ id: string; name: string }[]>([]);
   const [suggestQ, setSuggestQ] = useState('');
   const [suggestList, setSuggestList] = useState<{ id: string; name: string }[]>([]);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
-
-  async function refresh() {
-    const [f, fr, p] = await Promise.all([listFavorites(), getFrequentItems(10), getProductNamesForAutocomplete()]);
-    setFavs(f);
-    setFrequent(fr);
-    setProducts(p);
-    setLoading(false);
-  }
-  useEffect(() => { refresh().catch(() => null); }, []);
+  const dataA = useAsync(
+    () => Promise.all([listFavorites(), getFrequentItems(10), getProductNamesForAutocomplete()]),
+    { scope: 'favorites' }
+  );
+  const favs = dataA.data?.[0] ?? [];
+  const frequent = dataA.data?.[1] ?? [];
+  const products = dataA.data?.[2] ?? [];
+  const loading = dataA.loading;
+  const refresh = dataA.refetch;
 
   useEffect(() => {
     if (!suggestQ) { setSuggestList([]); return; }

@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import { useAsync } from '@/hooks/useAsync';
 import { AlertCircle, Calendar, Upload, Package, Tag, ChevronRight, Filter } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -11,13 +12,10 @@ import { formatCurrency } from '@/lib/utils';
 type Tab = 'stale' | 'no_price' | 'no_category' | 'pending_ocr' | 'pending_imports';
 
 export default function ExceptionsPage() {
-  const [data, setData] = useState<Exceptions | null>(null);
   const [tab, setTab] = useState<Tab>('stale');
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    getExceptions().then((d) => { setData(d); setLoading(false); });
-  }, []);
+  const excA = useAsync(getExceptions, { scope: 'exceptions' });
+  const data = excA.data as Exceptions | null;
+  const loading = excA.loading;
 
   if (loading || !data) {
     return <p className="text-sm text-muted-foreground text-center py-12">A carregar exceções...</p>;

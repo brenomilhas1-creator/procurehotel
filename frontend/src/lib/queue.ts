@@ -41,6 +41,7 @@ interface QueueOptions {
 const DEFAULTS: Required<QueueOptions> = {
   storageKey: 'compra-facil-queue',
   concurrency: 2,
+  // ponytail: linear-backoff base=5s, single-user fronted; upgrade to exponential+jitter when concurrent users >10
   retry_base_ms: 5000,
   max_retries: 3,
 };

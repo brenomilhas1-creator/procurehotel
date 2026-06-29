@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useAsync } from '@/hooks/useAsync';
 import { useParams, useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -51,29 +52,23 @@ export default function InvoiceDetailPage() {
   const params = useParams();
   const router = useRouter();
   const id = params.id as string;
-  const [inv, setInv] = useState<InvoiceDetail | null>(null);
-  const [lines, setLines] = useState<InvoiceLine[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    loadData();
-  }, [id]);
-
-  async function loadData() {
-    setLoading(true);
-    try {
-      // Carregar invoice
-      const invRes = await fetch(`/api/invoices/${id}`);
-      if (invRes.ok) setInv(await invRes.json());
-      // Carregar lines
-      const linesRes = await fetch(`/api/invoices/${id}/lines`);
-      if (linesRes.ok) setLines(await linesRes.json());
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoading(false);
-    }
-  }
+  const dataA = useAsync(
+    async () => {
+      const [invRes, linesRes] = await Promise.all([
+        fetch(`/api/invoices/${id}`),
+        fetch(`/api/invoices/${id}/lines`),
+      ]);
+      return {
+        inv: invRes.ok ? await invRes.json() : null,
+        lines: linesRes.ok ? await linesRes.json() : [],
+      };
+    },
+    { scope: 'invoice-detail', deps: [id], retry: false }
+  );
+  const inv = dataA.data?.inv ?? null;
+  const lines: InvoiceLine[] = (dataA.data?.lines as InvoiceLine[]) ?? [];
+  const loading = dataA.loading;
+  const loadData = dataA.refetch;
 
   async function runMatch(lineId: string) {
     const r = await fetch(`/api/invoices/lines/${lineId}/match-po`, { method: 'POST' });
@@ -81,7 +76,7 @@ export default function InvoiceDetailPage() {
   }
 
   async function matchAll() {
-    setLoading(true);
+    
     for (const l of lines) {
       if (l.product_id && !l.po_line_id && l.id) {
         await runMatch(l.id);

@@ -37,6 +37,7 @@ type Context = {
 class Logger {
   private buffer: LogEntry[] = [];
   private context: Context = {};
+  // ponytail: in-memory buffer cap=100, persists only during session; upgrade to IndexedDB for cross-session search
   private maxBuffer = 100;
 
   setContext(ctx: Partial<Context>) {

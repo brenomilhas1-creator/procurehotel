@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useState } from 'react';
+import { useAsync } from '@/hooks/useAsync';
 import { useRealtimeRefresh } from '@/hooks/useRealtimeRefresh';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
@@ -37,14 +38,12 @@ const STATUS_LABELS: Record<string, { label: string; variant: 'default' | 'secon
 export default function InvoicesPage() {
   const t = useTranslations('invoices');
   const router = useRouter();
-  const [data, setData] = useState<Invoice[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    // Por agora carrega via fetch à view; poderia ser função no supabase-data.ts
-    // Vou buscar via API simples ao backend
-    fetch('/api/invoices/summary').then(r => r.ok ? r.json() : []).then(setData).finally(() => setLoading(false));
-  }, []);
+  const summaryA = useAsync(
+    () => fetch('/api/invoices/summary').then(r => r.ok ? r.json() : []),
+    { scope: 'invoices-summary', retry: false }
+  );
+  const data: Invoice[] = (summaryA.data as Invoice[]) ?? [];
+  const loading = summaryA.loading;
 
   const totalInvoices = data.length;
   const matchedInvoices = data.filter(i => i.invoice_status === 'matched').length;
