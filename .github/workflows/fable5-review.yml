@@ -1,0 +1,92 @@
+name: 🧠 Fable 5 Code Review
+
+# Code review automatizado com Claude Fable 5 em cada PR.
+# Requer ANTHROPIC_API_KEY como secret no GitHub repo.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+    inputs:
+      path:
+        description: 'Path to review (default: auto-detect from PR diff)'
+        required: false
+        default: ''
+        type: string
+
+permissions:
+  contents: read
+  pull-requests: write
+  id-token: write
+
+concurrency:
+  group: fable5-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  review:
+    name: Fable 5 review
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get changed files
+        id: diff
+        run: |
+          if [ -n "${{ inputs.path }}" ]; then
+            echo "files=${{ inputs.path }}" >> $GITHUB_OUTPUT
+          else
+            FILES=$(git diff --name-only origin/main...HEAD | grep -E '\.(ts|tsx|sql)$' | tr '\n' ',' | sed 's/,$//')
+            echo "files=$FILES" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Claude Fable 5 Review
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          FILES="${{ steps.diff.outputs.files }}"
+          if [ -z "$FILES" ]; then
+            echo "No TS/TSX/SQL files changed, skipping"
+            exit 0
+          fi
+          
+          # Build review prompt
+          PROMPT="Review the following changed files for bugs, race conditions, security issues, and code quality. Output: file:line, severity (CRITICAL/HIGH/MEDIUM/LOW), concrete fix."
+          
+          # Call Claude API with Fable 5
+          curl -s https://api.anthropic.com/v1/messages \
+            -H "x-api-key: $ANTHROPIC_API_KEY" \
+            -H "anthropic-version: 2023-06-01" \
+            -H "content-type: application/json" \
+            -d "{
+              \"model\": \"claude-fable-5\",
+              \"max_tokens\": 4096,
+              \"system\": \"You are a senior code reviewer. Focus on correctness, security, performance, and over-engineering (YAGNI). Be terse, output JSON only.\",
+              \"messages\": [{
+                \"role\": \"user\",
+                \"content\": [{
+                  \"type\": \"text\",
+                  \"text\": \"$PROMPT\\n\\nFiles: $FILES\\n\\n$(git diff origin/main...HEAD | head -500)\"
+                }]
+              }]
+            }" > /tmp/fable5-response.json
+          
+          # Parse e posta no PR
+          REVIEW=$(cat /tmp/fable5-response.json | jq -r '.content[0].text')
+          echo "## 🧠 Claude Fable 5 Review" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "$REVIEW" >> $GITHUB_STEP_SUMMARY
+          
+          # Post como comentário no PR
+          gh pr comment ${{ github.event.pull_request.number }} \
+            --body "## 🧠 Claude Fable 5 Review\n\n$REVIEW" || true
+
+      - name: Upload review
+        uses: actions/upload-artifact@v4
+        with:
+          name: fable5-review-${{ github.run_number }}
+          path: /tmp/fable5-response.json
+          retention-days: 30
