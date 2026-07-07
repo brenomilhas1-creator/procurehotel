@@ -46,25 +46,31 @@ function OrderPageInner() {
   const cartTotalValue = cart.totalValue();
   const { recover, checkRecovery } = useCartRecovery();
 
-  // Sincronizar: quando items mudam (qty, add, remove), persistir no cart
-  // Estratégia: o cart é a fonte da verdade. Items locais são derivados do cart + texto parseado.
+  // Sincronizar: items a partir do cart (apenas 1 vez por carregamento)
+  // BUG #5 fix: dependência é cartItems.length (number), não boolean.
+  // O boolean true/false pode ter o mesmo valor entre renders consecutivos
+  // e o useEffect não dispara.
+  // Usamos um ref para garantir que só corre uma vez por mount.
+  const seedRanRef = useRef(false);
   useEffect(() => {
-    // Inicializar items a partir do cart (se houver)
+    if (seedRanRef.current) return;
     if (cartItems.length > 0 && items.length === 0 && text === '') {
-      const fakeText = cartItems.map((i) => `${i.quantity} ${i.product_name}`).join('\n');
+      seedRanRef.current = true;
+      const fakeText = cartItems.map((i) => `${i.quantity} ${i.product_name || ''}`.trim()).join('\n');
       setText(fakeText);
       const seeded: FreeTextItem[] = cartItems.map((i) => ({
-        raw_line: `${i.quantity} ${i.product_name}`,
+        raw_line: `${i.quantity} ${i.product_name || ''}`.trim(),
         product_id: i.product_id,
         product_name: i.product_name,
         quantity: i.quantity,
         unit_price: i.unit_price,
-        line_total: i.quantity * i.unit_price,
+        line_total: i.quantity * (i.unit_price || 0),
         needs_review: false,
       }));
       setItems(seeded);
     }
-  }, [cartItems.length === 0]);  // só na primeira vez
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Load suppliers
   useEffect(() => {
@@ -171,8 +177,14 @@ function OrderPageInner() {
   const grouped = useMemo(() => {
     const groups: Record<string, { supplier: Supplier; items: FreeTextItem[]; total: number }> = {};
     const noMatch: FreeTextItem[] = [];
+    const pending: FreeTextItem[] = []; // BUG #6 fix: items com needs_review vão aqui
 
     for (const it of items) {
+      // BUG #6 fix: items sem match ficam isolados (não somem, não contam para carrinho)
+      if (it.needs_review) {
+        pending.push(it);
+        continue;
+      }
       if (!it.product_id || !it.supplier_id || it.unit_price <= 0) {
         noMatch.push(it);
         continue;
@@ -183,7 +195,7 @@ function OrderPageInner() {
       groups[it.supplier_id].items.push(it);
       groups[it.supplier_id].total += it.line_total;
     }
-    return { groups, noMatch };
+    return { groups, noMatch, pending };
   }, [items, suppliers]);
 
   const grandTotal = Object.values(grouped.groups).reduce((s, g) => s + g.total, 0);
@@ -257,8 +269,41 @@ function OrderPageInner() {
     setBusy(true); setErr(null);
     try {
       const r = await parseOrderText(text);
-      setItems(r.items);
-      // Não precisamos de chamar optimizeOrder manualmente — o useEffect vai auto-otimizar
+      const newItems = r.items;
+
+      // BUG #2 fix: em vez de SUBSTITUIR, fazer MERGE com items existentes.
+      // Estratégia:
+      // 1. Match por product_id (se novo item tem product_id e já existe, soma qty)
+      // 2. Match por raw_line (se raw_line exatamente igual, soma qty)
+      // 3. Match por raw_product normalizado (se nome igual, soma qty)
+      // 4. Se não faz match, adiciona
+      const existing = [...items];
+      const merged: FreeTextItem[] = [...existing];
+      let added = 0, merged_n = 0;
+      for (const ni of newItems) {
+        if (!ni.product_id && !ni.raw_product) {
+          // sem match, sem nome — adicionar como item raw
+          merged.push(ni);
+          added++;
+          continue;
+        }
+        const idx = merged.findIndex((e) => {
+          if (e.product_id && ni.product_id && e.product_id === ni.product_id) return true;
+          if (e.raw_product && ni.raw_product && e.raw_product === ni.raw_product) return true;
+          if (e.raw_line && ni.raw_line && e.raw_line === ni.raw_line) return true;
+          return false;
+        });
+        if (idx >= 0) {
+          const e = merged[idx];
+          merged[idx] = { ...e, quantity: e.quantity + ni.quantity };
+          merged_n++;
+        } else {
+          merged.push(ni);
+          added++;
+        }
+      }
+      setItems(merged);
+      toast.success(`Parse: ${added} novos, ${merged_n} fundidos`);
     } catch (e: any) { setErr(e.message); }
     setBusy(false);
   }
@@ -338,6 +383,7 @@ function OrderPageInner() {
   const hasItems = items.length > 0;
   const hasMatchedItems = Object.keys(grouped.groups).length > 0;
   const hasNoMatch = grouped.noMatch.length > 0;
+  const hasPending = grouped.pending.length > 0;
 
   return (
     <div className="space-y-6 animate-fade-in">

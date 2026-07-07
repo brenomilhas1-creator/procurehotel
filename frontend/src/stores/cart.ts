@@ -94,6 +94,12 @@ export const useCart = create<CartState>()(
       items: [],
       last_cleared_at: null,
       addItem: (item) => {
+        // BUG #4 fix: validar product_id. Itens sem product_id (string vazia)
+        // devem ser sempre adicionados como items novos, não agrupados.
+        if (!item.product_id || item.product_id.trim() === '') {
+          set({ items: [...get().items, { ...item, added_at: Date.now() }] });
+          return;
+        }
         const existing = get().items.find((i) => i.product_id === item.product_id);
         if (existing) {
           set({

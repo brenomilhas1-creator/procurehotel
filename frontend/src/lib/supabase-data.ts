@@ -3,6 +3,8 @@
  * Tudo client-side. RLS protege acessos.
  */
 
+import { parseOrder, type AliasEntry } from './parser/orderParser';
+
 import { getSupabase } from './supabase';
 
 export interface Product {
@@ -87,15 +89,19 @@ export interface ImportRow {
 export interface FreeTextItem {
   raw_line: string;
   product_id: string | null;
-  product_name?: string;
+  product_name?: string | null;
   quantity: number;
+  unit_hint?: string | null;       // ponytail: helps UI show "5 kg" instead of just "5"
+  raw_product?: string;            // texto do produto sem qty/unit
   unit_price: number;
   line_total: number;
   needs_review: boolean;
-  matched_alias?: string;
+  matched_alias?: string | null;
+  match_score?: number;            // 0-1, <0.6 = needs_review
   supplier_id?: string | null;
   supplier_name?: string | null;
   alternatives?: SupplierPrice[];
+  parser_alternatives?: Array<{ product_id: string; product_name: string; matched_alias: string; score: number }>;  // para UI mostrar "ou se calhar é X?"
 }
 
 export interface ProductPriceOption {
@@ -410,7 +416,7 @@ export async function createOrder(payload: {
  * Parse de texto livre para itens estruturados.
  * Sem LLM: usa heurística + alias match.
  */
-export async function parseOrderText(text: string): Promise<{ items: FreeTextItem[] }> {
+export async function parseOrderText(text: string, opts: { fuzzy?: boolean; min_score?: number } = {}): Promise<{ items: FreeTextItem[] }> {
   const c = sb();
   if (!c) return { items: [] };
 
@@ -423,62 +429,41 @@ export async function parseOrderText(text: string): Promise<{ items: FreeTextIte
     .select('id, master_name, unit')
     .eq('is_active', true);
 
-  const aliasMap = new Map<string, { product_id: string; product_name: string; unit: string }>();
-  for (const a of (aliases || []) as any[]) {
-    aliasMap.set(a.alias.toLowerCase(), {
+  const aliasEntries: AliasEntry[] = ((aliases || []) as any[])
+    .filter((a: any) => a.alias && a.product_id)
+    .map((a: any) => ({
+      alias: a.alias.toLowerCase(),
       product_id: a.product_id,
-      product_name: a.products?.master_name,
-      unit: a.products?.unit,
-    });
-  }
-  for (const p of (products || []) as any[]) {
-    aliasMap.set(p.master_name.toLowerCase(), { product_id: p.id, product_name: p.master_name, unit: p.unit });
-  }
+      product_name: a.products?.master_name || '',
+      unit: a.products?.unit || '',
+    }));
+  const productEntries = ((products || []) as any[])
+    .filter((p: any) => p.id && p.master_name)
+    .map((p: any) => ({
+      id: p.id,
+      master_name: p.master_name,
+      unit: p.unit || '',
+    }));
 
-  const lines = text.split(/\n+/).map((l) => l.trim()).filter(Boolean);
-  const items: FreeTextItem[] = [];
+  // Use new parser (lib/parser/orderParser.ts)
+  const parsed = parseOrder(text, aliasEntries, productEntries, opts);
 
-  for (const line of lines) {
-    // Match "5x coca" / "5 coca" / "coca x 5" / "5 unidades coca"
-    const re = /^([0-9]+(?:[.,][0-9]+)?)\s*(?:x|un|kg|l|cl|ml)?\s*\.?\s*(.+)$/i;
-    const m = line.match(re) || line.match(/^(.+?)\s*[-–x]\s*([0-9]+(?:[.,][0-9]+)?)\s*(.*)$/i);
-    let qty = 1;
-    let rawProduct = line;
-    if (m) {
-      // Decide which side is number
-      if (/^\d/.test(m[1])) { qty = parseFloat(m[1].replace(',', '.')); rawProduct = m[2]; }
-      else { qty = parseFloat(m[2].replace(',', '.')); rawProduct = m[1]; }
-    }
-
-    // Find best match in aliases
-    const norm = rawProduct.toLowerCase().trim();
-    let match: { product_id: string; product_name: string; unit: string } | null = null;
-    let matchedAlias = '';
-    for (const [alias, info] of aliasMap.entries()) {
-      if (norm.includes(alias) || alias.includes(norm)) {
-        match = info; matchedAlias = alias; break;
-      }
-    }
-
-    items.push({
-      raw_line: line,
-      product_id: match?.product_id || null,
-      product_name: match?.product_name,
-      quantity: qty,
-      unit_price: 0,
-      line_total: 0,
-      needs_review: !match,
-      matched_alias: matchedAlias,
-    });
-  }
+  const items: FreeTextItem[] = parsed.map((p) => ({
+    raw_line: p.raw_line,
+    product_id: p.product_id,
+    product_name: p.product_name,
+    quantity: p.quantity,
+    unit_hint: p.unit_hint || undefined,
+    unit_price: 0,
+    line_total: 0,
+    needs_review: p.needs_review,
+    matched_alias: p.matched_alias,
+    match_score: p.match_score,
+    parser_alternatives: p.parser_alternatives,
+  }));
 
   return { items };
 }
-
-/**
- * Optimize: escolhe os melhores preços.
- * Recebe items parsed, devolve items com supplier e price escolhidos.
- */
 export async function optimizeOrder(items: FreeTextItem[]): Promise<{
   items: FreeTextItem[];
   bySupplier: Record<string, { items: FreeTextItem[]; total: number }>;
